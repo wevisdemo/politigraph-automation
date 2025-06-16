@@ -22,7 +22,7 @@ jobs:
         id: auth
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: "projects/353526967057/locations/global/workloadIdentityPools/politigraph-automation/providers/github"
+          workload_identity_provider: "/projects/353526967057/locations/global/workloadIdentityPools/github-action/providers/github"
           service_account: "github-action@politigraph-automation.iam.gserviceaccount.com"
 
       - name: Install dependencies
