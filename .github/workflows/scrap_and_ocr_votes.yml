@@ -34,9 +34,9 @@ jobs:
       - name: Download & Extract Thai recognition model
         run: |
             wget https://github.com/napatswift/naplog/releases/download/v0.0.1/thai-vl.tar.gz
-            mkdir -p /models
-            tar -zxvf thai-vl.tar.gz -C /models
-            chmod -R 777 /models
+            sudo mkdir -p /models
+            sudo tar -zxvf thai-vl.tar.gz -C /models
+            sudo chmod -R 777 /models
 
       - name: Show directory tree
         run: |
