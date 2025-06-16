@@ -37,10 +37,10 @@ jobs:
             tar -zxvf thai-vl.tar.gz -C /models
             chmod -R 777 /models
 
-            - name: Show directory tree
-              run: |
-                  sudo apt-get install tree
-                  tree
+      - name: Show directory tree
+        run: |
+            sudo apt-get install tree
+            tree
 
       - name: Scrap & add new VoteEvents
         run: uv run scripts/scrap_and_ocr_votes.py
@@ -53,5 +53,3 @@ jobs:
         env:
           POLITIGRAPH_SUBSCRIBTION_ENDPOINT: ${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}
           POLITIGRAPH_TOKEN: ${{ secrets.POLITIGRAPH_TOKEN }}
-
-    
