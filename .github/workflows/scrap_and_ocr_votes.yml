@@ -44,7 +44,7 @@ jobs:
             tree
 
       - name: Scrap & add new VoteEvents
-        run: uv run scripts/scrap_and_ocr_votes.py
+        run: uv run scripts/scrap_vote_events.py
         env:
           POLITIGRAPH_SUBSCRIBTION_ENDPOINT: ${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}
           POLITIGRAPH_TOKEN: ${{ secrets.POLITIGRAPH_TOKEN }}
