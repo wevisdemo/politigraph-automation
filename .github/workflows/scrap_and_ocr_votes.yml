@@ -1,6 +1,7 @@
 name: Scrap & OCR Votes Docs
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '51 23 * * SUN'  # Every day at midnight UTC
 
