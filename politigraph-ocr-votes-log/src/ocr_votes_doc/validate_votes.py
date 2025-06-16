@@ -7,7 +7,12 @@ def validate_votes(
     vote_option_column:str='ผลการลงคะแนน'
 ) -> bool:
     # จำนวนผู้เข้าร่วมประชุม
-    attendance_count = validate_data.get('จำนวนผู้เข้าร่วมประชุม', 0)
+    attendance_count = sum([
+        validate_data.get(category, 0) for category in vote_options
+    ])
+    
+    if vote_option_column not in votes_df.columns: # if the column does not exist
+        return False
     
     attended_votes_df = votes_df.loc[
         votes_df[vote_option_column] != "ลา / ขาดลงมติ"
