@@ -109,6 +109,7 @@ def main() -> None:
                     'file_path': pdf_filepath,
                     'vote_event_id': vote_event_id
                 })
+                print("Created VoteEvent with ID:", vote_event_id)
                 
             except Exception as e:
                 print(f"Error creating VoteEvent msbis_id {vote_event['msbis_id']}: {e}")
