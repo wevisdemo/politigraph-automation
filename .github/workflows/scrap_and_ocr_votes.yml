@@ -30,13 +30,16 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y poppler-utils libpoppler-cpp-dev
             curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Create temporary directory
+        run: |
+            mkdir -p /tmp/models
             
       - name: Download & Extract Thai recognition model
         run: |
             wget https://github.com/napatswift/naplog/releases/download/v0.0.1/thai-vl.tar.gz
-            sudo mkdir -p /models
-            sudo tar -zxvf thai-vl.tar.gz -C /models
-            sudo chmod -R 777 /models
+            sudo tar -zxvf thai-vl.tar.gz -C /tmp/models
+            sudo chmod -R 777 /tmp/models
 
       - name: Show directory tree
         run: |

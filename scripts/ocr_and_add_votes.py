@@ -24,7 +24,7 @@ def main() -> None:
     
     # Initialize the OCR reader
     print("Initializing OCR reader...")
-    ocr_model_dir = "models"
+    ocr_model_dir = "/tmp/models"
     assert os.path.exists(ocr_model_dir), "Please add the OCR model directory."
     reader = easyocr.Reader(['th'],
                 recog_network='thai-vl',
