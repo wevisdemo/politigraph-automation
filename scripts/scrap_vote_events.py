@@ -77,8 +77,6 @@ def main() -> None:
     # Skip the latest msbis_id
     msbis_ids = sorted([event['msbis_id'] for event in vote_event_data])
     print(f"MSBIS IDs: {msbis_ids}")
-    latest_msbis_id = msbis_ids[-1]
-    vote_event_data = [event for event in vote_event_data if event['msbis_id'] != latest_msbis_id]
     
     for vote_event in vote_event_data:
         pdf_link = vote_event.get('pdf_url', None)
