@@ -59,7 +59,10 @@ def scrap_msbis_vote_events(
                 a_element = bill_list[i].find('a')
                 if a_element and re.search("ผลการลงมติ", a_element.text):
                     pdf_sub_url = a_element["href"]
-                    pdf_link = pdf_base_url + re.sub(r".*?(?=/)", "", pdf_sub_url, 1)
+                    if pdf_sub_url.contains("msbis.parliament.go.th"): # check if it is full url
+                        pdf_link = pdf_base_url + re.sub(r".*?(?=/)", "", pdf_sub_url, 1)
+                    else:
+                        pdf_link = pdf_sub_url
                     
                     # check and get if contains multi proposer
                     left_over_txt = re.sub(r"ผลการลงมติ|\(|\)", "", a_element.text).strip()
