@@ -46,11 +46,11 @@ jobs:
       - name: Scrap & add new VoteEvents
         run: uv run scripts/scrap_vote_events.py
         env:
-          POLITIGRAPH_SUBSCRIBTION_ENDPOINT: ${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}
-          POLITIGRAPH_TOKEN: ${{ secrets.POLITIGRAPH_TOKEN }}
+          POLITIGRAPH_SUBSCRIBTION_ENDPOINT: "${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}"
+          POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
 
       - name: OCR & add new Votes log
         run: uv run scripts/ocr_and_add_votes.py
         env:
-          POLITIGRAPH_SUBSCRIBTION_ENDPOINT: ${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}
-          POLITIGRAPH_TOKEN: ${{ secrets.POLITIGRAPH_TOKEN }}
+          POLITIGRAPH_SUBSCRIBTION_ENDPOINT: "${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}"
+          POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
