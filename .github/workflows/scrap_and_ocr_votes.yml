@@ -31,8 +31,8 @@ jobs:
             sudo apt-get install -y poppler-utils libpoppler-cpp-dev
             curl -LsSf https://astral.sh/uv/install.sh | sh
             
-            - name: Download & Extract Thai recognition model
-            run: |
+      - name: Download & Extract Thai recognition model
+        run: |
             wget https://github.com/napatswift/naplog/releases/download/v0.0.1/thai-vl.tar.gz
             mkdir -p /models
             tar -zxvf thai-vl.tar.gz -C /models
