@@ -128,3 +128,6 @@ def main():
     service = build("drive", "v3", credentials=credentials)
     
     files = list_files_in_drive_folder(service, GOOGLE_DRIVE_FOLDER_ID)
+
+if __name__ == "__main__":
+    main()
