@@ -8,7 +8,7 @@ permissions:
   id-token: 'write' # Required for OIDC authentication
 
 jobs:
-  list-files:
+  crop-and-update-images:
     runs-on: ubuntu-latest
 
     env:
@@ -28,6 +28,8 @@ jobs:
       - name: Install dependencies
         run: |
             pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+            sudo apt-get update
+            sudo apt-get install -y poppler-utils libpoppler-cpp-dev
             curl -LsSf https://astral.sh/uv/install.sh | sh
 
       - name: Crop & Update Images
