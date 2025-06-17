@@ -1,6 +1,9 @@
 # /// script
 # requires-python = "==3.10.11"
 # dependencies = [
+#     "google-auth", "google-auth-oauthlib", "google-auth-httplib2", "google-api-python-client",
+#     "opencv-python",
+#     "pillow",
 #     "poliquery",
 #     "python-dotenv",
 # ]
