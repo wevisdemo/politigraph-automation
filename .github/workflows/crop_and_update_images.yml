@@ -1,4 +1,4 @@
-name: List Google Drive Files
+name: Crop & Update Images
 
 on:
   workflow_dispatch:
