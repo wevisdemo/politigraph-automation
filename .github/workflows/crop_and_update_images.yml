@@ -26,7 +26,9 @@ jobs:
           service_account: "${{ secrets.SERVICE_ACCOUNT }}"
 
       - name: Install dependencies
-        run: pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+        run: |
+            pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+            curl -LsSf https://astral.sh/uv/install.sh | sh
 
       - name: Crop & Update Images
         run: uv run scripts/crop_and_update_images.py
