@@ -117,8 +117,8 @@ def main():
     credentials, _ = default()
     service = build("drive", "v3", credentials=credentials)
     
-    subfolder_query = f"'{GOOGLE_DRIVE_FOLDER_ID}' in parents and (mimeType='application/vnd.google-apps.folder')"
-    files = query_files(service, subfolder_query)
+    _query = f"'{GOOGLE_DRIVE_FOLDER_ID}' in parents and (mimeType='application/vnd.google-apps.file')"
+    files = query_files(service, _query)
     print(f"Found {len(files)} subfolders in the Google Drive folder.")
     for f in files:
         print(f"File: {f}")
