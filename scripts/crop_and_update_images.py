@@ -24,27 +24,37 @@ import numpy as np
 from dotenv import load_dotenv
 
 
-def query_files(service, query) -> list:
-    # List for files
+def list_files_in_drive_folder(service, folder_id):
+    """Lists file names in a given Google Drive folder."""
+    query = f"'{folder_id}' in parents and trashed=false and mimeType='image/jpg'"
     files = []
-    # Get folders
     page_token = None
     while True:
-        results = service.files().list(
-            pageSize=1000,
-            q=query, 
-            fields="nextPageToken, files(id, name)",
-            pageToken=page_token
-            ).execute()
-        
-        files.extend(results.get('files', []))
-        
-        # Get the nextPageToken (if available)
-        page_token = results.get('nextPageToken', None)
-        
-        # If there is no next page, break the loop
-        if page_token is None:
-            break
+      response = (
+          service.files()
+          .list(
+              q=query,
+              spaces="drive",
+              fields="nextPageToken, files(id, name)",
+              pageToken=page_token,
+          )
+          .execute()
+      )
+      for file in response.get("files", []):
+        # Process change
+        print(f'Found file: {file.get("name")}, {file.get("id")}')
+      files.extend(response.get("files", []))
+      page_token = response.get("nextPageToken", None)
+      if page_token is None:
+        break
+    
+    if not files:
+        print("No files found in the folder.")
+    else:
+        print("Files in folder:")
+        for file in files:
+            print(f"{file['name']} (ID: {file['id']})")
+    
     return files
 
 def load_image(file_id, service):
@@ -117,9 +127,4 @@ def main():
     credentials, _ = default()
     service = build("drive", "v3", credentials=credentials)
     
-    _query = f"'{GOOGLE_DRIVE_FOLDER_ID}' in parents and (mimeType='application/vnd.google-apps.file')"
-    files = query_files(service, _query)
-    print(f"Found {len(files)} subfolders in the Google Drive folder.")
-    for f in files:
-        print(f"File: {f}")
-    
+    files = list_files_in_drive_folder(service, GOOGLE_DRIVE_FOLDER_ID)
