@@ -1,0 +1,34 @@
+name: List Google Drive Files
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: 'read'
+  id-token: 'write' # Required for OIDC authentication
+
+jobs:
+  list-files:
+    runs-on: ubuntu-latest
+
+    env:
+      MODE: "dev"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  # Setup
+
+      - name: Authenticate with Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: "${{ secrets.WORKLOAD_IDP }}"
+          service_account: "${{ secrets.SERVICE_ACCOUNT }}"
+
+      - name: Install dependencies
+        run: pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+
+      - name: Crop & Update Images
+        run: uv run scripts/crop_and_update_images.py
+        env:
+          GOOGLE_DRIVE_FOLDER_ID: "${{ secrets.DRIVE_IMAGE_FOLDER_ID }}" # Google Drive folder id
