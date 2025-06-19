@@ -26,7 +26,7 @@ from dotenv import load_dotenv
 
 def list_files_in_drive_folder(service, folder_id):
     """Lists file names in a given Google Drive folder."""
-    query = f"'{folder_id}' in parents and (mimeType='image/jpeg' or mimeType='image/png')"
+    query = f"'{folder_id}' in parents and trashed=false"
     files = []
     page_token = None
     while True:
