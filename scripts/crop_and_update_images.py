@@ -23,6 +23,12 @@ import numpy as np
 
 from dotenv import load_dotenv
 
+SCOPES = [
+    "https://www.googleapis.com/auth/drive.appdata",
+    "https://www.googleapis.com/auth/drive.appfolder"
+    "https://www.googleapis.com/auth/drive.file",
+    "https://www.googleapis.com/auth/drive.readonly",
+]
 
 def list_files_in_drive_folder(service, folder_id):
     """Lists file names in a given Google Drive folder."""
@@ -120,7 +126,7 @@ def main():
 
     GOOGLE_DRIVE_FOLDER_ID = os.getenv('GOOGLE_DRIVE_FOLDER_ID')
     
-    credentials, _ = default()
+    credentials, _ = default(scopes=SCOPES)
     service = build("drive", "v3", credentials=credentials)
     
     files = list_files_in_drive_folder(service, GOOGLE_DRIVE_FOLDER_ID)
