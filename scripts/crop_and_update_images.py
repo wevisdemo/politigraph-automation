@@ -41,6 +41,7 @@ def list_files_in_drive_folder(service, folder_id):
             )
             .execute()
         )
+        print(response)
         files.extend(response.get("files", []))
         page_token = response.get("nextPageToken", None)
         # If there is no next page, break the loop
