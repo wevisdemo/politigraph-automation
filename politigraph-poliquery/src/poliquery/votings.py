@@ -3,14 +3,9 @@ import time
 
 from gql import Client
 
-from .gql_querry_helper import *
-
-def get_latest_mbis_id(client: Client) -> int:
-    """
-    Querry Politigraph GQl database to get the lastest vote event
-    and return it's mbis id
-    """
-    return 0
+from .query_helper.votes import get_vote, add_vote
+from .query_helper.vote_events import get_vote_event_validation_data, delete_votes_in_vote_event, add_vote_event, update_vote_event
+from .query_helper.persons import agg_count_people
 
 def get_validation_data(client: Client, vote_event_id: str) -> dict:
     agg_param = {

@@ -1,7 +1,8 @@
 from gql import Client
 import re
 
-from .gql_querry_helper import get_organization, get_vote_event_msbis_id, add_vote_event
+from .query_helper.organizations import get_organization
+from .query_helper.vote_events import get_vote_event_msbis_id, add_vote_event
 
 def get_latest_parliament_number(client: Client, default:int=25) -> int:
     param = {
