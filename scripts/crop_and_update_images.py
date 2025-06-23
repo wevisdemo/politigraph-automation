@@ -29,7 +29,7 @@ SCOPES = [
 
 def list_files_in_drive_folder(service, folder_id):
     """Lists file names in a given Google Drive folder."""
-    query = f"'{folder_id}' in parents and trashed=false"
+    query = f"'{folder_id}' in parents and (mimeType='image/jpeg' or mimeType='image/png')"
     files = []
     page_token = None
     while True:
@@ -38,10 +38,11 @@ def list_files_in_drive_folder(service, folder_id):
                 q=query,
                 fields="nextPageToken, files(id, name)",
                 pageToken=page_token,
+                includeItemsFromAllDrives=True,
+                supportsAllDrives=True,
             )
             .execute()
         )
-        print(response)
         files.extend(response.get("files", []))
         page_token = response.get("nextPageToken", None)
         # If there is no next page, break the loop
