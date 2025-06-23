@@ -50,3 +50,21 @@ def agg_count_people(client: Client, params: dict):
     )
     result = client.execute(query, variable_values=params)  
     return result
+
+def update_image_url(client: Client, params: dict):
+    query = gql(
+    """
+    mutation Mutation($where: PersonWhere, $update: PersonUpdateInput) {
+        updatePeople(where: $where, update: $update) {
+            people {
+            prefix
+            firstname
+            lastname
+            image
+            }
+        }
+    }
+    """
+    )
+    result = client.execute(query, variable_values=params)  
+    return result
