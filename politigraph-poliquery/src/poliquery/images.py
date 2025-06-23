@@ -1,7 +1,7 @@
 from gql import Client
 
 from .query_helper.persons import update_image_url
-def update_politician_image_link(
+def update_politician_image_url(
     client: Client,
     firstname: str,
     lastname: str,
