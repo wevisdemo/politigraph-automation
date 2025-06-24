@@ -59,7 +59,7 @@ def list_files_in_drive_folder(service, folder_id):
     
     return files
 
-def load_image(file_id, service):
+def load_image(service, file_id):
     """Function to download an image as a PIL Image object"""
     request = service.files().get_media(fileId=file_id)
     file_data = request.execute()
