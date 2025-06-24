@@ -5,7 +5,7 @@ def update_politician_image_url(
     client: Client,
     firstname: str,
     lastname: str,
-    image_link: str
+    image_url: str
 ) -> dict:
     params = {
         "where": {
@@ -13,7 +13,7 @@ def update_politician_image_url(
             "lastname_EQ": lastname
         },
         "update": {
-            "image_SET": image_link
+            "image_SET": image_url
         }
     }
     result = update_image_url(client=client, params=params)
