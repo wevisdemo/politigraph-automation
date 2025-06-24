@@ -189,11 +189,13 @@ def main():
         POLITIGRAPH_SUBSCRIBTION_ENDPOINT,
         POLITIGRAPH_TOKEN
     )
+    import re
     for file in os.listdir(POLITICIAN_IMAGES_DIR_PATH):
         
         # Get politician first and last name from file name
-        firstname = file.split("-")[0]
-        lastname = " ".join(file.split("-")[1:])
+        name = re.sub(r"\..*$", "", file)  # Remove file extension
+        firstname = name.split("-")[0]
+        lastname = " ".join(name.split("-")[1:])
         print(f"Updating image for {firstname} {lastname}...")
         
         # Update the image URL in Politigraph
@@ -201,9 +203,9 @@ def main():
             client=apollo_client,
             firstname=firstname, 
             lastname=lastname, 
-            image_url=f"https://politigraph.org/{POLITICIAN_IMAGES_DIR_PATH}/{file}"
+            image_url=f"https://politigraph.wevis.info/assets/people/{file}"
         )
-        print(f"Updated image URL for {firstname} {lastname} to https://politigraph.org/{POLITICIAN_IMAGES_DIR_PATH}/{file}")
+        print(f"Updated image URL for {firstname} {lastname} to https://politigraph.wevis.info/assets/people/{file}")
     
 if __name__ == "__main__":
     main()
