@@ -46,7 +46,7 @@ jobs:
       - name: Upload politician images
         uses: burnett01/rsync-deployments@7.0.1
         with:
-            switches: -azvP --chown=bot:deployer --chmod=g+w
+            switches: -azvP --chown=bot:deployer --chmod=g+w --omit-dir-times
             path: tmp/cropped-politician-images/
             remote_host: ${{ secrets.SSH_HOST }}
             remote_user: bot
