@@ -52,10 +52,7 @@ def list_files_in_drive_folder(service, folder_id):
     
     if not files:
         print("No files found in the folder.")
-    else:
-        print("Files in folder:")
-        for file in files:
-            print(f"{file['name']} (ID: {file['id']})")
+        return []
     
     return files
 
