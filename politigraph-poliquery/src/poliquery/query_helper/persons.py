@@ -57,10 +57,10 @@ def update_image_url(client: Client, params: dict):
     mutation Mutation($where: PersonWhere, $update: PersonUpdateInput) {
         updatePeople(where: $where, update: $update) {
             people {
-            prefix
-            firstname
-            lastname
-            image
+                prefix
+                firstname
+                lastname
+                image
             }
         }
     }
