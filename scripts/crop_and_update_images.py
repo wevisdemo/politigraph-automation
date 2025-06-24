@@ -22,7 +22,7 @@ import cv2
 import numpy as np
 
 from dotenv import load_dotenv
-from poliquery import get_apollo_client, update_politician_image_url
+from poliquery import get_apollo_client, update_politician_image_url, update_party_logo_image_url
 
 SCOPES = [
     "https://www.googleapis.com/auth/drive.readonly",
@@ -175,6 +175,7 @@ def main():
     service = build("drive", "v3", credentials=credentials)
     
     POLITICIAN_IMAGES_DIR_PATH = "tmp/cropped-politician-images"
+    PARTY_LOGOS_DIR_PATH = "tmp/cropped-party-logos"
     
     # Read & Crop politician images from Google Drive
     print("Reading and cropping politician images from Google Drive...")
@@ -206,6 +207,33 @@ def main():
             image_url=f"https://politigraph.wevis.info/assets/people/{file}"
         )
         print(f"Updated image URL for {firstname} {lastname} to https://politigraph.wevis.info/assets/people/{file}")
+        
+    # Read & Save party logos from Google Drive
+    print("Reading and cropping party logos from Google Drive...")
+    read_and_save_images_from_drive(
+        service, 
+        PARTY_LOGOS_DRIVE_FOLDER_ID, 
+        output_dir_path=PARTY_LOGOS_DIR_PATH,
+        crop=False  # Don't crop party logos, just save them
+    )
+    # Update parties image url in Polotigraph
+    apollo_client = get_apollo_client(
+        POLITIGRAPH_SUBSCRIBTION_ENDPOINT,
+        POLITIGRAPH_TOKEN
+    )
+    for file in os.listdir(PARTY_LOGOS_DIR_PATH):
+        
+        # Get party name from file name
+        party_name = re.sub(r"\..*$", "", file)  # Remove file extension
+        print(f"Updating logo for {party_name}...")
+        
+        # Update the image URL in Politigraph
+        update_party_logo_image_url(
+            client=apollo_client,
+            party_name=party_name, 
+            image_url=f"https://politigraph.wevis.info/assets/organizations/political-parties/{file}"
+        )
+        print(f"Updated logo URL for {party_name} to https://politigraph.wevis.info/assets/organizations/political-parties/{file}")
     
 if __name__ == "__main__":
     main()
