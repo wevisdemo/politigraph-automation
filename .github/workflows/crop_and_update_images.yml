@@ -31,7 +31,21 @@ jobs:
             sudo apt-get install -y poppler-utils libpoppler-cpp-dev
             curl -LsSf https://astral.sh/uv/install.sh | sh
 
+      - name: Create temporary directory
+        run: |
+            mkdir -p /tmp
+
       - name: Crop & Update Images
         run: uv run scripts/crop_and_update_images.py
         env:
           GOOGLE_DRIVE_FOLDER_ID: "${{ secrets.DRIVE_IMAGE_FOLDER_ID }}" # Google Drive folder id
+          
+      - name: Upload politician images
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+            switches: -azvP --chown=bot:deployer --chmod=g+w
+            path: tmp/cropped-politician-images/
+            remote_host: ${{ secrets.SSH_HOST }}
+            remote_user: bot
+            remote_key: ${{ secrets.SSH_KEY }}
+            remote_path: ${{ secrets.SSH_ASSETS_PATH }}/people/
