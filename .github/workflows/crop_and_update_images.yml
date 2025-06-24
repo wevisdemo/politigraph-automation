@@ -38,8 +38,11 @@ jobs:
       - name: Crop & Update Images
         run: uv run scripts/crop_and_update_images.py
         env:
-          GOOGLE_DRIVE_FOLDER_ID: "${{ secrets.DRIVE_IMAGE_FOLDER_ID }}" # Google Drive folder id
-          
+          POLITICIAN_PHOTOS_DRIVE_FOLDER_ID: "${{ secrets.POLITICIAN_PHOTOS_DRIVE_FOLDER_ID }}" # Google Drive folder id for Politician images
+          PARTY_LOGOS_DRIVE_FOLDER_ID: "${{ secrets.PARTY_LOGOS_DRIVE_FOLDER_ID }}" # Google Drive folder id for Party logos
+          POLITIGRAPH_SUBSCRIBTION_ENDPOINT: "${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}"
+          POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
+
       - name: Upload politician images
         uses: burnett01/rsync-deployments@7.0.1
         with:
