@@ -130,7 +130,7 @@ def read_and_save_images_from_drive(
     
     files = list_files_in_drive_folder(service, drive_folder_id)
     
-    for file in files[:5]: # TODO remove this limit in production
+    for file in files:
         file_id = file['id']
         file_name = file['name']
         
