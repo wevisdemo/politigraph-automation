@@ -22,6 +22,7 @@ import cv2
 import numpy as np
 
 from dotenv import load_dotenv
+from poliquery import get_apollo_client, update_politician_image_url
 
 SCOPES = [
     "https://www.googleapis.com/auth/drive.readonly",
@@ -119,16 +120,90 @@ def crop_image(pil_img, zoom_factor=1.7):
     
     return cropped_image
 
+def read_and_save_images_from_drive(
+    service, 
+    drive_folder_id:str, 
+    output_dir_path:str="tmp/cropped-politician-images",
+    crop:bool=True
+):
+    """Crops and updates politician images in a Google Drive folder."""
+    
+    # Create output directory if it does not exist
+    os.makedirs(output_dir_path, exist_ok=True)
+    
+    files = list_files_in_drive_folder(service, drive_folder_id)
+    
+    for file in files[:5]: # TODO remove this limit in production
+        file_id = file['id']
+        file_name = file['name']
+        
+        print(f"Process file: {file_name}...")
+        
+        # Raname file to be PNG
+        import re
+        if not file_name.endswith('.webp'):
+            file_name = re.sub(r"\..*$", ".webp", file_name)
+        
+        # Check if the image is already exists
+        # This is only for local testing, not for production
+        output_file_path = os.path.join(output_dir_path, file_name)
+        if os.path.exists(output_file_path):
+            print(f"Image {file_name} already exists in {output_dir_path}, skipping cropping.")
+            continue
+        
+        # Load the image
+        image = load_image(service, file_id)
+        
+        # Crop the image
+        if crop and "cropped" not in file_name.lower():
+            image = crop_image(image)
+        image.save(output_file_path, 'webp', optimize=True, quality=90)
+        print(f"Cropped and saved image: {file_name} to {output_file_path}")
+
+
 def main():
     
     load_dotenv()  # take environment variables
 
-    GOOGLE_DRIVE_FOLDER_ID = os.getenv('GOOGLE_DRIVE_FOLDER_ID')
+    POLITICIAN_PHOTOS_DRIVE_FOLDER_ID=os.getenv('POLITICIAN_PHOTOS_DRIVE_FOLDER_ID')
+    PARTY_LOGOS_DRIVE_FOLDER_ID=os.getenv('PARTY_LOGOS_DRIVE_FOLDER_ID')
+    
+    POLITIGRAPH_SUBSCRIBTION_ENDPOINT = os.getenv("POLITIGRAPH_SUBSCRIBTION_ENDPOINT")
+    POLITIGRAPH_TOKEN = os.getenv("POLITIGRAPH_TOKEN")
     
     credentials, _ = default(scopes=SCOPES)
     service = build("drive", "v3", credentials=credentials)
     
-    files = list_files_in_drive_folder(service, GOOGLE_DRIVE_FOLDER_ID)
-
+    POLITICIAN_IMAGES_DIR_PATH = "tmp/cropped-politician-images"
+    
+    # Read & Crop politician images from Google Drive
+    print("Reading and cropping politician images from Google Drive...")
+    read_and_save_images_from_drive(
+        service, 
+        POLITICIAN_PHOTOS_DRIVE_FOLDER_ID, 
+        output_dir_path=POLITICIAN_IMAGES_DIR_PATH
+    )
+    
+    # Update politician images url in Polotigraph
+    apollo_client = get_apollo_client(
+        POLITIGRAPH_SUBSCRIBTION_ENDPOINT,
+        POLITIGRAPH_TOKEN
+    )
+    for file in os.listdir(POLITICIAN_IMAGES_DIR_PATH):
+        
+        # Get politician first and last name from file name
+        firstname = file.split("-")[0]
+        lastname = " ".join(file.split("-")[1:])
+        print(f"Updating image for {firstname} {lastname}...")
+        
+        # Update the image URL in Politigraph
+        update_politician_image_url(
+            client=apollo_client,
+            firstname=firstname, 
+            lastname=lastname, 
+            image_url=f"https://politigraph.org/{POLITICIAN_IMAGES_DIR_PATH}/{file}"
+        )
+        print(f"Updated image URL for {firstname} {lastname} to https://politigraph.org/{POLITICIAN_IMAGES_DIR_PATH}/{file}")
+    
 if __name__ == "__main__":
     main()
