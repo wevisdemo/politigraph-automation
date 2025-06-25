@@ -5,7 +5,7 @@ from gql import Client
 
 from .query_helper.votes import get_vote, add_vote
 from .query_helper.vote_events import get_vote_event_validation_data, delete_votes_in_vote_event, add_vote_event, update_vote_event
-from .query_helper.persons import agg_count_people
+from .query_helper.persons import agg_count_people, get_people_prefixes
 
 def get_validation_data(client: Client, vote_event_id: str) -> dict:
     agg_param = {
@@ -224,3 +224,11 @@ def update_vote_event_validate_data(
     
     result = update_vote_event(client=client, params=update_event_param)
     return result
+
+def get_all_prefixes(client: Client) -> List[str]:
+    """
+    Get all prefixes from the database.
+    """
+    result = get_people_prefixes(client=client)
+    prefixes = list(set([item['prefix'] for item in result['people']]))
+    return prefixes

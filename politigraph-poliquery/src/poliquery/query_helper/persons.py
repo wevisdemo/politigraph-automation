@@ -34,6 +34,19 @@ def add_person_membership(client: Client, params: dict):
     result = client.execute(query, variable_values=params)  
     return result  
 
+def get_people_prefixes(client: Client):
+    query = gql(
+    """
+    query People {
+        people {
+            prefix
+        }
+    }
+    """
+    )
+    result = client.execute(query)  
+    return result
+
 def agg_count_people(client: Client, params: dict):
     query = gql(
     """
