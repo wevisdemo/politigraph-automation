@@ -3,7 +3,7 @@ from typing import List, Dict
 import pandas as pd
 import easyocr
 
-from politigraph_votes_extractor import extract_doc_data, extract_votelog
+from politigraph_votes_extractor import extract_doc_data, extract_votelog, clean_votelog_df
 from .poliquery_helper import *
 from .validate_votes import validate_votes
 
@@ -96,6 +96,8 @@ def ocr_votes_doc(
 ) -> pd.DataFrame:
     # OCR
     votes_df = extract_votelog(pdf_file_path, reader)
+    # Clean votes df
+    votes_df = clean_votelog_df(votes_df, get_all_people_prefixes())
     
     return votes_df
 
@@ -107,6 +109,8 @@ def ocr_and_add_votes(
     # Extract votes data
     doc_data = extract_doc_data(pdf_file_path, reader)
     votes_df = extract_votelog(pdf_file_path, reader)
+    # Clean votes df
+    votes_df = clean_votelog_df(votes_df, get_all_people_prefixes())
     
     validation_data = doc_data.get('validation_data', {})
     
@@ -153,6 +157,8 @@ def ocr_and_update_votes(
 ):
     # Extract votes data
     votes_df = extract_votelog(pdf_file_path, reader)
+    # Clean votes df
+    votes_df = clean_votelog_df(votes_df, get_all_people_prefixes())
     
     update_votes_in_vote_event(
         vote_event_id=vote_event_id,

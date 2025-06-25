@@ -3,7 +3,10 @@ import time
 from dotenv import load_dotenv
 import pandas as pd
 
-from poliquery import get_apollo_client, add_vote_log, update_vote_event_validate_data, replace_vote_log, get_vote_log, get_validation_data, add_vote_logs
+from poliquery import get_apollo_client, add_vote_log,\
+    update_vote_event_validate_data, replace_vote_log,\
+    get_vote_log, get_validation_data, add_vote_logs,\
+    get_all_prefixes
 
 def add_votes_to_vote_event(
     vote_event_id: str,
@@ -111,3 +114,18 @@ def get_validation_data_from_vote_event(
     remapped_validation_data = {key_mapping[key]: value for key, value in validation_data_data.items()}
     
     return remapped_validation_data
+
+def get_all_people_prefixes() -> list:
+    """
+    Get all prefixes from the database.
+    """
+    load_dotenv()
+    
+    # Load subsribtion end point & token from env
+    SUBSCRIBTION_ENDPOINT = os.getenv('POLITIGRAPH_SUBSCRIBTION_ENDPOINT')
+    POLITIGRAPH_TOKEN = os.getenv('POLITIGRAPH_TOKEN')
+    # Get apollo client
+    apollo_client = get_apollo_client(SUBSCRIBTION_ENDPOINT, POLITIGRAPH_TOKEN)
+    
+    prefixes = get_all_prefixes(apollo_client)
+    return prefixes
