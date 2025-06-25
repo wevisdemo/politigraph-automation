@@ -198,3 +198,4 @@ cython_debug/
 models
 secret
 tmp
+scripts/_*.py
