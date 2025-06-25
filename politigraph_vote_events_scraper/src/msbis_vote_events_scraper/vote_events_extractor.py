@@ -57,7 +57,7 @@ def scrap_msbis_vote_events(
                     continue
                 
                 a_element = bill_list[i].find('a')
-                if a_element and re.search("ผลการลงมติ", a_element.text):
+                if a_element and re.search("ผลการลงมติ", a_element.text) and bill_title:
                     pdf_sub_url = a_element["href"]
                     if re.search("msbis.parliament.go.th", pdf_sub_url): # check if it is full url
                         pdf_link = pdf_base_url + re.sub(r".*?(?=/)", "", pdf_sub_url, 1)
@@ -81,6 +81,9 @@ def scrap_msbis_vote_events(
                         "pdf_file_name": pdf_file_name,
                         "include_senate": True if mid in joined_meeting_ids else False,  # default to include senate
                     })
+                    
+                    if re.search("^- \(?ผลการลงมติ\)?$", a_element.text):
+                        bill_title = None  # reset bill title if it is a single vote event
                 
         time.sleep(5) # delay to prevend Max retries exceeded
 
