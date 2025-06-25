@@ -251,7 +251,10 @@ def remove_rows_with_many_empty_values(
     rows_to_keep_mask = empty_counts_per_row <= threshold
     return df[rows_to_keep_mask]
 
-def clean_votelog_df(df_original: pd.DataFrame) -> pd.DataFrame:
+def clean_votelog_df(
+    df_original: pd.DataFrame, 
+    prefixes: list = []
+) -> pd.DataFrame:
     df = df_original.copy()
     
     # Clean numbers
@@ -264,7 +267,7 @@ def clean_votelog_df(df_original: pd.DataFrame) -> pd.DataFrame:
     df = clean_df_vote_options(df)
     
     # Clean Politician Name
-    df = clean_df_politician_name(df)
+    df = clean_df_politician_name(df, prefixes=prefixes)
     
     # Clean Political Party Name
     df = clean_df_political_party(df)
