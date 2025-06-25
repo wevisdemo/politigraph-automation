@@ -46,8 +46,5 @@ def extract_votelog(pdf_file_path: str, reader=None) -> pd.DataFrame:
             ignore_index=True
         )
         
-    # Clean text in DataFrame
-    votes_df = clean_votelog_df(votes_df)
-        
     return votes_df
         
