@@ -102,6 +102,7 @@ def clean_df_vote_options(
 
 def clean_df_politician_name(
     df_original: pd.DataFrame,
+    prefixes: list = []
 ):
     df = df_original.copy()
     
@@ -112,7 +113,7 @@ def clean_df_politician_name(
     
     # Remove name prefix
     # TODO change from hardcode to load name_prefix from somewhere else
-    name_prefix = [
+    name_prefixes = [
         "นาย", "นาง", "นางสาว",  
 
         "ดร.", "ศาสตราจารย์", "ศาสตราจารย์ ดร.", "ศ.ดร.",
@@ -200,9 +201,10 @@ def clean_df_politician_name(
         "ว่าที่ ร.ต.ท.", "ว่าที่ ร.ต.ท.หญิง",
         "ว่าที่ ร.ต.ต.", "ว่าที่ ร.ต.ต.หญิง",
     ]
+    name_prefixes.extend(prefixes)  # Add any additional prefixes from the input
     df['ชื่อ - สกุล'] = df['ชื่อ - สกุล'].apply(
         lambda name: min(
-            [re.sub(r"^" + prefix, "", name).strip() for prefix in name_prefix],
+            [re.sub(r"^" + prefix, "", name).strip() for prefix in name_prefixes],
             key=len
         )
     )
