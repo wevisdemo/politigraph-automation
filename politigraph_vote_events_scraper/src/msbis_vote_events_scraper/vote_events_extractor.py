@@ -3,7 +3,7 @@ import re
 from bs4 import BeautifulSoup
 
 from .msbis_web_scraper import scrap_meeting_ids, request_meeting_detail
-from .text_helper import decode_thai_date, clean_bill_title, clean_event_type
+from .text_helper import extract_date_string, decode_thai_date, clean_bill_title, clean_event_type
 
 def scrap_msbis_vote_events(
     parliament_num: int,
@@ -31,9 +31,8 @@ def scrap_msbis_vote_events(
             bill_list = soup.find('tr', {'id': "mydetail_o"}).find_all('li')
             
             # get date
-            date_string = soup.find('strong').decode_contents()
-            date_string = re.sub(r".*(?<=วัน).*?ที่", "", date_string)
-            date_string = re.match(r".*?(?=เวลา)", date_string).group(0)
+            raw_date_string = soup.find('strong').decode_contents()
+            date_string = extract_date_string(raw_date_string)
             vote_date = decode_thai_date(date_string.strip())
             
             # check & skip if not bill with event
