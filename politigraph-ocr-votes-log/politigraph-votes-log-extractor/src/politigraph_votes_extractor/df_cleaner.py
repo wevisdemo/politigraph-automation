@@ -115,6 +115,7 @@ def clean_df_politician_name(
     # TODO change from hardcode to load name_prefix from somewhere else
     name_prefixes = [
         "นาย", "นาง", "นางสาว",  
+        "ไนาย", # handle specific error in senate docs
 
         "ดร.", "ศาสตราจารย์", "ศาสตราจารย์ ดร.", "ศ.ดร.",
         "รองศาสตราจารย์", "รศ.", "ผู้ช่วยศาสตราจารย์", "ผศ.",
