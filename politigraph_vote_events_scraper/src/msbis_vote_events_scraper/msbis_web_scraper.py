@@ -10,7 +10,8 @@ from bs4 import BeautifulSoup
 def request_meeting_records(
     parliament_number, 
     year, 
-    session_txt, 
+    session_txt,
+    page=1, 
     msbis_url:str='https://msbis.parliament.go.th/ewtadmin/ewt/parliament_report/main_warehouse_list_test_sql.php'
 ):
     params = {
@@ -18,6 +19,7 @@ def request_meeting_records(
         "level": 5,
         "yearno": parliament_number,
         "year": year,
+        "offset": (page - 1) * 20,  # Assuming 20 records per page
         "session_name": urllib.parse.quote_plus(session_txt, encoding='tis-620')
     }
     break_i = 0
@@ -36,6 +38,7 @@ def request_joint_meeting_records(
     year, 
     session_txt, 
     level=5,
+    page=1,
     msbis_url:str='https://msbis.parliament.go.th/ewtadmin/ewt/parliament_report/main_warehouse_list_test_sql.php'
 ):
     params = {
@@ -43,6 +46,7 @@ def request_joint_meeting_records(
         "level": level,
         "yearno": 1,
         "year": year,
+        "offset": (page - 1) * 20,  # Assuming 20 records per page
         "session_name": urllib.parse.quote_plus(session_txt, encoding='tis-620')
     }
     break_i = 0
@@ -67,6 +71,20 @@ def request_meeting_detail(
 
     response = requests.get(meeting_detail_url, params=params)
     return response
+
+def get_pagination_number(soup):
+    pagination = None
+    for td in reversed(soup.find_all('td')): # reverse to iterate from bottom to top
+        if re.search("หน้าที่", td.text):
+            pagination = td
+            break
+    if not pagination:
+        return 1
+    pages = pagination.find_all("a")
+    if not pages:
+        return 1
+    print(f"found {len(pages)} pages")
+    return len(pages)
 
 def scrap_votings_id(soup):
   votings_ids = []
@@ -103,7 +121,14 @@ def scrap_meeting_ids(parliament_number, latest_id):
                 session_response = request_meeting_records(parliament_number, year, parliament_session)
                 
                 soup = BeautifulSoup(BeautifulSoup(session_response.content, "html.parser").decode(), "html.parser")
-                record_ids = scrap_votings_id(soup=soup)
+                # Check pagination
+                pagination_number = get_pagination_number(soup)
+                # Get votings ids
+                record_ids = []
+                for page in range(1, pagination_number + 1):
+                    session_response = request_meeting_records(parliament_number, year, parliament_session, page)
+                    soup = BeautifulSoup(BeautifulSoup(session_response.content, "html.parser").decode(), "html.parser")
+                    record_ids.extend(scrap_votings_id(soup=soup))
                 if len(record_ids) == 0:
                     continue
                 
@@ -128,7 +153,14 @@ def scrap_meeting_ids(parliament_number, latest_id):
             main_session_txt = "ข้อมูลการประชุมร่วมกันของรัฐสภา"
             main_session_response = request_joint_meeting_records(year, main_session_txt, level=3)
             soup = BeautifulSoup(BeautifulSoup(main_session_response.content, "html.parser").decode(), "html.parser")
-            joint_meet_sestion = scrap_sestion_text(soup)
+            # Check pagination
+            pagination_number = get_pagination_number(soup)
+            # Get votings ids
+            joint_meet_sestion = []
+            for page in range(1, pagination_number + 1):
+                main_session_response = request_joint_meeting_records(year, main_session_txt, level=3, page=page)
+                soup = BeautifulSoup(BeautifulSoup(main_session_response.content, "html.parser").decode(), "html.parser")
+                joint_meet_sestion.extend(scrap_sestion_text(soup))
             time.sleep(5)
             
             print(f"session in txt of joint meeting\n{joint_meet_sestion}\n")
