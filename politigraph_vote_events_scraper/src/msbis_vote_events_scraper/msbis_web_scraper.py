@@ -75,7 +75,7 @@ def request_meeting_detail(
 def get_pagination_number(soup):
     pagination = None
     for td in reversed(soup.find_all('td')): # reverse to iterate from bottom to top
-        if re.search("หน้าที่", td.text):
+        if re.search("^หน้าที่", td.text):
             pagination = td
             break
     if not pagination:
