@@ -50,6 +50,10 @@ def scrap_msbis_vote_events(
 
                 elif "วาระ" in str(bill_list[i]) and bill_title:
                     vote_event_type = clean_event_type(str(bill_list[i]))
+                    
+                elif "เป็นผู้เสนอ" in str(bill_list[i]) and bill_title:
+                    # update full bill title with proposer
+                    full_bill_title = bill_title + " " + clean_bill_title(str(bill_list[i]))
                 
                 # Check if it is MP vote event
                 if vote_event_type is None:  # skip when it is not MP vote event
@@ -80,6 +84,11 @@ def scrap_msbis_vote_events(
                         "pdf_file_name": pdf_file_name,
                         "include_senate": True if mid in joined_meeting_ids else False,  # default to include senate
                     })
+                    
+                    if "ผู้เสนอ" in full_bill_title:
+                        # DO NOT reset bill title if it is a multiple vote event
+                        print(f"found multiple vote event: {full_bill_title}")
+                        continue
                     
                     if re.search("^- \(?ผลการลงมติ\)?$", a_element.text):
                         bill_title = None  # reset bill title if it is a single vote event
