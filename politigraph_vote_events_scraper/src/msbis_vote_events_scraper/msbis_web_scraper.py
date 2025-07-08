@@ -107,7 +107,12 @@ def scrap_sestion_text(soup):
             session_texts.append(session.strip())
     return session_texts
 
-def scrap_meeting_ids(parliament_number, latest_id):
+def scrap_meeting_ids(
+    parliament_number, 
+    latest_id, 
+    start_year:int=None,
+    stop_year:int=None
+):
     
     meeting_id_list = []
     joined_meeting_id_list = []
@@ -144,10 +149,17 @@ def scrap_meeting_ids(parliament_number, latest_id):
     meeting_id_list = get_meeting_ids()
     
     # ประชุมร่วม
+    # Setup start and stop year
+    if start_year is None:
+        from datetime import datetime
+        start_year = datetime.now().year # start from current year
+        start_year += 543 # convert to Buddhist Era (BE)
+    if stop_year is None:
+        stop_year = start_year - 4 # scrape back 4 years
+        
     def get_joint_meeting_ids():
         _meeting_id_list=[]
-        current_year = 2568  # TODO replace with logic
-        for year in range(current_year, current_year-4, -1): # count down from current year
+        for year in range(start_year, stop_year, -1): # count down from current year
             
             # get sestion text
             main_session_txt = "ข้อมูลการประชุมร่วมกันของรัฐสภา"

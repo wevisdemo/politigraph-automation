@@ -8,12 +8,19 @@ from .text_helper import extract_date_string, decode_thai_date, clean_bill_title
 def scrap_msbis_vote_events(
     parliament_num: int,
     latest_id: int=0,
+    start_year: int=None,
+    stop_year: int=None,
     pdf_base_url: str='https://msbis.parliament.go.th/ewtadmin/ewt',
 ):
     # TODO get latest meeting id from politigraph database
     latest_id = latest_id
     
-    hos_meeting_ids, joined_meeting_ids = scrap_meeting_ids(parliament_num, latest_id)
+    hos_meeting_ids, joined_meeting_ids = scrap_meeting_ids(
+        parliament_num, 
+        latest_id,
+        start_year=start_year,
+        stop_year=stop_year
+    )
     ids_to_check = hos_meeting_ids + joined_meeting_ids  # combine both lists
 
     vote_events_info = [] # store file information for OCR in next step
