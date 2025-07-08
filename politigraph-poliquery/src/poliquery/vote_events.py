@@ -77,12 +77,17 @@ def create_vote_event(client: Client, parliament_num: int, vote_event_info: dict
     
     # add connect to house of representative
     org_connect_params = [{
-            "where": {
-              "node": {
-                "id_EQ": parliament_org_name
-              }
+        "where": {
+            "node": {
+                "classification_EQ": "HOUSE_OF_REPRESENTATIVE",
+                "founding_date_LTE": start_date,
+                "OR": [
+                    {"dissolution_date_GTE": start_date},
+                    {"dissolution_date_EQ": None},
+                ]
             }
-          }]
+        }
+    }]
     
     if event_type:
         create_vote_param["classification"] = event_type
@@ -93,14 +98,14 @@ def create_vote_event(client: Client, parliament_num: int, vote_event_info: dict
         if include_senate:
             org_connect_params.append({
                 "where": {
-                "node": {
-                    "classification_EQ": "HOUSE_OF_SENATE",
-                    "founding_date_LTE": start_date,
-                    "OR": [
-                        {"dissolution_date_GTE": start_date},
-                        {"dissolution_date_EQ": None},
-                    ]
-                }
+                    "node": {
+                        "classification_EQ": "HOUSE_OF_SENATE",
+                        "founding_date_LTE": start_date,
+                        "OR": [
+                            {"dissolution_date_GTE": start_date},
+                            {"dissolution_date_EQ": None},
+                        ]
+                    }
                 }
             })
         
