@@ -57,9 +57,17 @@ def scrap_msbis_vote_events(
 
                 elif "วาระ" in str(bill_list[i]) and bill_title:
                     vote_event_type = clean_event_type(str(bill_list[i]))
+                # Reset vote_event_type if it is not MP vote event
+                elif "มาตรา" in str(bill_list[i]) and bill_title:
+                    vote_event_type = 'ETC'
+                    full_bill_title = bill_title + " " + clean_bill_title(str(bill_list[i]))
                     
                 if "เป็นผู้เสนอ" in str(bill_list[i]) and bill_title:
                     # update full bill title with proposer
+                    full_bill_title = bill_title + " " + clean_bill_title(str(bill_list[i]))
+                    
+                if "ข้อสังเกต" in str(bill_list[i]) and bill_title:
+                    vote_event_type = 'ETC'
                     full_bill_title = bill_title + " " + clean_bill_title(str(bill_list[i]))
                 
                 # Check if it is MP vote event
