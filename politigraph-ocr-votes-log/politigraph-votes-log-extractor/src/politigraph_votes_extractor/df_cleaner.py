@@ -90,12 +90,24 @@ def clean_df_vote_options(
         lambda x: "-" if len(x) < 5 else x
     )
     # Clean typo
+    def clean_vote_option_typo(text: str) -> str:
+        if text == "-":
+            return "-"
+        correct_text = correct_typo(text, vote_options_texts, similarity_threshold=80)
+        if correct_text in vote_options_texts:
+            return correct_text
+        # if not corrected, try to replace some common typos characters
+        replacements = {
+            r"ท": "ห",
+            r"ด้าย": "ด้วย"
+        }
+        for typo, correct in replacements.items():
+            text = re.sub(typo, correct, text)
+        return correct_typo(text, vote_options_texts, similarity_threshold=80)
+        
+    df['ผลการลงคะแนน'] = df['ผลการลงคะแนน'].apply(clean_vote_option_typo)
     df['ผลการลงคะแนน'] = df['ผลการลงคะแนน'].apply(
-        lambda x: "ลา / ขาดลงมติ" if x == "-" else correct_typo(
-            x, 
-            vote_options_texts,
-            similarity_threshold=80
-        )
+        lambda x: "ลา / ขาดลงมติ" if x == "-" else x
     )
     
     return df
