@@ -51,7 +51,9 @@ def create_vote_event(client: Client, parliament_num: int, vote_event_info: dict
     parliament_org_name = "สภาผู้แทนราษฎร-" + str(parliament_num)
     source_url = f"https://msbis.parliament.go.th/ewtadmin/ewt/parliament_report/main_warehouse.php?m_id={msbis_id}#detail"
     base_pdf_url = "https://msbis.parliament.go.th/ewtadmin/ewt"
-    pdf_url = base_pdf_url + re.sub(r"^.*?(?=\/)", "", pdf_sub_url)
+    pdf_url = pdf_sub_url
+    if "msbis.parliament.go.th" not in pdf_sub_url:
+        pdf_url = base_pdf_url + re.sub(r"^.*?(?=\/)", "", pdf_sub_url)
     
     create_vote_param = {
         "title": bill_title, 
