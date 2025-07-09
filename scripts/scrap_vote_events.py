@@ -56,6 +56,9 @@ def main() -> None:
         parliament_num=latest_parliament_num, 
         latest_id=latest_msbis_id
     )
+    vote_event_data = [
+        event for event in vote_event_data if event['classification'] != 'ETC'
+    ]
     # Convert date in data to string format
     for event in vote_event_data:
         event['start_date'] = event['vote_date'].strftime('%Y-%m-%d')
