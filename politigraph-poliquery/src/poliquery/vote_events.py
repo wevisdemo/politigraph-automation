@@ -58,7 +58,7 @@ def create_vote_event(client: Client, parliament_num: int, vote_event_info: dict
     create_vote_param = {
         "title": bill_title, 
         "msbis_id": msbis_id, 
-        "publish_status": "PUBLISHED", 
+        "publish_status": "ERROR", 
         "links": {
             "create": [
                 {
