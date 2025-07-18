@@ -114,7 +114,11 @@ def merge_overlapping_intervals(intervals):
     # Convert inner lists back to tuples if desired for the output format
     return [tuple(interval) for interval in merged_intervals]
 
-def normalize_table_bbox(rows_bbox: list, y_padding:int=5) -> List[Tuple]:
+def normalize_table_bbox(
+    rows_bbox: list, 
+    y_padding:int=5,
+    last_row_threshold:float=0.3
+) -> List[Tuple]:
     
     # Get x y range from every bbox
     x_intervals = []
@@ -127,10 +131,17 @@ def normalize_table_bbox(rows_bbox: list, y_padding:int=5) -> List[Tuple]:
     assert len(columns_range) == 5, f"Expected range to be 5 got: {len(columns_range)}"
     
     normalized_rows_bbox = []
-    for row in rows_bbox:
+    for index, row in enumerate(rows_bbox):
         # print(row)
         min_y = min([bb[1] for bb in row])
         max_y = max([bb[3] for bb in row])
+        # If the last row is significantly larger than previous row
+        # then it is row with signature signed
+        if index == len(rows_bbox)-1: # last row
+            prev_row_height = normalized_rows_bbox[-1][0][3] - normalized_rows_bbox[-1][0][1]
+            last_row_height = max_y - min_y
+            if (last_row_height-prev_row_height) > (prev_row_height*last_row_threshold):
+                max_y = min_y + (prev_row_height-(y_padding*2))
         normalized_rows_bbox.append(
             [(_x[0], min_y-y_padding, _x[1]+5, max_y+y_padding) for _x in columns_range]
         )
