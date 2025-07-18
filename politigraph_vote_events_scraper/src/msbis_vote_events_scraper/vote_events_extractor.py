@@ -52,7 +52,7 @@ def extract_vote_event(msbis_id:int) -> list:
         # get date
         raw_date_string = soup.find('strong').decode_contents()
         date_string = extract_date_string(raw_date_string)
-        vote_date = str(decode_thai_date(date_string.strip()))
+        vote_date = decode_thai_date(date_string.strip())
         
         bill_list = soup.find('tr', {'id': "mydetail_o"}).find_all('li')
         
