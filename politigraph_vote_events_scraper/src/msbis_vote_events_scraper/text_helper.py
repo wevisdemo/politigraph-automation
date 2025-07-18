@@ -69,9 +69,10 @@ def clean_bill_title(html_str) -> str:
     
 def clean_event_type(html_str) -> str:
     
-    if not re.search("วาระ", html_str):
-        return ""
-    event_type = thai_to_arabic_digit(re.search("วาระ.+?(?=<)", html_str).group(0))
+    if not re.search(r"วาระ", html_str):
+        return None
+    print(html_str)
+    event_type = thai_to_arabic_digit(html_str)
     
     if re.search("วาระ", event_type) and re.search("1", event_type):
         return "MP_1"

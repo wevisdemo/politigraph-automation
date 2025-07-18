@@ -1,1 +1,1 @@
-from .vote_events_extractor import *
+from .vote_events_extractor import scrap_msbis_vote_events, extract_vote_event
