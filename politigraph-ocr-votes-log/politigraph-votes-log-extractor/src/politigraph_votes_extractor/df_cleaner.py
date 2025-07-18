@@ -215,6 +215,10 @@ def clean_df_politician_name(
         "ว่าที่ ร.ต.ต.", "ว่าที่ ร.ต.ต.หญิง",
     ]
     name_prefixes.extend(prefixes)  # Add any additional prefixes from the input
+    df['ชื่อ - สกุล'] = df['ชื่อ - สกุล'].apply(lambda name: re.sub(r"^วาที่", "ว่าที่", name)) # handle specific case of ว่าที่..
+    df['ชื่อ - สกุล'] = df['ชื่อ - สกุล'].apply(
+        lambda name: re.sub(r"^ผูชวยศาสตราจารย", "ผู้ช่วยศาสตราจารย์", name)
+    ) # handle specific case of ว่าที่..
     df['ชื่อ - สกุล'] = df['ชื่อ - สกุล'].apply(
         lambda name: min(
             [re.sub(r"^" + prefix, "", name).strip() for prefix in name_prefixes],

@@ -4,8 +4,8 @@ version = "0.1.0"
 dependencies = [
     "requests", "pandas", "numpy", 
     "opencv_python", "pdf2image", "Pillow",
-    "rapidfuzz==3.13.0",
-    "easyocr"
+    "rapidfuzz==3.13.0", "python-Levenshtein",
+    "easyocr", "poliquery", "gql==3.5.0"
 ]
 
 [build-system]

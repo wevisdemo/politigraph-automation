@@ -1,9 +1,10 @@
 import os
 import requests
 from io import StringIO
-
+from gql import gql
 import pandas as pd
 from dotenv import load_dotenv
+from poliquery import get_apollo_client
 
 def get_sheet_data(sheet_name):
     
@@ -22,15 +23,29 @@ def get_sheet_data(sheet_name):
     return df
 
 def get_politician_names() -> list:
-    # TODO get data from Politigraph first and fallback to Google Sheet
     
-    # clean politician names
-    politician_df = get_sheet_data("Politicians")
-    if politician_df is None:
-        return []
-
-    # TODO add prefix
-    politician_names = politician_df.apply(lambda row: " ".join([row["firstname"], row["lastname"]]), axis=1)
+    load_dotenv()
+    
+    # Load subsribtion end point & token from env
+    SUBSCRIBTION_ENDPOINT = os.getenv('POLITIGRAPH_SUBSCRIBTION_ENDPOINT')
+    POLITIGRAPH_TOKEN = os.getenv('POLITIGRAPH_TOKEN')
+    # Get apollo client
+    apollo_client = get_apollo_client(SUBSCRIBTION_ENDPOINT, POLITIGRAPH_TOKEN)
+    
+    query = gql(
+    """
+    query Query {
+        people {
+            firstname
+            lastname
+        }
+    }
+    """
+    )
+    result = apollo_client.execute(query)  
+    politician_names = [
+        p['firstname'] + " " + p['lastname'] for p in result['people']
+    ]
     return politician_names
 
 # TODO change to Politigraph Database
