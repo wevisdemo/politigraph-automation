@@ -48,6 +48,28 @@ def get_politician_names() -> list:
     ]
     return politician_names
 
+def get_politician_prefixes() -> list:
+    
+    load_dotenv()
+    
+    # Load subsribtion end point & token from env
+    SUBSCRIBTION_ENDPOINT = os.getenv('POLITIGRAPH_SUBSCRIBTION_ENDPOINT')
+    POLITIGRAPH_TOKEN = os.getenv('POLITIGRAPH_TOKEN')
+    # Get apollo client
+    apollo_client = get_apollo_client(SUBSCRIBTION_ENDPOINT, POLITIGRAPH_TOKEN)
+    
+    query = gql(
+    """
+    query Query {
+        people {
+            prefix
+        }
+    }
+    """
+    )
+    result = apollo_client.execute(query)  
+    return [p['prefix'] for p in result['people']]
+
 # TODO change to Politigraph Database
 def get_politocal_party_names() -> list:
     # TODO get data from Politigraph first and fallback to Google Sheet

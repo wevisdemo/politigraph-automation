@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 from .typo_cleaner import correct_typo
-from .politigraph_data_loader import get_politician_names, get_politocal_party_names
+from .politigraph_data_loader import get_politician_names, get_politocal_party_names, get_politician_prefixes
 
 def merged_double_rows_name(
     df_original: pd.DataFrame,
@@ -214,11 +214,17 @@ def clean_df_politician_name(
         "ว่าที่ ร.ต.ท.", "ว่าที่ ร.ต.ท.หญิง",
         "ว่าที่ ร.ต.ต.", "ว่าที่ ร.ต.ต.หญิง",
     ]
-    name_prefixes.extend(prefixes)  # Add any additional prefixes from the input
-    df['ชื่อ - สกุล'] = df['ชื่อ - สกุล'].apply(lambda name: re.sub(r"^วาที่", "ว่าที่", name)) # handle specific case of ว่าที่..
-    df['ชื่อ - สกุล'] = df['ชื่อ - สกุล'].apply(
-        lambda name: re.sub(r"^ผูชวยศาสตราจารย", "ผู้ช่วยศาสตราจารย์", name)
-    ) # handle specific case of ว่าที่..
+    name_prefixes.extend(get_politician_prefixes())  # Add any additional prefixes from the input
+    perfix_pattern = {
+        "ว่าที่": r"^วาที่", # handle specific case of ว่าที่..
+        "ผู้ช่วยศาสตราจารย์": r"^ผูชวยศาสตราจารย"
+    }
+    def clean_prefixes_typo(name):
+        new_name = name
+        for correct_prefix, pattern in perfix_pattern.items():
+            new_name = re.sub(pattern, correct_prefix, new_name)
+        return new_name
+    df['ชื่อ - สกุล'] = df['ชื่อ - สกุล'].apply(clean_prefixes_typo) # clean prefix typo
     df['ชื่อ - สกุล'] = df['ชื่อ - สกุล'].apply(
         lambda name: min(
             [re.sub(r"^" + prefix, "", name).strip() for prefix in name_prefixes],
@@ -270,7 +276,6 @@ def remove_rows_with_many_empty_values(
 
 def clean_votelog_df(
     df_original: pd.DataFrame, 
-    prefixes: list = []
 ) -> pd.DataFrame:
     df = df_original.copy()
     
@@ -284,7 +289,7 @@ def clean_votelog_df(
     df = clean_df_vote_options(df)
     
     # Clean Politician Name
-    df = clean_df_politician_name(df, prefixes=prefixes)
+    df = clean_df_politician_name(df)
     
     # Clean Political Party Name
     df = clean_df_political_party(df)

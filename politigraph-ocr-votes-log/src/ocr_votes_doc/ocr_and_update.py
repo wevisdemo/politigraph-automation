@@ -97,7 +97,7 @@ def ocr_votes_doc(
     # OCR
     votes_df = extract_votelog(pdf_file_path, reader)
     # Clean votes df
-    votes_df = clean_votelog_df(votes_df, get_all_people_prefixes())
+    votes_df = clean_votelog_df(votes_df)
     
     return votes_df
 
@@ -110,7 +110,7 @@ def ocr_and_add_votes(
     doc_data = extract_doc_data(pdf_file_path, reader)
     votes_df = extract_votelog(pdf_file_path, reader)
     # Clean votes df
-    votes_df = clean_votelog_df(votes_df, get_all_people_prefixes())
+    votes_df = clean_votelog_df(votes_df)
     
     validation_data = doc_data.get('validation_data', {})
     
@@ -158,7 +158,7 @@ def ocr_and_update_votes(
     # Extract votes data
     votes_df = extract_votelog(pdf_file_path, reader)
     # Clean votes df
-    votes_df = clean_votelog_df(votes_df, get_all_people_prefixes())
+    votes_df = clean_votelog_df(votes_df)
     
     update_votes_in_vote_event(
         vote_event_id=vote_event_id,
