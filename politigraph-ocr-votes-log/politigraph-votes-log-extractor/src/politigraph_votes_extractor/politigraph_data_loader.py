@@ -68,7 +68,7 @@ def get_politician_prefixes() -> list:
     """
     )
     result = apollo_client.execute(query)  
-    return [p['prefix'] for p in result['people']]
+    return list(set([p['prefix'] for p in result['people']]))
 
 # TODO change to Politigraph Database
 def get_politocal_party_names() -> list:
