@@ -298,3 +298,16 @@ def clean_votelog_df(
     df = remove_rows_with_many_empty_values(df)
     
     return df
+
+def clean_extra_votes_df(
+    df_original: pd.DataFrame, 
+) -> pd.DataFrame:
+    df = df_original.copy()
+    
+    # Clean vote options
+    df = clean_df_vote_options(df)
+    
+    # Clean Politician Name
+    df = clean_df_politician_name(df)
+    
+    return df

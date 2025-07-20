@@ -1,3 +1,4 @@
 from .votes_extractor import extract_votelog
+from .extra_votes_extractor import extract_extra_votes
 from .validate_data_extractor import extract_doc_data
-from .df_cleaner import clean_votelog_df
+from .df_cleaner import clean_votelog_df, clean_extra_votes_df
