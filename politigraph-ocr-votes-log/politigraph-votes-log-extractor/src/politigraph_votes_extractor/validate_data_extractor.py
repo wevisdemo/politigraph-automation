@@ -6,7 +6,7 @@ import numpy.typing as npt
 from pdf2image import convert_from_path
 
 from .bbox_helper import convert_rect_to_bbox, detect_text_bbox, group_bboxs_into_rows, filter_border_bboxes
-from .image_processing import dilate_image_vertical
+from .image_processing import dilate_image_vertical, process_to_gray_scale
 from .table_detector import detect_blocks
 from .typo_cleaner import correct_typo
 
@@ -23,91 +23,91 @@ def get_page_header_fallback(image: Image):
     
     _, y1, _, _ = biggest_bbox
     return Image.fromarray(img[0:y1, :])
-    
-def get_page_header(image: Image):
-    
-    img = np.array(image)
-    h, w, _ = img.shape
-    cropped_img = img[:, w//2:w]
-    cropped_image = Image.fromarray(cropped_img)
-    
-    # Detect and filter text bboxes
-    detected_bbox = detect_text_bbox(cropped_image)
-    detected_bbox = [bbox for bbox in detected_bbox if bbox[3] - bbox[1] > 40]
-    detected_bbox = filter_border_bboxes(detected_bbox, h, w, threshold=15)
-    
-    # Get only bbox with x1 > w/2
-    h, w, _ = cropped_img.shape
-    detected_bbox = [bbox for bbox in detected_bbox if bbox[0] > w//2]
-    
-    if not detected_bbox:
-        return get_page_header_fallback(image)
-    
-    # Get the first bbox
-    _, y1, _, _ = sorted(detected_bbox, key=lambda bb: bb[1])[0]
-    
-    return Image.fromarray(
-        img[0:y1, :]
-    )
 
-def detect_validate_table(image: Image):
-    dialated = dilate_image_vertical(image)
+############################ NEW DETECTOR ############################
+
+def dilate_text(image:Image, ksize=(20, 5)):
+    gray_im = process_to_gray_scale(image)
+    gray_im = np.array(gray_im)
+    
+    blured = cv2.GaussianBlur(gray_im, (9, 9), 0)
+    th, threshed = cv2.threshold(
+        blured, 200, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
+    
+    erode = cv2.erode(threshed, np.ones((5,5), np.uint8), iterations=1)
+    
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, ksize=ksize)
+
+    threshed = cv2.dilate(erode, kernel)
+    dilated = cv2.dilate(threshed, kernel)
+    
+    return dilated
+
+def detect_bbox(dilated:npt.ArrayLike):
     contours, hier = cv2.findContours(
-        dialated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+            dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
     rects = [cv2.boundingRect(c) for c in contours]
-    return [convert_rect_to_bbox(r) for r in rects]
+    # Filter out small text rects
+    rects = [r for r in rects if r[3] > 20]
+    
+    bboxs = [convert_rect_to_bbox(r) for r in rects]
+    return bboxs
 
-def get_validate_tables(image: Image):
+def detect_rows_border(image:Image, padding:int=15) -> list:
+    w, _ = image.size
+    dilated = dilate_text(image, ksize=(w, 5))
     
-    header_image = get_page_header(image)
-    header_img = np.array(header_image)
-    _, w, _ = header_img.shape
-    
-    v_tables = detect_validate_table(header_image)
-    # Sort out any small detected tables
-    v_tables = [bb for bb in v_tables if bb[2]-bb[0] > 200]
-    v_tables.sort(
-        key=lambda bb: (w-bb[0], bb[2]-bb[0]),
-        reverse=True
-    )
-    
-    validate_tables = []
-    for table_bbox in v_tables:
-        x1, y1, x2, y2 = table_bbox
-        validate_tables.append(
-            Image.fromarray(header_img[y1:y2, x1:x2])
-        )
-    
-    return validate_tables
+    rows_borders = detect_bbox(dilated)
+    # Sort from top to bottom (y1)
+    rows_borders.sort(key=lambda bb: bb[1])
+    rows_borders = [(bb[0], bb[1]-padding, bb[2], bb[3]+padding) for bb in rows_borders]
+    return rows_borders
 
-def extract_info_text(
-    image: Image, 
-    reader=None
-):
-    bboxes = detect_text_bbox(
-        image,
-        # small_dilate_kernel=(12, 12)
-    )
-    bboxes = [bb for bb in bboxes if bb[3]-bb[1] > 30] # Filter out small bboxes
+def crop_half_page(image:Image, crop_margin:int=25):
+    w, h = image.size
+    return image.crop((w//2, crop_margin, w-crop_margin, h-crop_margin))
+
+def extract_page_header(image:Image) -> Image:
+    half_page = crop_half_page(image)
+    _, h = half_page.size
     
-    img = np.array(image)
+    rows_borders = detect_rows_border(half_page)
     
-    rows = group_bboxs_into_rows(bboxes)
-    result_text = ""
-    for row in rows:
-        for bbox in row:
+    # Go through rows until find one start before half of te width
+    crop_y2_position = h//2
+    for row_border in rows_borders:
+        row_image = half_page.crop(row_border)
+        _row_bboxes = detect_bbox(dilate_text(row_image, ksize=(25, row_image.size[1])))
+        _row_bboxes.sort(key=lambda bb: bb[0]) # sort with x1
+
+        _x1_fisrt_row = _row_bboxes[0][0] # x1 of bbox 1
+        # If start of the box is start after half of row
+        if _x1_fisrt_row > row_border[2]//2:
+            crop_y2_position = row_border[1]
+            break
+        
+    return image.crop((0, 0, image.size[0], crop_y2_position + 25))
+
+def read_text_in_image(image:Image, reader=None) -> list:
+    rows_border = detect_rows_border(image)
+    rows_border.sort(key=lambda bb: bb[1])
+    
+    texts = ""
+    for row_bd in rows_border:
+        row_image = image.crop(row_bd)
+        row_img = np.array(row_image)
+        text_bbox = detect_bbox(dilate_text(row_image, ksize=(25, row_image.size[1])))
+        text_bbox.sort(key=lambda bb: bb[0])
+        for bbox in text_bbox:
             _x1, _y1, _x2, _y2 = bbox
-            _text = reader.recognize(
-                img[_y1-5:_y2+5, _x1:_x2]
-            )[0][1]
-            result_text += _text + "    "
-        result_text += "\n"
+            texts += reader.recognize(
+                            row_img[_y1:_y2, _x1:_x2]
+                        )[0][1] # ocr text from textbox
+            texts += "\t"
+        texts += "\n"
     
-    return result_text
-
-def extract_date_from_text(validate_data_text):
-    # TODO extract date from text
-    return ""
+    return texts
 
 def extract_max_number(text):
     number_str = re.findall(r"\d{1,}", text)
@@ -158,92 +158,46 @@ def extract_validation_data(
         validate_data[validate_key] = extract_max_number(validate_line)
     
     return validate_data
-
-def extract_bill_data(name_info_text):
     
-    # Check if วาระ is present in table, if not: wrong table
-    if not re.search(r"วาระ.*\d{1}", name_info_text):
-        return {
-            'bill_title': re.sub("\n", " ", name_info_text).strip(),
-            'vote_event_type': "อื่นๆ"
-        }
-    
-    # Extract vote type
-    vote_type = re.search(r"วาระ.*\d{1}", name_info_text).group(0)
-    bill_name = re.search(r"(.|\n)*(?=วาระ)", name_info_text).group(0)
-    
-    vote_type = re.sub(
-        r"([\u0E00-\u0E7F])(\d)", 
-        r"\1 \2",
-        vote_type
-    )
-    
-    bill_name = re.sub(r"(\n|\t)", " ", bill_name).strip()
-    bill_name = re.sub(r"\s{1,}", " ", bill_name)
-    
-    return {
-        'bill_title': bill_name,
-        'vote_event_type': vote_type
-    }
-
 def get_doc_data(
     image: Image, 
     reader=None,
     correct_validate_key: list=["จำนวนผู้เข้าร่วมประชุม", "เห็นด้วย", "ไม่เห็นด้วย", "งดออกเสียง", "ไม่ลงคะแนนเสียง"]
-):
+) -> dict:
     
-    # Detect validate table
-    detected_validation_tables = get_validate_tables(image)
-    if len(detected_validation_tables) == 1:
-        print("Warning: Detected only 1 info group!!")
-        # If found just one table use both to find validate
-        _tab = detected_validation_tables[0]
-        detected_validation_tables = [_tab, _tab]
-    elif len(detected_validation_tables) > 2:
-        print("Warning: Detected more than 2 info groups!!") # proceed as usual
-    elif len(detected_validation_tables) < 2:
-        print("Warning: No table detected!!") # proceed as usual
-        return {
-            'bill_title': "",
-            'vote_event_type': "",
-            'date': "",
-            'validation_data': {
-                _key:-1 for _key in correct_validate_key
-            }
-        }
+    assert reader, "OCR Reader Not Found!!"
     
-    # First table contain validate data
-    validation_table_image = detected_validation_tables[0]
-    # Second table contain name and vote_type
-    name_info_table_image = detected_validation_tables[1]
+    # Extract page header
+    header_image = extract_page_header(image)
+    w, h = header_image.size
     
-    validation_text = extract_info_text(validation_table_image, reader=reader)
-    name_info_text = extract_info_text(name_info_table_image, reader=reader)
+    # Split into validate side & title info type
+    group_bboxes = detect_bbox(dilate_text(header_image, ksize=(40, h)))
+    # Filter small bbox out
+    group_bboxes = [bb for bb in group_bboxes if bb[2]-bb[0] > w*0.20]
+    group_bboxes.sort(key=lambda bb: bb[0])
     
-    # Clean special characters
-    name_info_text = re.sub(r"[^\u0E00-\u0E7F\s\.\d\(\)\/]", "", name_info_text)
+    # Get validate data
+    validate_table_bbox = group_bboxes[0]
+    validate_table_image = header_image.crop(validate_table_bbox)
     
-    # Extract Validate Data
+    validation_text = read_text_in_image(validate_table_image, reader=reader)
+    # validation_text = re.sub(r"\s+", " ", validation_text)
     validation_data = extract_validation_data(
         validation_text,
-        correct_keyword=correct_validate_key
+        correct_validate_key
     )
+    # Check if it need to extract extra votes
+    had_extra_vote = False
+    if re.search(r"\d+\s+?\+\s+?\d+", validation_text):
+        had_extra_vote = True
     
-    # Extract Bill Data(name, vote_type)
-    bill_data = extract_bill_data(name_info_text)
-    
-    # Extract Date
-    date = extract_date_from_text(validation_text)
-    
-    # print(validation_data)
-    # print(bill_data)
-    # print(date)
-    
-    doc_data = bill_data
-    doc_data['date'] = date
+    doc_data = {} # TODO change to bill data
+    doc_data['date'] = None
     doc_data['validation_data'] = validation_data
+    doc_data['had_extra_votes'] = had_extra_vote
     return doc_data
-    
+
 def extract_doc_data(pdf_file_path: str, reader=None) -> dict:
     assert reader, "OCR Reader Not Found!!"
     
@@ -251,6 +205,8 @@ def extract_doc_data(pdf_file_path: str, reader=None) -> dict:
     print(f"Extract validate data from {pdf_file_path}...")
     
     doc_data = get_doc_data(pdf_image, reader=reader)
+    
+    print(doc_data)
     
     return doc_data
     
