@@ -183,6 +183,19 @@ def ocr_and_update_votes(
         time_delay=0.2
     )
     
+    validation_data = doc_data.get('validation_data', {})
+    publish_status = "PUBLISHED" if validate_votes(
+        votes_df, validation_data
+    ) else "ERROR"
+    
+    update_validate_data(
+        vote_event_id=vote_event_id,
+        validation_data=validation_data,
+        publish_status=publish_status
+    )
+    
+    # re_validate_vote_event(vote_event_id)
+    
     return votes_df
     
 def add_votes_with_csv(
