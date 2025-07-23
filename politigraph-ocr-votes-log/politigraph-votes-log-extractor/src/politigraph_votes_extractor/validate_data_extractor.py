@@ -26,7 +26,7 @@ def get_page_header_fallback(image: Image):
 
 ############################ NEW DETECTOR ############################
 
-def dilate_text(image:Image, ksize=(20, 5)):
+def dilate_text(image:Image, ksize=(20, 5), erode_k=(5,5)):
     gray_im = process_to_gray_scale(image)
     gray_im = np.array(gray_im)
     
@@ -34,7 +34,7 @@ def dilate_text(image:Image, ksize=(20, 5)):
     th, threshed = cv2.threshold(
         blured, 200, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
     
-    erode = cv2.erode(threshed, np.ones((5,5), np.uint8), iterations=1)
+    erode = cv2.erode(threshed, np.ones(erode_k, np.uint8), iterations=1)
     
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, ksize=ksize)
 
@@ -97,7 +97,7 @@ def read_text_in_image(image:Image, reader=None) -> list:
     for row_bd in rows_border:
         row_image = image.crop(row_bd)
         row_img = np.array(row_image)
-        text_bbox = detect_bbox(dilate_text(row_image, ksize=(25, row_image.size[1])))
+        text_bbox = detect_bbox(dilate_text(row_image, ksize=(25, row_image.size[1]), erode_k=(2, 2)))
         text_bbox.sort(key=lambda bb: bb[0])
         for bbox in text_bbox:
             _x1, _y1, _x2, _y2 = bbox
