@@ -3,7 +3,7 @@ import time
 
 from gql import Client
 
-from .query_helper.votes import get_vote, add_vote
+from .query_helper.votes import get_vote, add_vote, update_vote
 from .query_helper.vote_events import get_vote_event_validation_data, delete_votes_in_vote_event, add_vote_event, update_vote_event
 from .query_helper.persons import agg_count_people, get_people_prefixes
 
@@ -232,3 +232,19 @@ def get_all_prefixes(client: Client) -> List[str]:
     result = get_people_prefixes(client=client)
     prefixes = list(set([item['prefix'] for item in result['people']]))
     return prefixes
+
+def update_vote_option(
+    client: Client,
+    vote_id: str,
+    vote_option: str
+):
+    update_vote_param = {
+        "where": {
+            "id_EQ": vote_id
+        },
+        "update": {
+            "option_SET": vote_option
+        }
+    }
+    
+    result = update_vote(client=client, params=update_vote_param)

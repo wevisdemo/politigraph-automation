@@ -37,3 +37,21 @@ def add_vote(client: Client, params: dict):
     )
     result = client.execute(query, variable_values=params)  
     return result 
+
+def update_vote(client: Client, params: dict):
+    query = gql(
+    """
+    mutation Mutation($where: VoteWhere, $update: VoteUpdateInput) {
+        updateVotes(where: $where, update: $update) {
+            info {
+            nodesCreated
+            nodesDeleted
+            relationshipsCreated
+            relationshipsDeleted
+            }
+        }
+    }
+    """
+    )
+    result = client.execute(query, variable_values=params)  
+    return result 
