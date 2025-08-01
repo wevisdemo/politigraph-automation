@@ -148,14 +148,6 @@ def extract_vote_event_data(
         else:
             event["classification"] = "ETC"  
                       
-    # TODO remove
-    for event in vote_events:
-        print(event)
-        # print(event['title'])
-        # print(event['classification'])
-        # print(event['note'])
-        # print(event['pdf_url'])
-        print("-----\n")
     return vote_events
 
 def is_element_vote_log(element) -> bool:
