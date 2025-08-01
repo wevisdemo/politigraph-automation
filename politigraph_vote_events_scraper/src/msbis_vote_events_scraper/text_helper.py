@@ -67,15 +67,18 @@ def clean_bill_title(html_str) -> str:
         bill_title = ""
     return bill_title
     
-def clean_event_type(html_str) -> str:
+def clean_event_type(
+    html_str,
+    event_type_pattern: dict = {
+        'MP_1': r"วาระ.{,3}\s?1",
+        'MP_3': r"วาระ.{,3}\s?3",
+    }
+) -> str:
     
-    if not re.search(r"วาระ", html_str):
-        return None
-    print(html_str)
     event_type = thai_to_arabic_digit(html_str)
     
-    if re.search("วาระ", event_type) and re.search("1", event_type):
-        return "MP_1"
-    if re.search("วาระ", event_type) and re.search("3", event_type):
-        return "MP_3"
+    for event_classification, pattern in event_type_pattern.items():
+        if re.search(pattern, event_type):
+            return event_classification
+    print(html_str)
     return None
