@@ -140,9 +140,10 @@ def extract_vote_event_data(
             # Pull previous title as title
             event["title"] = vote_events[index - 1]["title"] if index > 0 else None
         
-        # Add classification
+        # Add classification & Clean title if voteEvent is a bill
         classification = clean_event_type(event["event_type"])
         if classification:
+            event['title'] = clean_bill_title(event['title'])
             event["classification"] = classification
         else:
             event["classification"] = "ETC"  
