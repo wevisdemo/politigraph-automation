@@ -76,6 +76,7 @@ def clean_event_type(
 ) -> str:
     
     event_type = thai_to_arabic_digit(html_str)
+    event_type = re.sub("\s+", " ", event_type)
     
     for event_classification, pattern in event_type_pattern.items():
         if re.search(pattern, event_type):

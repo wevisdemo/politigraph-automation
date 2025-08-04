@@ -34,11 +34,16 @@ def scrap_msbis_vote_events(
             vote_events_info.append(event)
         time.sleep(5) # delay to prevent Max retries exceeded
         
-    # Normalize pdf urls
+    # Clean & Normalize data
     for event in vote_events_info:
+        # Normalize pdf urls
         if event["pdf_url"] and not re.search("msbis.parliament.go.th", event["pdf_url"]):
             # If the pdf url is not full url, add base url
             event["pdf_url"] = re.sub(r"^\.\.", pdf_base_url, event["pdf_url"])
+            
+        # Add classification to title
+        if not re.search(event['event_type'], event['title']):
+            event['title'] += " " + event['event_type']
         
     return vote_events_info
 
@@ -128,11 +133,12 @@ def extract_vote_event_data(
         "ข้อสังเกต",
         "การใช้ร่าง.*เป็นหลักในการพิจารณา",
         "ข้อ \d+",
+        "บัญชี"
     ]
     for index, event in enumerate(vote_events):
         if re.search(
-            r"^(" + "|".join(classification_patttern) + ")", 
-            event["title"]
+            r"^(\-\s)?(" + "|".join(classification_patttern) + ")", 
+            event["title"].strip()
         ):
             # If title starts with classification, move it to classification
             event["note"] = event["event_type"]
