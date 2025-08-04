@@ -61,10 +61,10 @@ def decode_thai_date(date_text):
 
 def clean_bill_title(html_str) -> str:
     try:
-        bill_title = re.search(r"(?<=<b>).*?(?=<)", html_str).group(0)
+        bill_title = re.search(r"ร่าง.*?(?=<|$)", html_str).group(0)
         bill_title = re.sub("\n", "", bill_title)
     except:
-        bill_title = ""
+        bill_title = html_str
     return bill_title
     
 def clean_event_type(
