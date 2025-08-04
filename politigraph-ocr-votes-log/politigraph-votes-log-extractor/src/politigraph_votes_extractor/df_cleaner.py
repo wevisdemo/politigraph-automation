@@ -99,7 +99,8 @@ def clean_df_vote_options(
         # if not corrected, try to replace some common typos characters
         replacements = {
             r"ท": "ห",
-            r"ด้าย": "ด้วย"
+            r"ด้าย": "ด้วย",
+            r"(?<=น)ด(้)?าย": "ด้วย",
         }
         for typo, correct in replacements.items():
             text = re.sub(typo, correct, text)
