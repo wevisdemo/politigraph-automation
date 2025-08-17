@@ -47,6 +47,21 @@ def get_people_prefixes(client: Client):
     result = client.execute(query)  
     return result
 
+def get_people_names(client: Client, params: dict):
+    query = gql(
+    """
+    query Query {
+        people {
+            name
+            firstname
+            lastname
+        }
+    }
+    """
+    )
+    result = client.execute(query, variable_values=params)  
+    return result
+
 def agg_count_people(client: Client, params: dict):
     query = gql(
     """

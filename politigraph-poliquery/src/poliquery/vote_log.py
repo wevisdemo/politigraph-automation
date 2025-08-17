@@ -5,7 +5,7 @@ from gql import Client
 
 from .query_helper.votes import get_vote, add_vote, update_vote
 from .query_helper.vote_events import get_vote_event_validation_data, delete_votes_in_vote_event, add_vote_event, update_vote_event
-from .query_helper.persons import agg_count_people, get_people_prefixes
+from .query_helper.persons import agg_count_people, get_people_prefixes, get_people_names
 
 def get_validation_data(client: Client, vote_event_id: str) -> dict:
     agg_param = {
@@ -42,7 +42,12 @@ def get_vote_log(client: Client, vote_event_id: str):
     agg_result = get_vote(client=client, params=agg_param)
     return agg_result["votes"]
     
-def add_vote_log(client: Client, vote_event_id: str, vote_info: dict):
+def add_vote_log(
+    client: Client, 
+    vote_event_id: str, 
+    vote_info: dict, 
+    people_name_index:dict
+):
     order = str(vote_info.get("ลําดับที่", "0")) 
     badge_number = str(vote_info.get("เลขที่บัตร", "x")) 
     name = vote_info.get("ชื่อ - สกุล", "") 
@@ -71,31 +76,26 @@ def add_vote_log(client: Client, vote_event_id: str, vote_info: dict):
             ]
         }
     
-    # querry to count politician with matched name
-    print(order, name, option)  # TODO remove this
-    name_partitioned = name.partition(" ")
-    firstname = name_partitioned[0]
-    lastname = name_partitioned[-1]
-    people_count = count_people(
-        client=client,
-        firstname=firstname,
-        lastname=lastname
-    )
-    
-    # TODO handle more than 1 people with this name
-    if people_count > 0:  # add connection to person
-        vote_param["voters"] = {
-            "connect": [
-                {
-                    "where": {
-                        "node": {
-                            "firstname_EQ": firstname,
-                            "lastname_EQ": lastname
-                        }
+    # Check if Person exist & add connection
+    name_data = people_name_index.get(name) if people_name_index else None
+    if name_data:
+        firstname = name_data['firstname']
+        lastname = name_data['lastname']
+    else:
+        firstname, _, lastname = name.partition(" ")
+        
+    vote_param["voters"] = {
+        "connect": [
+            {
+                "where": {
+                    "node": {
+                        "firstname_EQ": firstname,
+                        "lastname_EQ": lastname
                     }
                 }
-            ]
-        }
+            }
+        ]
+    }
         
     add_vote_param = {"input": [vote_param]}
     result = add_vote(client=client, params=add_vote_param)
@@ -173,7 +173,13 @@ def add_vote_logs(client: Client, vote_event_id: str, vote_logs: list):
     )
 
 
-def replace_vote_log(client:Client, vote_event_id:str, votes:List[Dict], time_delay:float=0.1):
+def replace_vote_log(
+    client:Client,
+    vote_event_id:str,
+    votes:List[Dict],
+    people_name_index:dict,
+    time_delay:float=0.1
+):
     # Delete Votes in VoteEvent
     param = {
         "where": {
@@ -188,7 +194,8 @@ def replace_vote_log(client:Client, vote_event_id:str, votes:List[Dict], time_de
         add_vote_log(
             client=client, 
             vote_event_id=vote_event_id,
-            vote_info=vote
+            vote_info=vote,
+            people_name_index=people_name_index
         )
         time.sleep(time_delay)
         
@@ -248,3 +255,22 @@ def update_vote_option(
     }
     
     result = update_vote(client=client, params=update_vote_param)
+    
+def get_people_name_data(client: Client, vote_event_id: str):
+    
+    get_names_param = {
+        "where": {
+            "memberships_SOME": {
+                "posts_SOME": {
+                    "organizations_SOME": {
+                        "events_SOME": {
+                            "id_EQ": vote_event_id
+                        }
+                    }
+                }
+            }
+        }
+    }
+    result = get_people_names(client, get_names_param)
+    return result["people"]
+    
