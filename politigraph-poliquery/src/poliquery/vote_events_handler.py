@@ -1,58 +1,67 @@
-from gql import Client
 import re
+import asyncio
 
-from .query_helper.organizations import get_organization
-from .query_helper.vote_events import get_vote_event_msbis_id, add_vote_event
+from .apollo_connector import get_apollo_client
+from .query_helper.organizations import get_organizations
+from .query_helper.vote_events import get_vote_events, create_vote_event
 
-def get_latest_parliament_number(client: Client, default:int=25) -> int:
+def get_latest_parliament_term(default:int=25) -> int:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    # Get latest parliament term
     param = {
         "where": {
             "classification_EQ": "HOUSE_OF_REPRESENTATIVE",
             "dissolution_date_EQ": None
-        }
+        },
+        "sort": [{"founding_date": "DESC"}]
     }
-    result = get_organization(client=client, params=param)
-    organizations = result["organizations"]
+    organizations = asyncio.run(get_organizations(
+        client=apollo_client, 
+        fields=['term'],
+        params=param
+    ))
     if not organizations:
         return default
     
-    parliament_num = organizations[0]["term"]
-    return parliament_num if parliament_num else default
+    return organizations[0]["term"]
 
-def get_latest_msbis_id(client: Client, default:int=0) -> int:
+def get_latest_msbis_id(default:int=0) -> int:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
     param = {
-        "sort": [
-            {
-                "msbis_id": "DESC"
-            }
-        ],
-        "where": {
-            "msbis_id_GT": 0
-        },
+        "sort": [{ "msbis_id": "DESC" }],
+        "where": {"msbis_id_GT": 0},
         "limit": 1
     }
-    result = get_vote_event_msbis_id(client=client, params=param)
-    if not result["voteEvents"]:
+    result = asyncio.run(get_vote_events(client=apollo_client, fields=['msbis_id'], params=param))
+    if not result:
         return default
-    latest_msbis_id = result["voteEvents"][0]["msbis_id"]
+    latest_msbis_id = result[0]["msbis_id"]
     return latest_msbis_id if latest_msbis_id else default
 
-def create_vote_event(client: Client, parliament_num: int, vote_event_info: dict, include_senate: bool=False) -> str:
+def create_new_vote_event(parliament_term: int, vote_event_info: dict, include_senate: bool=False) -> str:
     """
     Creat new vote event via apollo and return vote event id for linking with vote
     """
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    # Get all the data
     bill_title = vote_event_info.get("title", "")
     event_type = vote_event_info.get("classification", None)
     msbis_id = vote_event_info.get("msbis_id", None)
     start_date = vote_event_info.get("start_date", None)
     pdf_sub_url = vote_event_info.get("pdf_url", "")
 
-    # id for house of representative
-    parliament_org_name = "สภาผู้แทนราษฎร-" + str(parliament_num)
     source_url = f"https://msbis.parliament.go.th/ewtadmin/ewt/parliament_report/main_warehouse.php?m_id={msbis_id}#detail"
     base_pdf_url = "https://msbis.parliament.go.th/ewtadmin/ewt"
     pdf_url = pdf_sub_url
-    if "msbis.parliament.go.th" not in pdf_sub_url:
+    if "msbis.parliament.go.th" not in pdf_sub_url: # add base url if not included in the link
         pdf_url = base_pdf_url + re.sub(r"^.*?(?=\/)", "", pdf_sub_url)
     
     create_vote_param = {
@@ -115,7 +124,9 @@ def create_vote_event(client: Client, parliament_num: int, vote_event_info: dict
             "connect": org_connect_params
         }
 
-    result = add_vote_event(client, params={"input": [create_vote_param]})
+    result = asyncio.run(create_vote_event(apollo_client, params={"input": [create_vote_param]}))
+    
+    # Get newly created VoteEvent
     vote_event = result["createVoteEvents"]["voteEvents"][0]
     
-    return vote_event["id"]
+    return vote_event["id"] # return id back

@@ -1,4 +1,4 @@
 from .apollo_connector import get_apollo_client
-from .vote_log import *
-from .vote_events import *
-from .images import *
+from .vote_events_handler import *
+from .votes_handler import *
+from .images import update_politician_image_url, update_party_logo_image_url
