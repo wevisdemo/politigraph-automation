@@ -27,6 +27,12 @@ def get_apollo_client(
         headers={'x-api-key': f"{POLITIGRAPH_TOKEN}"}, 
     )
     
-    client = Client(transport=transport, fetch_schema_from_transport=True, execute_timeout=30)
+    client = Client(
+        transport=transport, 
+        fetch_schema_from_transport=True, 
+        execute_timeout=30,
+        batch_interval=1,
+        batch_max=10
+    )
     return client
 
