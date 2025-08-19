@@ -1,9 +1,10 @@
+from typing import List, Dict, Any
 import pandas as pd
 
 def validate_votes(
     votes_df: pd.DataFrame,
-    validate_data: dict,
-    vote_options:list=["เห็นด้วย", "ไม่เห็นด้วย", "งดออกเสียง", "ไม่ลงคะแนนเสียง"],
+    validate_data: Dict[str, int],
+    vote_options:List[str]=["เห็นด้วย", "ไม่เห็นด้วย", "งดออกเสียง", "ไม่ลงคะแนนเสียง"],
     vote_option_column:str='ผลการลงคะแนน'
 ) -> bool:
     # จำนวนผู้เข้าร่วมประชุม
