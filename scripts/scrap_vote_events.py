@@ -8,11 +8,10 @@
 # poliquery = { path = "../politigraph-poliquery", editable = true }
 # msbis-vote-events-scraper = { path = "../politigraph_vote_events_scraper", editable = true }
 # ///
-import os, io
+import os
 import requests
-from dotenv import load_dotenv
 from msbis_vote_events_scraper import scrap_msbis_vote_events
-from poliquery import get_apollo_client, get_latest_parliament_number, get_latest_msbis_id, create_vote_event
+from poliquery import create_new_vote_event, get_latest_parliament_term, get_latest_msbis_id, create_vote_event
 
 
 def download_pdf(url, filepath):
@@ -30,30 +29,19 @@ def download_pdf(url, filepath):
 
 def main() -> None:
     
-    load_dotenv()
-    
-    POLITIGRAPH_SUBSCRIBTION_ENDPOINT = os.getenv("POLITIGRAPH_SUBSCRIBTION_ENDPOINT")
-    POLITIGRAPH_TOKEN = os.getenv("POLITIGRAPH_TOKEN")
-    
     print("Hello from scrap_vote_events.py!")
     
-    # Initialize Apollo Client
-    apollo_client = get_apollo_client(
-        POLITIGRAPH_SUBSCRIBTION_ENDPOINT,
-        POLITIGRAPH_TOKEN
-    )
-    
     # Get latest parliament number
-    latest_parliament_num = get_latest_parliament_number(apollo_client)  
+    latest_parliament_term = get_latest_parliament_term()  
     
     # Get latest msbis_id from VoteEvents
-    latest_msbis_id = get_latest_msbis_id(apollo_client)
+    latest_msbis_id = get_latest_msbis_id()
     
-    print(f"Latest Parliament Number: {latest_parliament_num}")
+    print(f"Latest Parliament Number: {latest_parliament_term}")
     print(f"Latest MSBIS ID: {latest_msbis_id}")
     
     vote_event_data = scrap_msbis_vote_events(
-        parliament_num=latest_parliament_num, 
+        parliament_num=latest_parliament_term, 
         latest_id=latest_msbis_id
     )
     vote_event_data = [
@@ -64,11 +52,6 @@ def main() -> None:
         event['start_date'] = event['vote_date'].strftime('%Y-%m-%d')
         
     ### Download pdf files & add VoteEvent to politigraph, then contruct data for OCR
-    # Initialize Apollo Client
-    apollo_client = get_apollo_client(
-        POLITIGRAPH_SUBSCRIBTION_ENDPOINT,
-        POLITIGRAPH_TOKEN
-    )
     # Create directory for PDF files
     pdf_dir_pth = "vote_log_pdf"
     if not os.path.exists(pdf_dir_pth):
@@ -76,8 +59,6 @@ def main() -> None:
     # Initialize OCR data list
     ocr_data = []
     
-    # TODO Remove this part
-    # Skip the latest msbis_id
     msbis_ids = sorted([event['msbis_id'] for event in vote_event_data])
     print(f"MSBIS IDs: {msbis_ids}")
     
@@ -92,11 +73,9 @@ def main() -> None:
                 pdf_filepath = os.path.join(pdf_dir_pth, pdf_filename)
                 download_pdf(pdf_link, pdf_filepath)
                 # Add new VoteEvent to politigraph
-                # vote_event_id = "000ZZZ"
                 print(vote_event)
-                vote_event_id = create_vote_event(
-                    client=apollo_client, 
-                    parliament_num=latest_parliament_num,
+                vote_event_id = create_new_vote_event(
+                    parliament_term=latest_parliament_term,
                     vote_event_info=vote_event,
                     include_senate=include_senate
                 )
