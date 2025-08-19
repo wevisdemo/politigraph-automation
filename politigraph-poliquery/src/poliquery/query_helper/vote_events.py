@@ -2,8 +2,6 @@ from typing import List, Dict, Any
 from gql import gql
 from gql import Client
 
-from deprecated import deprecated
-
 from .schema import get_allowed_fields_for_type
 
 async def get_vote_events(client:Client, fields:List[str], params:Dict={}) -> List[Dict[str, Any]]:
