@@ -50,7 +50,7 @@ def get_people_in_party(party_name:str) -> List[Dict[str, Any]]:
     
     field = [
         'id', 'name', 'prefix', 'firstname', 'middlename', 'lastname',
-        'memberships {', '    label', '    start_date', '    end_date', '}'
+        'memberships {\nlabel\nstart_date\nend_date}',
     ]
     
     people_result = asyncio.run(get_persons(

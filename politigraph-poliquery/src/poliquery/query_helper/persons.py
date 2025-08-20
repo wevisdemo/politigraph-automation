@@ -24,8 +24,9 @@ async def get_persons(client:Client, fields:List[str], params:Dict={}) -> List[D
     valid_property = await get_allowed_fields_for_type(client=client, type_name='Person')
     
     # Check if any fields in the list is invalid
-    if any(prop not in valid_property for prop in fields):
-        return [] # TODO change to raise appropriate error
+    import re
+    if any(re.sub(r"\s.*", "", prop) not in valid_property for prop in fields):
+        raise ValueError("Invalid field name.")
 
     fields_string = "\n            ".join(fields)
     query_string = f"""
