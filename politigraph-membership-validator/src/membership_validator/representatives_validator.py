@@ -1,10 +1,10 @@
-import os, re
+import re
 import time
-from dotenv import load_dotenv
-from gql import gql
 
 from hris_scraper import get_membership_data
 from poliquery import get_politician_prefixes, get_people_in_party
+
+from .name_normalizer import normalize_thai_name
 
 def validate_representatives_memberships():
     membership_data = get_membership_data()
@@ -22,24 +22,21 @@ def validate_representatives_memberships():
         _data_to_save.extend(memberships)
         print(f"----- {party_name} -----")
         
-        # Clean name with prefixes from Politigraph
+        # Clean prefix & Normalize name
         for member in memberships:
             _name = member['name']
             _name = clean_prefix(_name, politician_prefixes)
-            firstname, _, lastname = re.sub(r"\s+", " ", _name).partition(" ")
-            member['firstname'] = firstname
-            member['lastname'] = lastname
-            # print(firstname, "-", lastname)
+            member['name'] = normalize_thai_name(_name)
         
         # Initiate set from original List
         member_web = set([
-            " ".join([d['firstname'], d['lastname']]) for d in memberships
+            d['name'] for d in memberships
         ])
         
         # Get Membership from Politigraph
         people_in_party = get_people_in_party(party_name=party_name)
         member_politigraph = set([
-            " ".join([d['firstname'], d['lastname']]) for d in people_in_party
+            d['name'] for d in people_in_party
         ])
         
         print(f"Membership count from WEB : {len(memberships)}")
