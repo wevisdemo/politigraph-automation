@@ -1,10 +1,10 @@
-import re
+from typing import List, Dict, Any
 import asyncio
 
 from .apollo_connector import get_apollo_client
 from .query_helper.persons import get_persons
 
-def get_politician_prefixes():
+def get_politician_prefixes() -> List[str]:
     # Initiate client
     apollo_client = get_apollo_client()
     
