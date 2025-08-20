@@ -29,4 +29,34 @@ def get_politician_prefixes():
         params=param
     ))
     
-    return set([p['prefix'] for p in people_result])
+    return list(set([p['prefix'] for p in people_result]))
+
+def get_people_in_party(party_name:str) -> List[Dict[str, Any]]:
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    param = {
+        "where": {
+            "memberships_SOME": {
+            "posts_SOME": {
+                "organizations_SOME": {
+                "classification_EQ": "POLITICAL_PARTY",
+                "name_EQ": party_name
+                }
+            }
+            }
+        }
+    }
+    
+    field = [
+        'id', 'name', 'prefix', 'firstname', 'middlename', 'lastname',
+        'memberships {', '    label', '    start_date', '    end_date', '}'
+    ]
+    
+    people_result = asyncio.run(get_persons(
+        client=apollo_client,
+        fields=field,
+        params=param
+    ))
+    
+    return people_result
