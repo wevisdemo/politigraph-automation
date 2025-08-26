@@ -91,9 +91,10 @@ def scrap_votings_id(soup):
 
   for td in soup.find_all("td"):
     if td.find('a') and re.match("show_detail", td.find('a')["onclick"]):
-      # get votings id
-      vote_id = re.search(r"\d{4,}", td.find('a')["onclick"]).group(0)
-      votings_ids.append(int(vote_id))
+      # get votes id
+      vote_id_match = re.search(r"\d{4,}", td.find('a')["onclick"])
+      if vote_id_match:
+          votings_ids.append(int(vote_id_match.group(0)))
 
   return votings_ids
 
@@ -110,8 +111,8 @@ def scrap_sestion_text(soup):
 def scrap_meeting_ids(
     parliament_number, 
     latest_id, 
-    start_year:int=None,
-    stop_year:int=None
+    start_year:int|None=None,
+    stop_year:int|None=None
 ):
     
     meeting_id_list = []

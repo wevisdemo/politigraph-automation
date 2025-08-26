@@ -8,8 +8,8 @@ from .text_helper import extract_date_string, decode_thai_date, clean_bill_title
 def scrap_msbis_vote_events(
     parliament_num: int,
     latest_id: int=0,
-    start_year: int=None,
-    stop_year: int=None,
+    start_year: int|None=None,
+    stop_year: int|None=None,
     pdf_base_url: str='https://msbis.parliament.go.th/ewtadmin/ewt',
 ):
     
@@ -55,11 +55,11 @@ def extract_vote_event(msbis_id:int) -> list:
         print(f"Checking meeting id: {msbis_id} ใบประมวลผลการลงมติ\n")
         
         # get date
-        raw_date_string = soup.find('strong').decode_contents()
+        raw_date_string = soup.find('strong').decode_contents() # type: ignore
         date_string = extract_date_string(raw_date_string)
         vote_date = decode_thai_date(date_string.strip())
         
-        bill_list = soup.find('tr', {'id': "mydetail_o"}).find_all('li')
+        bill_list = soup.find('tr', {'id': "mydetail_o"}).find_all('li') # type: ignore
         
         return extract_vote_event_data(bill_list, msbis_id=msbis_id, date=vote_date)
     
@@ -132,8 +132,10 @@ def extract_vote_event_data(
         "มาตรา",
         "ข้อสังเกต",
         "การใช้ร่าง.*เป็นหลักในการพิจารณา",
-        "ข้อ \d+",
-        "บัญชี"
+        r"ข้อ \d+",
+        "บัญชี",
+        r"หมวด \d+",
+        "คำปรารภ"
     ]
     for index, event in enumerate(vote_events):
         if re.search(
