@@ -6,7 +6,7 @@ from .schema import get_allowed_fields_for_type
 
 async def get_memberships(client:Client, fields:List[str], params:Dict={}) -> List[Dict[str, Any]]:
     """
-    Query Person node data with given fields.
+    Query Membership node data with given fields.
 
     Args:
         client: gql.Client
@@ -17,7 +17,7 @@ async def get_memberships(client:Client, fields:List[str], params:Dict={}) -> Li
             Dictionary object of query parameter.
 
     Returns:
-        A list of people data.
+        A list of membership data.
     """
     
     # Load schema to get valid fields
