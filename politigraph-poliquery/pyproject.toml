@@ -1,8 +1,8 @@
 [project]
 name = "poliquery"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
-    'pandas>=2.1.1', 
+    'pandas>=2.1.1', 'python-dotenv',
     'gql==3.5.0', 'aiohttp', 'requests', 
     'cachetools==6.1.0', 'aiocache==0.12.3'
 ]
