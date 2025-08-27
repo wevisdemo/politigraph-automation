@@ -209,6 +209,23 @@ def add_votes_to_vote_event(
             create_params.append(new_param)
             batch_count += 1
         
+        # Check & Update left over votes
+        if create_params:
+            update_vote_event_param = {
+                "where": {
+                    "id_EQ": vote_event_id
+                },
+                "update": {
+                    "votes": [{
+                            "create": [{"node": create_param} for create_param in create_params]
+                        }]
+                }
+            }
+            await update_vote_event(
+                client=apollo_client,
+                params=update_vote_event_param
+            )
+        
     asyncio.run(update_votes_in_vote_event())
     
 def replace_votes_in_vote_event(
