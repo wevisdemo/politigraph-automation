@@ -1,0 +1,20 @@
+# /// script
+# requires-python = "==3.10.11"
+# dependencies = [
+#     "poliquery",
+#     "lis_bills_scraper"
+# ]
+# [tool.uv.sources]
+# poliquery = { path = "../politigraph-poliquery", editable = true }
+# lis_bills_scraper = { path = "../politigraph-bills-scraper", editable = true }
+# ///
+
+from lis_bills_scraper import scrape_and_update_new_bill
+
+def main() -> None:
+    print("Hello from Bills scraper")
+    
+    scrape_and_update_new_bill(25)
+
+if __name__ == "__main__":
+    main()
