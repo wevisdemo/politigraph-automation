@@ -76,14 +76,12 @@ async def scrape_new_bills(
     
     # Construct data into dict
     new_bills_data = new_bills_df.to_dict('records')
-    import json
-    print(json.dumps(new_bills_data, indent=2, ensure_ascii=False))
     
     return new_bills_data
     
-def scrape_and_update_new_bill(
+def scrape_and_create_new_bills(
     parliament_term: int
-) -> None:
+) -> List[str]:
     # Scrape a list of new bills
     new_bills = asyncio.run(scrape_new_bills(parliament_term))
     
@@ -93,10 +91,11 @@ def scrape_and_update_new_bill(
         parliament_term=parliament_term
     )
     
-    # Write ids into json
+    # Write ids into json TODO remove
     import json
     with open("examples/bills_id.json", "w") as fj:
         json.dump(new_bills_id, fj, indent=4, ensure_ascii=False)
     
-    print(new_bills_id)
+    # print(new_bills_id)
+    return new_bills_id
     

@@ -9,12 +9,12 @@
 # lis_bills_scraper = { path = "../politigraph-bills-scraper", editable = true }
 # ///
 
-from lis_bills_scraper import scrape_and_update_new_bill
+from lis_bills_scraper import scrape_and_create_new_bills
 
 def main() -> None:
     print("Hello from Bills scraper")
     
-    scrape_and_update_new_bill(25)
+    scrape_and_create_new_bills(25)
 
 if __name__ == "__main__":
     main()

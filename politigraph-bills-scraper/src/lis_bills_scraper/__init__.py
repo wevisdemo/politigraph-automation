@@ -1,1 +1,1 @@
-from .bills_creator import scrape_and_update_new_bill
+from .bills_creator import scrape_and_create_new_bills
