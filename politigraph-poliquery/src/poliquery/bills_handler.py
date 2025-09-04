@@ -64,6 +64,7 @@ def create_new_multiple_bills(
         acceptance_number = bill_info.get('acceptance_number', None)
         classification = bill_info.get('classification', None)
         title = bill_info.get('title', None)
+        lis_id = bill_info.get('lis_doc_id', None)
         
         # Get other data
         url = bill_info.get('url', None)
@@ -73,6 +74,7 @@ def create_new_multiple_bills(
             "acceptance_number": acceptance_number,
             "classification": classification,
             "title": title,
+            "lis_id": lis_id,
             "organizations": {
                 "connect": [{
                             "where": {
