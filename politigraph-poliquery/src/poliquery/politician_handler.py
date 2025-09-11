@@ -4,6 +4,8 @@ import asyncio
 from .apollo_connector import get_apollo_client
 from .query_helper.persons import get_persons
 
+from cachetools import cached, TTLCache
+
 def get_politician_prefixes() -> List[str]:
     # Initiate client
     apollo_client = get_apollo_client()
@@ -31,6 +33,7 @@ def get_politician_prefixes() -> List[str]:
     
     return list(set([p['prefix'] for p in people_result]))
 
+@cached(cache=TTLCache(maxsize=1024, ttl=300))
 def get_people_in_party(party_name:str) -> List[Dict[str, Any]]:
     # Initiate client
     apollo_client = get_apollo_client()
