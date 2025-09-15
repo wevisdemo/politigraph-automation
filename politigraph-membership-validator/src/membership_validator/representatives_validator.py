@@ -1,5 +1,6 @@
 import re
 import time
+import asyncio
 
 from hris_scraper import get_membership_data
 from poliquery import get_politician_prefixes, get_people_in_party
@@ -15,7 +16,7 @@ def validate_representatives_memberships():
             [re.sub(r"^" + prefix, "", name).strip() for prefix in prefixes],
             key=len
         )
-    politician_prefixes = get_politician_prefixes()
+    politician_prefixes = asyncio.run(get_politician_prefixes())
     
     _data_to_save = []
     for party_name, memberships in membership_data.items():
