@@ -2,14 +2,14 @@ from typing import List, Dict, Any, Hashable
 import re
 import asyncio
 
-import pandas as pd
-from poliquery import get_all_bills_info, update_bill_info
+from poliquery import get_all_bills_info, update_bill_info, update_bill_co_proposer
 
 from .bill_events_scraper import scrape_bill_events
 
 
 event_handler_dispatcher = {
     'GENERAL_INFO': update_bill_info,
+    'CO_PROPOSER': update_bill_co_proposer
 }
 
 def update_event_in_bill(
