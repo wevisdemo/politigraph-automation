@@ -22,7 +22,7 @@ def remove_thai_name_prefix(name: str, prefixes:List[str]=[]) -> str:
     master_prefixes_list = NAME_PREFIXES + prefixes
     # Remove prefix from name
     result_name = min(
-        [re.sub(prefix, "", name).strip() for prefix in master_prefixes_list],
+        [re.sub(r"^" + prefix, "", name).strip() for prefix in master_prefixes_list],
         key=len
     )
     # Normalize name
