@@ -1,12 +1,13 @@
 # /// script
 # requires-python = "==3.10.11"
 # dependencies = [
-#     "poliquery",
+#     "thai_name_normalizer", "poliquery",
 #     "lis_bills_scraper"
 # ]
 # [tool.uv.sources]
 # poliquery = { path = "../politigraph-poliquery", editable = true }
 # lis_bills_scraper = { path = "../politigraph-bills-scraper", editable = true }
+# thai_name_normalizer = { path = "../politigraph-name-normalizer", editable = true }
 # ///
 
 from lis_bills_scraper import scrape_and_create_new_bills

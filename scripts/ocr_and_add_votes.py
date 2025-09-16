@@ -3,7 +3,7 @@
 # dependencies = [
 #     "pandas", "easyocr",
 #     "ocr_votes_doc",
-#     "poliquery",
+#     "thai_name_normalizer", "poliquery",
 #     "politigraph_votes_extractor",
 # ]
 #
@@ -11,6 +11,7 @@
 # ocr_votes_doc = { path = "../politigraph-ocr-votes-log", editable = true }
 # poliquery = { path = "../politigraph-poliquery", editable = true }
 # politigraph_votes_extractor = { path = "../politigraph-ocr-votes-log/politigraph-votes-log-extractor", editable = true }
+# thai_name_normalizer = { path = "../politigraph-name-normalizer", editable = true }
 # ///
 import os
 import easyocr

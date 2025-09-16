@@ -4,12 +4,13 @@
 #     "google-auth", "google-auth-oauthlib", "google-auth-httplib2", "google-api-python-client",
 #     "opencv-python",
 #     "pillow",
-#     "poliquery",
+#     "thai_name_normalizer", "poliquery",
 #     "python-dotenv",
 # ]
 #
 # [tool.uv.sources]
 # poliquery = { path = "../politigraph-poliquery", editable = true }
+# thai_name_normalizer = { path = "../politigraph-name-normalizer", editable = true }
 # ///
 
 from io import BytesIO
