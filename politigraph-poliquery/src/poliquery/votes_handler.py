@@ -273,3 +273,43 @@ def replace_votes_in_vote_event(
         vote_logs=vote_logs,
         batch_max=batch_max
     )
+
+async def update_vote_data(
+    vote_id: str,
+    voter_name: str|None,
+    voter_party: str|None,
+    option: str|None
+) -> None:
+    """
+    Update information in a specific vote
+
+    Args:
+        vote_id (str): ID of vote's node
+        voter_name (str | None): voter's name
+        voter_party (str | None): voter's party
+        option (str | None): vote option
+    """
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    # Construct update param
+    update_param = {}
+    if voter_name:
+        update_param['voter_name_SET'] = voter_name
+    if voter_party:
+        update_param['voter_party_SET'] = voter_party
+    if option:
+        update_param['option_SET'] = option
+    
+    # Update vote
+    await update_votes(
+        client=apollo_client,
+        params={
+            "where": {
+                "id_EQ": vote_id
+            },
+            "update": update_param
+        }
+    )
+    
