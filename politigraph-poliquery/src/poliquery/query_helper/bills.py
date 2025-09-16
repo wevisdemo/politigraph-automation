@@ -61,4 +61,22 @@ async def create_bill(client: Client, params: dict):
 
     async with client as session:
         result = await session.execute(query, variable_values=params)  
-        return result   
+        return result
+    
+async def update_bill(client: Client, params: dict):
+    query = gql(
+    """
+    mutation Mutation($where: BillWhere, $update: BillUpdateInput) {
+        updateBills(where: $where, update: $update) {
+            info {
+                nodesCreated
+                relationshipsCreated
+            }
+        }
+    }
+    """
+    )
+    
+    async with client as session:
+        result = await session.execute(query, variable_values=params)  
+        return result
