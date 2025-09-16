@@ -7,7 +7,7 @@ from .apollo_connector import get_apollo_client
 from .query_helper.bills import get_bills, create_bill, update_bill
 from .query_helper.persons import get_persons
 from .query_helper.organizations import get_organizations
-from .politician_handler import get_politician_prefixes, get_representative_members_name
+from .politician_handler import get_politician_prefixes, get_representative_members_name, get_people_in_party
 
 from cachetools import cached, TTLCache
 
@@ -323,4 +323,70 @@ def update_bill_info(
         params=params
     ))
     
+    return
+
+def update_bill_co_proposer(
+    bill_info: Dict[str, Any],
+    event_info: Dict[str, Any]
+) -> None:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    # Get bill info
+    bill_id = bill_info.get('id', None)
+    print(bill_id)
+    
+    # Get co-proposer
+    co_proposers = event_info['co_proposer']
+    
+    # Get unique party's name
+    parties_name = list(set(
+        [d.get('party_name', '') for d in co_proposers]
+    ))
+    # Get all politician in all parties
+    politicians_name = []
+    for party in parties_name:
+        politicians_name.extend(get_people_in_party(party_name=party))
+    
+    # Construct politician name-ID index
+    name_id_index = { p['name']:p['id'] for p in politicians_name }
+    
+    # Construct update instruction
+    update_inst = [
+        {
+            'name': remove_thai_name_prefix(c['name']),
+            'id': name_id_index.get(remove_thai_name_prefix(c['name']), "")
+            
+        } for c in co_proposers
+    ]
+    
+    async def update_multiple_co_proposer():
+        connect_params = []
+        for person in update_inst:
+            connect_params.append({
+                "where": {
+                    "node": { "id_EQ": person['id'] }
+                }
+            })
+            if len(connect_params) >= 10:
+                await update_bill(
+                    client=apollo_client,
+                    params={
+                        "where": {
+                            "id_EQ": bill_id
+                        },
+                        "update": {
+                            "co_proposers": [
+                                {
+                                    "connect": connect_params
+                                }
+                            ]
+                        }
+                    }
+                )
+                connect_params = []
+                
+    asyncio.run(update_multiple_co_proposer())
+        
     return
