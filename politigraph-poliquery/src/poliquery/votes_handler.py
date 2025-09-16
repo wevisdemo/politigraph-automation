@@ -6,7 +6,7 @@ from gql import Client
 from .apollo_connector import get_apollo_client
 from .query_helper.vote_events import get_vote_events, update_vote_event
 from .query_helper.persons import get_persons
-from .query_helper.votes import get_votes, delete_votes
+from .query_helper.votes import get_votes, delete_votes, update_votes
 
 ################################ VALIDATION DATA ################################
 
@@ -276,9 +276,9 @@ def replace_votes_in_vote_event(
 
 async def update_vote_data(
     vote_id: str,
-    voter_name: str|None,
-    voter_party: str|None,
-    option: str|None
+    voter_name: str|None=None,
+    voter_party: str|None=None,
+    option: str|None=None
 ) -> None:
     """
     Update information in a specific vote
