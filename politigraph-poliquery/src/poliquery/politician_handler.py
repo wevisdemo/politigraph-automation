@@ -7,7 +7,7 @@ from .query_helper.persons import get_persons
 from cachetools import cached, TTLCache
 
 @cached(cache=TTLCache(maxsize=256, ttl=120))
-async def get_politician_prefixes() -> List[str]:
+def get_politician_prefixes() -> List[str]:
     # Initiate client
     apollo_client = get_apollo_client()
     
@@ -15,22 +15,22 @@ async def get_politician_prefixes() -> List[str]:
     param = {
         "where": {
             "memberships_SOME": {
-            "posts_SOME": {
-                "organizations_SOME": {
-                "parents_SOME": {
-                    "classification_EQ": "PARLIAMENT"
+                "posts_SOME": {
+                    "organizations_SOME": {
+                    "parents_SOME": {
+                        "classification_EQ": "PARLIAMENT"
+                    }
+                    }
                 }
-                }
-            }
             }
         }
     }
     
-    people_result = await get_persons(
+    people_result = asyncio.run(get_persons(
         client=apollo_client,
         fields=['prefix'],
         params=param
-    )
+    ))
     
     return list(set([p['prefix'] for p in people_result]))
 
