@@ -1,1 +1,2 @@
 from .name_normalizer import normalize_thai_name, remove_thai_name_prefix
+from .text_normalizer import convert_thai_number_str_to_arabic
