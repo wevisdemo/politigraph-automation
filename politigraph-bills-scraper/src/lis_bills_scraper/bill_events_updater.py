@@ -2,7 +2,7 @@ from typing import List, Dict, Any, Hashable
 import re
 import asyncio
 
-from poliquery import get_all_bills_info, update_bill_info, update_bill_co_proposer
+from poliquery import get_all_bills_info, update_bill_info, update_bill_co_proposer, create_new_draft_vote_event
 
 from .bill_events_scraper import scrape_bill_events
 
@@ -10,8 +10,8 @@ from .bill_events_scraper import scrape_bill_events
 event_handler_dispatcher = {
     'GENERAL_INFO': update_bill_info,
     'CO_PROPOSER': update_bill_co_proposer,
-    'VOTE_EVENT_MP_1': None,
-    'VOTE_EVENT_MP_3': None,
+    'VOTE_EVENT_MP_1': create_new_draft_vote_event,
+    'VOTE_EVENT_MP_3': create_new_draft_vote_event,
 }
 
 def update_event_in_bill(
