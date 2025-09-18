@@ -1,1 +1,2 @@
 from .vote_events_extractor import scrap_msbis_vote_events, extract_vote_event
+from .msbis_web_scraper import request_meeting_records
