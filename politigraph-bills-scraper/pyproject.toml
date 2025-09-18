@@ -1,9 +1,9 @@
 [project]
 name = "lis_bills_scraper"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
     'requests', "beautifulsoup4", "lxml",
-    'pandas'
+    'pandas', 'thai_name_normalizer', "msbis-vote-events-scraper"
 ]
 
 [build-system]

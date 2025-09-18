@@ -9,7 +9,9 @@ from .bill_events_scraper import scrape_bill_events
 
 event_handler_dispatcher = {
     'GENERAL_INFO': update_bill_info,
-    'CO_PROPOSER': update_bill_co_proposer
+    'CO_PROPOSER': update_bill_co_proposer,
+    'VOTE_EVENT_MP_1': None,
+    'VOTE_EVENT_MP_3': None,
 }
 
 def update_event_in_bill(
@@ -19,7 +21,7 @@ def update_event_in_bill(
     
     print("Hello from update_event_in_bill")
     for event_info in bill_events:
-        event_handler = event_handler_dispatcher.get(event_info['event_type'], None)
+        event_handler = event_handler_dispatcher.get(event_info.get('event_type', ""), None)
         if not event_handler:
             continue
         event_handler(
