@@ -98,5 +98,5 @@ def get_msbis_id(
         meet for meet in meeting_list if meet['issue_number'] == int(issue_number) # type: ignore
     ]
     if len(match_issue_num) == 1: # only one exist
-        return match_issue_num[0]['msbis_id']
+        return int(match_issue_num[0]['msbis_id'])
     

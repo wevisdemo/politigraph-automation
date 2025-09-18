@@ -158,7 +158,6 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
     session = event_info.get("สมัย", None)
     
     issue_number = event_info.get("ครั้งที่", None)
-    vote_date = event_info.get("วันที่", None)
     
     # Get msbis id
     msbis_id = get_msbis_id(
@@ -170,6 +169,10 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
         
     # Get vote result
     vote_result = event_info.get("มติ", "")
+    
+    # Get & Convert vote date
+    raw_vote_date = event_info.get("วันที่", "")
+    vote_date = convert_thai_date_to_universal(raw_vote_date)
     
     print(f"{''.join(['=' for _ in range(50)])}")
     
