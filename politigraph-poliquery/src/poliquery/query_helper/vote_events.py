@@ -79,3 +79,21 @@ async def update_vote_event(client: Client, params: dict):
     async with client as session:
         result = await session.execute(query, variable_values=params)  
         return result 
+    
+async def agg_count_vote_events(client: Client, params: dict) -> int:
+    query = gql(
+    """
+    query VoteEventsConnection($where: VoteEventWhere) {
+        voteEventsConnection(where: $where) {
+            aggregate {
+            count {
+                nodes
+            }
+            }
+        }
+    }
+    """
+    )
+    async with client as session:
+        result = await session.execute(query, variable_values=params)  
+        return result['voteEventsConnection']['aggregate']['count']['nodes']
