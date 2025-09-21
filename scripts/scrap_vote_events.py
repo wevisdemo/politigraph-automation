@@ -2,12 +2,12 @@
 # requires-python = "==3.10.11"
 # dependencies = [
 #     "msbis-vote-events-scraper",
-#     "thai_name_normalizer", "poliquery", "python-dotenv", "requests"
+#     "thai-name-normalizer", "poliquery", "python-dotenv", "requests"
 # ]
 # [tool.uv.sources]
 # poliquery = { path = "../politigraph-poliquery", editable = true }
 # msbis-vote-events-scraper = { path = "../politigraph_vote_events_scraper", editable = true }
-# thai_name_normalizer = { path = "../politigraph-name-normalizer", editable = true }
+# thai-name-normalizer = { path = "../politigraph-name-normalizer", editable = true }
 # ///
 import os
 import requests
