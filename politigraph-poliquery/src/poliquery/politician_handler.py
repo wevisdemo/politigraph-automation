@@ -2,7 +2,7 @@ from typing import List, Dict, Any
 import asyncio
 
 from .apollo_connector import get_apollo_client
-from .query_helper.persons import get_persons
+from .query_helper.persons import get_persons, create_person
 
 from cachetools import cached, TTLCache
 
@@ -94,3 +94,32 @@ def get_representative_members_name(parliament_term:int=26) -> List[Dict[str, An
     ))
     
     return people_result
+
+def create_politician(
+    prefix: str,
+    firstname: str,
+    lastname: str,
+    middlename: str|None=None
+) -> None:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    # Construct input param
+    input_param = {
+        "prefix": prefix,
+        "firstname": firstname,
+        "lastname": lastname,
+        "publish_status": "PUBLISHED"
+    }
+    
+    # Check middlename & add to input param
+    if middlename:
+        input_param['middlename'] = middlename
+    
+    asyncio.run(create_person(
+        client=apollo_client,
+        params={
+            "input": [input_param]
+        }
+    ))
