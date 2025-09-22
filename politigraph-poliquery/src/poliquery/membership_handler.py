@@ -180,5 +180,90 @@ def create_new_political_party_membership(
         params=create_membership_param
     ))
         
-        
+async def create_new_post_in_cabinet(
+    cabinet_term: int,
+    role: str,
+    start_date: str
+) -> None:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    # Create param
+    create_post_param = {
+        "input": [
+            {
+                "role": role,
+                "start_date": start_date,
+                "organizations": {
+                    "connect": [
+                        {
+                            "where": {
+                                "node": {
+                                    "classification_EQ": "CABINET",
+                                    "id_EQ": f"คณะรัฐมนตรี-{cabinet_term}"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+    
+    await create_post(
+        client=apollo_client,
+        params=create_post_param
+    )
+
+def create_new_cabinet_membership(
+    person_id: str,
+    cabinet_term: int,
+    post_role: str,
+    membership_start_date: str
+) -> None:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    create_membership_param = {
+        "input": [
+            {
+                "start_date": membership_start_date,
+                "label": None,
+                "members": {
+                    "Person": {
+                        "connect": [
+                            {
+                                "where": {
+                                    "node": {
+                                        "id_EQ": person_id
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                },
+                "posts": {
+                    "connect": [
+                    {
+                        "where": {
+                            "node": {
+                                "role_EQ": post_role,
+                                "organizations_SINGLE": {
+                                    "id_EQ": f"คณะรัฐมนตรี-{cabinet_term}"
+                                }
+                            }
+                        }
+                    }
+                    ]
+                }
+            }
+        ]
+    }
+    
+    asyncio.run(create_membership(
+        client=apollo_client,
+        params=create_membership_param
+    ))
     
