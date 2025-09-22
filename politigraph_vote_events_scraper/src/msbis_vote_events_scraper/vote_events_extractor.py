@@ -135,7 +135,8 @@ def extract_vote_event_data(
         r"ข้อ \d+",
         "บัญชี",
         r"หมวด \d+",
-        "คำปรารภ"
+        "คำปรารภ",
+        r"^บทเฉพาะกาล",
     ]
     for index, event in enumerate(vote_events):
         if re.search(
