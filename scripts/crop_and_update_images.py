@@ -5,7 +5,10 @@
 #     "pillow",
 #     "thai-name-normalizer", "poliquery",
 #     "python-dotenv",
-#     "google-auth", "google-auth-oauthlib", "google-auth-httplib2", "google-api-python-client",
+#     "google-auth>=2.16.0",
+#     "google-auth-oauthlib",
+#     "google-auth-httplib2",
+#     "google-api-python-client>=2.78.0",
 # ]
 #
 # [tool.uv.sources]
