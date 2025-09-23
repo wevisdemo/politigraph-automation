@@ -42,6 +42,15 @@ def extract_vote_count_data(
     # vote_text = vote_text.replace("\n", " | ")
     vote_text = re.sub(r"\s+", " ", vote_text)
     vote_text = convert_thai_number_str_to_arabic(vote_text) # convert Thai num to Arabic
+    
+    # Clean vote text
+    vote_option_normalizer = {
+        'เห็นด้วย': 'เห็นชอบ',
+        'งดออกสียง': 'งดออกเสียง', # typo
+        'ไม่ประสงค์ลงคะแนน': 'ไม่ลงคะแนน',
+    }
+    for pattern_str, repl_str in vote_option_normalizer.items():
+        vote_text = re.sub(pattern_str, repl_str, vote_text)
     # print(vote_text)
 
     vote_count_data = {}
