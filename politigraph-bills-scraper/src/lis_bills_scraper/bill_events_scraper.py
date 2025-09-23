@@ -32,7 +32,7 @@ async def scrape_bill_events(
         return []
     
     # Loop through to get all event's sections
-    events_element = []
+    events_element: List[tuple] = []
     elements = heading_element.parent.find_all(recursive=False)
     for header, section in zip(elements, elements[1:]):
         if header.name == 'nav':  # type: ignore
@@ -42,13 +42,16 @@ async def scrape_bill_events(
             
     # Get data from each event
     events_data = []
-    for header_element, body_element in events_element:
+    for event_index, (header_element, body_element) in enumerate(events_element):
         event_title = header_element.get_text(strip=True)
         
         event_handler = event_scraper_dispatcher.get(event_title, None)
         if not event_handler:
             continue
         curr_event_data = event_handler(body_element)
+        
+        # Add index to event's data
+        curr_event_data['event_index'] = event_index
         
         # Append data to main list
         events_data.append(curr_event_data)
