@@ -96,7 +96,7 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
             "event_type": f"VOTE_EVENT_MP_{vote_session}",
         }
     
-    print(f"{''.join(['=' for _ in range(20)])} MP_{vote_session} {''.join(['=' for _ in range(20)])}")
+    # print(f"{''.join(['=' for _ in range(20)])} MP_{vote_session} {''.join(['=' for _ in range(20)])}")
     
     ### Construct info text data ###
     info_text = ""
@@ -132,7 +132,7 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
     # vote_text = vote_text.replace("\n", " | ")
     vote_text = re.sub(r"\s+", " ", vote_text)
     vote_text = convert_thai_number_str_to_arabic(vote_text) # convert Thai num to Arabic
-    print(vote_text)
+    # print(vote_text)
 
     vote_count_data = {}
     for option, option_text in vote_option_index.items():
@@ -174,7 +174,7 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
     raw_vote_date = event_info.get("วันที่", "")
     vote_date = convert_thai_date_to_universal(raw_vote_date)
     
-    print(f"{''.join(['=' for _ in range(50)])}")
+    # print(f"{''.join(['=' for _ in range(50)])}")
     
     return {
         "event_type": f"VOTE_EVENT_MP_{vote_session}",
