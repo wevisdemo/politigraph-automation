@@ -195,9 +195,13 @@ event_scraper_dispatcher = {
         scrape_representatives_vote_event(section_element, vote_session=1),
     'ข้อมูลพิจารณาของสภาผู้แทนราษฎร วาระที่ 1': lambda section_element:
         scrape_representatives_vote_event(section_element, vote_session=1),
+    'ข้อมูลการพิจารณาร่างฯ ของรัฐสภา วาระที่ 1': lambda section_element:
+        scrape_representatives_vote_event(section_element, vote_session=1),        
     # Vote MP_3
     'ข้อมูลการพิจารณาของสภาผู้แทนราษฎร วาระที่ 3': lambda section_element:
         scrape_representatives_vote_event(section_element, vote_session=3),
     'ข้อมูลพิจารณาของสภาผู้แทนราษฎร วาระที่ 3': lambda section_element:
+        scrape_representatives_vote_event(section_element, vote_session=3),
+    'ข้อมูลการพิจารณาร่างฯ ของรัฐสภา วาระที่ 3': lambda section_element:
         scrape_representatives_vote_event(section_element, vote_session=3),
 }
