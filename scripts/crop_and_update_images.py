@@ -193,18 +193,14 @@ def main():
         
         # Get politician first and last name from file name
         name = re.sub(r"\..*$", "", file)  # Remove file extension
-        firstname = name.split("-")[0]
-        lastname = " ".join(name.split("-")[1:])
-        print(f"Updating image for {firstname} {lastname}...")
+        print(f"Updating image for {name}...")
         
         # Update the image URL in Politigraph
         update_politician_image_url(
-            client=apollo_client,
-            firstname=firstname, 
-            lastname=lastname, 
+            name=name,
             image_url=f"https://politigraph.wevis.info/assets/people/{file}"
         )
-        print(f"Updated image URL for {firstname} {lastname} to https://politigraph.wevis.info/assets/people/{file}")
+        print(f"Updated image URL for {name} to https://politigraph.wevis.info/assets/people/{file}")
         
     # Read & Save party logos from Google Drive
     print("Reading and cropping party logos from Google Drive...")
