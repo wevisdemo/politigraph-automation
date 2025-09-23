@@ -95,7 +95,8 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
             "event_type": f"VOTE_EVENT_MP_{vote_session}",
         }
     
-    # print(f"{''.join(['=' for _ in range(20)])} MP_{vote_session} {''.join(['=' for _ in range(20)])}")
+    _title_txt = f"MP_{vote_session}"
+    print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
     
     ### Construct info text data ###
     info_text = ""
@@ -109,28 +110,8 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
     ### Construct info data ###
     event_info = construct_info_data(info_text)
     
-    # Construct vote data
-    vote_session_options_index = {
-        1: {
-            'agree_count': 'รับหลักการ',
-            'disagree_count': 'ไม่รับหลักการ',
-            'abstain_count': 'งดออกเสียง',
-            'novote_count': 'ไม่ลงคะแนน',
-        },
-        3: {
-            'agree_count': 'เห็นชอบ',
-            'disagree_count': 'ไม่เห็นชอบ',
-            'abstain_count': 'งดออกเสียง',
-            'novote_count': 'ไม่ลงคะแนน',
-        },
-    }
-    vote_option_index = vote_session_options_index.get(vote_session, {})
-    
     # Extract vote count data
-    vote_count_data = extract_vote_count_data(
-        vote_text=event_info.get("คะแนนเสียง", ""),
-        vote_option_index=vote_option_index
-    )
+    vote_count_data = extract_vote_count_data(vote_text=event_info.get("คะแนนเสียง", ""),)
         
     # Get msbis info
     term = event_info.get("ชุดที่", None)
@@ -153,8 +134,7 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
     # Get & Convert vote date
     raw_vote_date = event_info.get("วันที่", "")
     vote_date = convert_thai_date_to_universal(raw_vote_date)
-    
-    # print(f"{''.join(['=' for _ in range(50)])}")
+    print("".join(['=' for _ in range(42 + len(_title_txt))]))
     
     return {
         "event_type": f"VOTE_EVENT_MP_{vote_session}",

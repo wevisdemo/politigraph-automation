@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, List
 import re
 from datetime import datetime
 
@@ -24,13 +24,21 @@ def convert_thai_date_to_universal(thai_date_str:str) -> str:
     # Format the new datetime object into the desired yyyy-mm-dd string format
     return universal_dt_object.strftime('%Y-%m-%d')
 
+def extract_vote_num(num_text: str) -> int:
+    if 'ไม่มี' in num_text:
+        return 0
+    all_nums = [
+        int(num) for num in re.findall(r"\d+", num_text)
+    ]
+    return max(all_nums)
+
 def extract_vote_count_data(
     vote_text: str,
-    vote_option_index: Dict[str, str]|None= {
-        'agree_count': 'เห็นชอบ',
-        'disagree_count': 'ไม่เห็นชอบ',
-        'abstain_count': 'งดออกเสียง',
-        'novote_count': 'ไม่ลงคะแนน',
+    vote_option_index: Dict[str, List[str]]|None= {
+        'agree_count': ['เห็นชอบ', 'รับหลักการ', 'เห็นด้วย'],
+        'disagree_count': ['ไม่เห็นชอบ', 'ไม่รับหลักการ', 'ไม่เห็นด้วย'],
+        'abstain_count': ['งดออกเสียง'],
+        'novote_count': ['ไม่ลงคะแนน', 'ไม่ลงคะแนนเสียง', 'ไม่ประสงค์ลงคะแนน'],
     }
 ) -> Dict[str, Any]:
     
@@ -48,25 +56,24 @@ def extract_vote_count_data(
         'เห็นด้วย': 'เห็นชอบ',
         'งดออกสียง': 'งดออกเสียง', # typo
         'ไม่ประสงค์ลงคะแนน': 'ไม่ลงคะแนน',
+        r'วาระ.?\d{1}': '',
     }
     for pattern_str, repl_str in vote_option_normalizer.items():
         vote_text = re.sub(pattern_str, repl_str, vote_text)
     # print(vote_text)
 
     vote_count_data = {}
-    for option, option_text in vote_option_index.items():
-        if option_text not in vote_text:
-            vote_count_data[option] = None
-        _pattern = r"^(" + option_text + r").+?(เสียง|ไม่มี)"
-        match_option = re.search(_pattern, vote_text)
-        if match_option:
-            _txt = match_option.group(0)
-            match_num = re.search(r"\d+", _txt)
-            if "ไม่มี" in _txt:
-                vote_count_data[option] = 0
-            elif match_num:
-                vote_count_data[option] = int(match_num.group(0))
-            vote_text = re.sub(_pattern, "", vote_text).strip()
+    # Split text into chunk of text-number
+    splited_texts = re.split(r"(\d+\+\d+=\d+|\d+|ไม่มี)", vote_text)
+    print(">>>>>", splited_texts)
+    
+    # Pair splited texts to get vote count data
+    for key, num_text in zip(splited_texts, splited_texts[1:]):
+        for option, option_texts in vote_option_index.items():
+            option_pattern = "|".join(option_texts)
+            if re.search(option_pattern, key) and option not in vote_count_data.keys():
+                vote_count_data[option] = extract_vote_num(num_text)
+    
     # If novote_count not present set to 0
     if not vote_count_data.get('novote_count', None):
         vote_count_data['novote_count'] = 0
