@@ -205,32 +205,32 @@ def main():
         )
         print(f"Updated image URL for {name} to https://politigraph.wevis.info/assets/people/{file}")
         
-    # Read & Save party logos from Google Drive
-    print("Reading and cropping party logos from Google Drive...")
-    read_and_save_images_from_drive(
-        service, 
-        PARTY_LOGOS_DRIVE_FOLDER_ID, 
-        output_dir_path=PARTY_LOGOS_DIR_PATH,
-        crop=False  # Don't crop party logos, just save them
-    )
-    # Update parties image url in Polotigraph
-    apollo_client = get_apollo_client(
-        POLITIGRAPH_SUBSCRIBTION_ENDPOINT,
-        POLITIGRAPH_TOKEN
-    )
-    for file in os.listdir(PARTY_LOGOS_DIR_PATH):
+    # # Read & Save party logos from Google Drive
+    # print("Reading and cropping party logos from Google Drive...")
+    # read_and_save_images_from_drive(
+    #     service, 
+    #     PARTY_LOGOS_DRIVE_FOLDER_ID, 
+    #     output_dir_path=PARTY_LOGOS_DIR_PATH,
+    #     crop=False  # Don't crop party logos, just save them
+    # )
+    # # Update parties image url in Polotigraph
+    # apollo_client = get_apollo_client(
+    #     POLITIGRAPH_SUBSCRIBTION_ENDPOINT,
+    #     POLITIGRAPH_TOKEN
+    # )
+    # for file in os.listdir(PARTY_LOGOS_DIR_PATH):
         
-        # Get party name from file name
-        party_name = re.sub(r"\..*$", "", file)  # Remove file extension
-        print(f"Updating logo for {party_name}...")
+    #     # Get party name from file name
+    #     party_name = re.sub(r"\..*$", "", file)  # Remove file extension
+    #     print(f"Updating logo for {party_name}...")
         
-        # Update the image URL in Politigraph
-        update_party_logo_image_url(
-            client=apollo_client,
-            party_name=party_name, 
-            image_url=f"https://politigraph.wevis.info/assets/organizations/political-parties/{file}"
-        )
-        print(f"Updated logo URL for {party_name} to https://politigraph.wevis.info/assets/organizations/political-parties/{file}")
+    #     # Update the image URL in Politigraph
+    #     update_party_logo_image_url(
+    #         client=apollo_client,
+    #         party_name=party_name, 
+    #         image_url=f"https://politigraph.wevis.info/assets/organizations/political-parties/{file}"
+    #     )
+    #     print(f"Updated logo URL for {party_name} to https://politigraph.wevis.info/assets/organizations/political-parties/{file}")
     
 if __name__ == "__main__":
     main()

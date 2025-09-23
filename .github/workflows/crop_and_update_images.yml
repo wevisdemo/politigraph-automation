@@ -54,12 +54,12 @@ jobs:
             remote_key: ${{ secrets.SSH_KEY }}
             remote_path: ${{ secrets.SSH_ASSETS_PATH }}/people/
 
-      - name: Upload political-parties images
-        uses: burnett01/rsync-deployments@7.0.1
-        with:
-            switches: -azvP --chown=bot:deployer --chmod=g+w --omit-dir-times
-            path: tmp/cropped-party-logos/
-            remote_host: ${{ secrets.SSH_HOST }}
-            remote_user: bot
-            remote_key: ${{ secrets.SSH_KEY }}
-            remote_path: ${{ secrets.SSH_ASSETS_PATH }}/organizations/political-parties/
+      # - name: Upload political-parties images
+      #   uses: burnett01/rsync-deployments@7.0.1
+      #   with:
+      #       switches: -azvP --chown=bot:deployer --chmod=g+w --omit-dir-times
+      #       path: tmp/cropped-party-logos/
+      #       remote_host: ${{ secrets.SSH_HOST }}
+      #       remote_user: bot
+      #       remote_key: ${{ secrets.SSH_KEY }}
+      #       remote_path: ${{ secrets.SSH_ASSETS_PATH }}/organizations/political-parties/
