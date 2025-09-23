@@ -1,43 +1,55 @@
 from gql import Client
 import warnings
+import asyncio
 
 from .apollo_connector import get_apollo_client
-from .query_helper.persons import update_person
+from .query_helper.persons import update_person, get_persons
 from .query_helper.organizations import update_organiztion
 
 def update_politician_image_url(
-    client: Client,
-    firstname: str,
-    lastname: str,
+    name: str,
     image_url: str,
 ) -> None:
     """
     Update politician image url
 
     Args:
-        client: gql.Client @deprecated
-            The GQL client with a fetched schema.
-        firstname: str
-            Person's firstname
-        lastname: str
-            Person's lastname
+        name: str
+            Person's fullname
         image_url: str
             url of the image file
     """
     
-    if not client:
-        client = get_apollo_client()
+    apollo_client = get_apollo_client()
     
+    # Get all person with similar firstname
+    firstname = name.split(" ")[0]
     params = {
         "where": {
-            "firstname_EQ": firstname,
-            "lastname_EQ": lastname
+            "firstname_CONTAINS": firstname
+            }
+    }
+    
+    persons = asyncio.run(get_persons(
+        client=apollo_client,
+        fields=['id', 'name', 'firstname', 'middlename', 'lastname'],
+        params=params
+    ))
+    
+    person_id_index = {
+        d['name']: d['id'] for d in persons
+    }
+    
+    # Construct params
+    params = {
+        "where": {
+            "id_EQ": person_id_index.get(name, None)
         },
         "update": {
             "image_SET": image_url
         }
     }
-    result = update_person(client=client, params=params)
+    result = asyncio.run(update_person(client=apollo_client, params=params))
     
 def update_party_logo_image_url(
     client: Client,
@@ -67,4 +79,4 @@ def update_party_logo_image_url(
             "image_SET": image_url
         }
     }
-    result = update_organiztion(client=client, params=params)
+    result = asyncio.run(update_organiztion(client=client, params=params))
