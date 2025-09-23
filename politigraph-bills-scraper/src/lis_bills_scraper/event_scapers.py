@@ -93,7 +93,7 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
     info_table = section_element.find('tbody')
     if not isinstance(info_table, Tag):
         return {
-            "event_type": "VOTE_EVENT_MP_1",
+            "event_type": f"VOTE_EVENT_MP_{vote_session}",
         }
     
     print(f"{''.join(['=' for _ in range(20)])} MP_{vote_session} {''.join(['=' for _ in range(20)])}")
