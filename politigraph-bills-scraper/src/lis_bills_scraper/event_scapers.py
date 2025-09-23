@@ -3,9 +3,8 @@ import re
 
 from bs4 import BeautifulSoup, Tag
 
-from .utility import convert_thai_date_to_universal
+from .utility import convert_thai_date_to_universal, extract_vote_count_data
 from .msbis_scraper import get_msbis_id
-from thai_name_normalizer import convert_thai_number_str_to_arabic
 
 def construct_info_data(info_text: str) -> Dict[str, Any]:
     event_info = {}
@@ -127,30 +126,11 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
     }
     vote_option_index = vote_session_options_index.get(vote_session, {})
     
-    # Get & Normalize vote text
-    vote_text = event_info.get("คะแนนเสียง", "").replace("\r", "")
-    # vote_text = vote_text.replace("\n", " | ")
-    vote_text = re.sub(r"\s+", " ", vote_text)
-    vote_text = convert_thai_number_str_to_arabic(vote_text) # convert Thai num to Arabic
-    # print(vote_text)
-
-    vote_count_data = {}
-    for option, option_text in vote_option_index.items():
-        if option_text not in vote_text:
-            vote_count_data[option] = None
-        _pattern = r"^(" + option_text + r").+?(เสียง|ไม่มี)"
-        match_option = re.search(_pattern, vote_text)
-        if match_option:
-            _txt = match_option.group(0)
-            match_num = re.search(r"\d+", _txt)
-            if "ไม่มี" in _txt:
-                vote_count_data[option] = 0
-            elif match_num:
-                vote_count_data[option] = int(match_num.group(0))
-            vote_text = re.sub(_pattern, "", vote_text).strip()
-    # If novote_count not present set to 0
-    if not vote_count_data.get('novote_count', None):
-        vote_count_data['novote_count'] = 0
+    # Extract vote count data
+    vote_count_data = extract_vote_count_data(
+        vote_text=event_info.get("คะแนนเสียง", ""),
+        vote_option_index=vote_option_index
+    )
         
     # Get msbis info
     term = event_info.get("ชุดที่", None)
