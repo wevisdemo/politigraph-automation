@@ -36,15 +36,14 @@ jobs:
         run: |
             mkdir -p /tmp
 
-      - name: Crop & Update Images
-        run: uv run scripts/crop_and_update_images.py
+      - name: Crop & Update Politician Images
+        run: uv run scripts/update_politician_image.py
         env:
           POLITICIAN_PHOTOS_DRIVE_FOLDER_ID: "${{ secrets.POLITICIAN_PHOTOS_DRIVE_FOLDER_ID }}" # Google Drive folder id for Politician images
-          PARTY_LOGOS_DRIVE_FOLDER_ID: "${{ secrets.PARTY_LOGOS_DRIVE_FOLDER_ID }}" # Google Drive folder id for Party logos
           POLITIGRAPH_SUBSCRIBTION_ENDPOINT: "${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}"
           POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
 
-      - name: Upload politician images
+      - name: Upload Politician Images
         uses: burnett01/rsync-deployments@7.0.1
         with:
             switches: -azvP --chown=bot:deployer --chmod=g+w --omit-dir-times
@@ -53,13 +52,20 @@ jobs:
             remote_user: bot
             remote_key: ${{ secrets.SSH_KEY }}
             remote_path: ${{ secrets.SSH_ASSETS_PATH }}/people/
+      
+      - name: Crop & Update Political Parties Images
+        run: uv run scripts/update_party_image.py
+        env:
+          PARTY_LOGOS_DRIVE_FOLDER_ID: "${{ secrets.PARTY_LOGOS_DRIVE_FOLDER_ID }}" # Google Drive folder id for Party logos
+          POLITIGRAPH_SUBSCRIBTION_ENDPOINT: "${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}"
+          POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
 
-      # - name: Upload political-parties images
-      #   uses: burnett01/rsync-deployments@7.0.1
-      #   with:
-      #       switches: -azvP --chown=bot:deployer --chmod=g+w --omit-dir-times
-      #       path: tmp/cropped-party-logos/
-      #       remote_host: ${{ secrets.SSH_HOST }}
-      #       remote_user: bot
-      #       remote_key: ${{ secrets.SSH_KEY }}
-      #       remote_path: ${{ secrets.SSH_ASSETS_PATH }}/organizations/political-parties/
+      - name: Upload Political Parties Images
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+            switches: -azvP --chown=bot:deployer --chmod=g+w --omit-dir-times
+            path: tmp/cropped-party-logos/
+            remote_host: ${{ secrets.SSH_HOST }}
+            remote_user: bot
+            remote_key: ${{ secrets.SSH_KEY }}
+            remote_path: ${{ secrets.SSH_ASSETS_PATH }}/organizations/political-parties/
