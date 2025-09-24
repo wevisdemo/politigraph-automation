@@ -52,7 +52,6 @@ def update_politician_image_url(
     result = asyncio.run(update_person(client=apollo_client, params=params))
     
 def update_party_logo_image_url(
-    client: Client,
     party_name: str,
     image_url: str
 ) -> None:
@@ -68,7 +67,7 @@ def update_party_logo_image_url(
             url of the image file
     """
     
-    client = get_apollo_client()
+    apollo_client = get_apollo_client()
     
     params = {
         "where": {
@@ -79,4 +78,7 @@ def update_party_logo_image_url(
             "image_SET": image_url
         }
     }
-    result = asyncio.run(update_organiztion(client=client, params=params))
+    result = asyncio.run(update_organiztion(
+        client=apollo_client, 
+        params=params
+    ))
