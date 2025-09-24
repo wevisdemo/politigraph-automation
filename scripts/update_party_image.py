@@ -25,7 +25,7 @@ from google.auth import default
 from googleapiclient.discovery import build
 
 from poliquery import update_party_logo_image_url
-from .image_files_manager import read_and_save_images_from_drive
+from image_files_manager import read_and_save_images_from_drive
 
 SCOPES = [
     "https://www.googleapis.com/auth/drive.readonly",
