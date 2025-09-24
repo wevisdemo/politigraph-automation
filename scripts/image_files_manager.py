@@ -100,6 +100,7 @@ def read_and_save_images_from_drive(
     drive_folder_id:str, 
     output_dir_path:str="tmp/cropped-politician-images",
     crop:bool=True,
+    select_names:List[str]=[],
 ):
     """Crops and updates politician images in a Google Drive folder."""
     
@@ -111,6 +112,11 @@ def read_and_save_images_from_drive(
     for file in files:
         file_id = file['id']
         file_name = file['name']
+        
+        if select_names:
+            _name = re.sub(r"\..*", "", file_name) # remove file extension
+            if _name not in select_names:
+                continue
         
         print(f"Process file: {file_name}...")
         

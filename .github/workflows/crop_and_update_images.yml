@@ -2,6 +2,11 @@ name: Crop & Update Images
 
 on:
   workflow_dispatch:
+    inputs:
+      politicians_name:
+        description: 'specific politicians name that need to get update separate with `|`, leave blank to update all'
+        type: string
+        default: ''
 
 permissions:
   contents: 'read'
@@ -42,6 +47,7 @@ jobs:
           POLITICIAN_PHOTOS_DRIVE_FOLDER_ID: "${{ secrets.POLITICIAN_PHOTOS_DRIVE_FOLDER_ID }}" # Google Drive folder id for Politician images
           POLITIGRAPH_SUBSCRIBTION_ENDPOINT: "${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}"
           POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
+          SELECT_POLITICIANS_NAME: "${{ github.event.inputs.politicians_name }}"
 
       - name: Upload Politician Images
         uses: burnett01/rsync-deployments@7.0.1
