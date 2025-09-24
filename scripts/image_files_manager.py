@@ -1,5 +1,5 @@
 from typing import List
-import os
+import os, re
 from io import BytesIO
 import cv2
 from PIL import Image
@@ -114,6 +114,7 @@ def read_and_save_images_from_drive(
         file_name = file['name']
         
         if select_names:
+            import re
             _name = re.sub(r"\..*", "", file_name) # remove file extension
             if _name not in select_names:
                 continue
