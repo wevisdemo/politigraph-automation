@@ -223,6 +223,40 @@ def scrape_senates_vote_event(section_element: Tag, vote_session: int=1) -> Dict
     
     return result_event_data
 
+def scrape_royal_assent(section_element: Tag) -> Dict[str, Any]:
+    # Get info table
+    info_table = section_element.find('tbody')
+    if not isinstance(info_table, Tag):
+        return {}
+    
+    _title_txt = f"ROYAL_ASSENT"
+    print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
+    
+    ### Construct info data ###
+    info_text = ""
+    for row in info_table.find_all('tr'):
+        row_text = row.get_text(separator="|", strip=True)
+        info_text += row_text + "|"
+
+    event_info = construct_info_data(info_text)
+    
+    # Get royal assent result
+    royal_assent_result = event_info.get("พระบรมราชวินิจฉัย", None)
+    
+    import json
+    print(json.dumps(
+        event_info,
+        indent=2,
+        ensure_ascii=False
+    ))
+    print("".join(['=' for _ in range(42 + len(_title_txt))]))
+    
+    return {
+        "event_type": "ROYAL_ASSENT",
+        "result": royal_assent_result
+    }
+    
+
 event_scraper_dispatcher = {
     # General bill's info
     'ข้อมูลกลุ่มงานบริหารทั่วไปและสารบรรณ สำนักบริหารงานกลาง (สผ.)': scrape_bill_info,
@@ -253,4 +287,7 @@ event_scraper_dispatcher = {
     # Vote SENATE_3
     'ข้อมูลการพิจารณาของวุฒิสภา วาระที่ 3': lambda section_element:
         scrape_senates_vote_event(section_element, vote_session=3),
+        
+    # Royal Assent
+    'ข้อมูลผลการนำขึ้นทูลเกล้าทูลกระหม่อมถวาย': scrape_royal_assent
 }

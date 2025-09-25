@@ -3,6 +3,7 @@ import asyncio
 
 from .apollo_connector import get_apollo_client
 from .query_helper.vote_events import agg_count_vote_events
+from .query_helper.royal_assent_event import get_royal_assent_events, create_royal_assent_event, update_royal_assent_event
 from .query_helper.draft_vote_event import agg_count_draft_vote_events, update_draft_vote_event, create_draft_vote_event
 
 def is_vote_event_exist_in_bill(
@@ -148,3 +149,81 @@ def create_new_draft_vote_event(
         }
     ))
     return
+
+def create_new_royal_assent_event(
+    bill_info: Dict[str, Any],
+    event_info: Dict[str, Any]
+) -> None:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    # Get bill ID
+    bill_id = bill_info.get('id', "")
+    
+    # Get event info
+    result = event_info.get("result", None)
+    
+    # Check if RoyalAssent event already exist in bill
+    royal_events = asyncio.run(get_royal_assent_events(
+        client=apollo_client,
+        fields=[
+            'id',
+            'result'
+        ],
+        params={
+            "where": {
+                "motions_SOME": {
+                    "id_EQ": bill_id
+                }
+            }
+        }
+    ))
+    if royal_events:
+        print(royal_events)
+        # Get result
+        old_result = royal_events[0]['result']
+        if not old_result and result: # if exist and result is valid
+            # Update royal assent event
+            asyncio.run(update_royal_assent_event(
+                client=apollo_client,
+                params={
+                    "where": {
+                        "motions_SOME": {
+                            "id_EQ": bill_id
+                        }
+                    },
+                    "update": {
+                        "result_SET": result,
+                        "publish_status_SET": "PUBLISHED"
+                    }
+                }
+            ))
+            pass
+        return
+    
+    params = {
+        "input": [
+            {
+                "result": result,
+                "publish_status": "PUBLISHED" if result else "UNPUBLISHED",
+                "motions": {
+                    "connect": [
+                        {
+                            "where": {
+                                "node": {
+                                    "id_EQ": bill_id
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+    
+    # Create new RoyalAssent event
+    asyncio.run(create_royal_assent_event(
+        client=apollo_client,
+        params=params
+    ))
