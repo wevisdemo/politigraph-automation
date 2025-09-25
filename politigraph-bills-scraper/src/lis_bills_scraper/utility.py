@@ -65,7 +65,6 @@ def extract_vote_count_data(
     vote_count_data = {}
     # Split text into chunk of text-number
     splited_texts = re.split(r"(\d+\+\d+=\d+|\d+|ไม่มี)", vote_text)
-    print(">>>>>", splited_texts)
     
     # Pair splited texts to get vote count data
     for key, num_text in zip(splited_texts, splited_texts[1:]):

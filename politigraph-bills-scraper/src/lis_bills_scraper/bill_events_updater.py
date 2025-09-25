@@ -12,6 +12,8 @@ event_handler_dispatcher = {
     'CO_PROPOSER': update_bill_co_proposer,
     'VOTE_EVENT_MP_1': create_new_draft_vote_event,
     'VOTE_EVENT_MP_3': create_new_draft_vote_event,
+    'VOTE_EVENT_SENATE_1': create_new_draft_vote_event,
+    'VOTE_EVENT_SENATE_3': create_new_draft_vote_event,
 }
 
 def update_event_in_bill(

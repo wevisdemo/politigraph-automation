@@ -39,7 +39,6 @@ def is_vote_event_exist_in_bill(
     
     return bool(count_vote_event)
 
-# TODO Handle both MP & Senate voteEvents
 def create_new_draft_vote_event(
     bill_info: Dict[str, Any],
     event_info: Dict[str, Any]
@@ -56,18 +55,15 @@ def create_new_draft_vote_event(
     msbis_id = event_info.get("msbis_id", None)
     vote_date = event_info.get("vote_date", None)
     vote_result = event_info.get("vote_result", None)
-    agree_count = event_info.get("agree_count", None)
-    disagree_count = event_info.get("disagree_count", None)
-    abstain_count = event_info.get("abstain_count", None)
-    novote_count = event_info.get("novote_count", None)
+    
+    # Get vote data
+    vote_count_data = event_info.get("vote_count", {})
+    agree_count = vote_count_data.get("agree_count", None)
+    disagree_count = vote_count_data.get("disagree_count", None)
+    abstain_count = vote_count_data.get("abstain_count", None)
+    novote_count = vote_count_data.get("novote_count", None)
     
     print(f"bill ID : {bill_id}")
-    import json
-    print(json.dumps(
-        event_info,
-        indent=2,
-        ensure_ascii=False
-    ))
     
     # Get event classification
     event_classification_index = {
@@ -83,7 +79,7 @@ def create_new_draft_vote_event(
         bill_id=bill_id,
         classification=event_classification,
     ):
-        # If voteEvent or draftVoteEvent already exist, skip
+        # If voteEvent already exist, skip
         return
     
     # Check if draftVoteEvent exist

@@ -144,19 +144,100 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
         "vote_count": vote_count_data
     }
     
+def scrape_senates_vote_event(section_element: Tag, vote_session: int=1) -> Dict[str, Any]:
+    
+    # Get info table
+    info_table = section_element.find('tbody')
+    if not isinstance(info_table, Tag):
+        return {
+            "event_type": f"VOTE_EVENT_SENATE_{vote_session}",
+        }
+        
+    _title_txt = f"SENATE_{vote_session}"
+    print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
+        
+    ### Construct info text data ###
+    info_text = ""
+    for row in info_table.find_all('tr', recursive=False):
+        row_text = row.get_text(separator="|", strip=True)
+        info_text += row_text + "|"
+    
+    # Clean info text to get only vote date
+    info_text = re.sub(r"(^.+?\|)?(.?ที่ประชุมพิจารณา(.|\n)*$)", r"\g<2>", info_text)
+    
+    ### Construct info data ###
+    event_info = construct_info_data(info_text)
+    
+    # Construct vote data
+    vote_option_index = {
+        'disagree_count': 'ไม่เห็นชอบ',
+        'agree_count': 'เห็นชอบ',
+        'abstain_count': 'งดออกเสียง',
+        'novote_count': 'ไม่ลงคะแนน',
+    }
+    # Clean vote text before parse to extract with function
+    vote_count_data = {}
+    vote_option_normalizer = {
+        r"\s+": " ",
+        r"วาระที่\s+\d{1}": "",
+        r"(\d+)": r"\g<1> เสียง",
+        r"(\d+\s?)เสียง\s+": r"\g<1>เสียง\n"
+    }
+    vote_text = event_info.get("คะแนนเสียง", None)
+    if vote_text:
+        # Clean text
+        for pattern_str, repl_str in vote_option_normalizer.items():
+            vote_text = re.sub(pattern_str, repl_str, vote_text)
+        print(vote_text)
+        
+        # Extract vote count data
+        vote_count_data = extract_vote_count_data(
+            vote_text=vote_text,
+            # vote_option_index=vote_option_index
+        )
+    
+    # Get vote result
+    vote_result = event_info.get("มติ", "")
+    
+    # Get & Convert vote date
+    raw_vote_date = event_info.get("วันที่", None)
+    vote_date = None
+    if raw_vote_date:
+        vote_date = convert_thai_date_to_universal(raw_vote_date)
+    
+    result_event_data = {
+        "event_type": f"VOTE_EVENT_SENATE_{vote_session}",
+        "vote_date": vote_date,
+        "vote_result": vote_result,
+        "vote_count": vote_count_data
+    }
+    
+    import json
+    print(json.dumps(
+        result_event_data,
+        indent=2,
+        ensure_ascii=False
+    ))
+    
+    print("".join(['=' for _ in range(42 + len(_title_txt))]))
+    
+    return result_event_data
 
 event_scraper_dispatcher = {
     # General bill's info
     'ข้อมูลกลุ่มงานบริหารทั่วไปและสารบรรณ สำนักบริหารงานกลาง (สผ.)': scrape_bill_info,
+    
     # Co-proposer info
     'ข้อมูลการตรวจสอบร่างพระราชบัญญัติ': scrape_co_proposer,
+    
     # Vote MP_1
     'ข้อมูลการพิจารณาของสภาผู้แทนราษฎร วาระที่ 1': lambda section_element:
         scrape_representatives_vote_event(section_element, vote_session=1),
     'ข้อมูลพิจารณาของสภาผู้แทนราษฎร วาระที่ 1': lambda section_element:
         scrape_representatives_vote_event(section_element, vote_session=1),
     'ข้อมูลการพิจารณาร่างฯ ของรัฐสภา วาระที่ 1': lambda section_element:
-        scrape_representatives_vote_event(section_element, vote_session=1),        
+        scrape_representatives_vote_event(section_element, vote_session=1), 
+               
     # Vote MP_3
     'ข้อมูลการพิจารณาของสภาผู้แทนราษฎร วาระที่ 3': lambda section_element:
         scrape_representatives_vote_event(section_element, vote_session=3),
@@ -164,4 +245,12 @@ event_scraper_dispatcher = {
         scrape_representatives_vote_event(section_element, vote_session=3),
     'ข้อมูลการพิจารณาร่างฯ ของรัฐสภา วาระที่ 3': lambda section_element:
         scrape_representatives_vote_event(section_element, vote_session=3),
+    
+    # Vote SENATE_1
+    'ข้อมูลการพิจารณาของวุฒิสภา วาระที่ 1': lambda section_element:
+        scrape_senates_vote_event(section_element, vote_session=1),
+        
+    # Vote SENATE_3
+    'ข้อมูลการพิจารณาของวุฒิสภา วาระที่ 3': lambda section_element:
+        scrape_senates_vote_event(section_element, vote_session=3),
 }
