@@ -274,7 +274,16 @@ def scrape_enforce_event(section_element: Tag) -> Dict[str, Any]:
     event_info = construct_info_data(info_text)
     
     # Get bill's final title
-    final_title = event_info.get("พระราชบัญญัติรัฐธรรมนูญ", None)
+    final_name_titles = [
+        'พระราชบัญญัติรัฐธรรมนูญ',
+        'ชื่อพระราชบัญญัติงบประมาณรายจ่ายประจำปีงบประมาณ', # พรบ งบ
+        'ชื่อที่ใช้เป็นกฎหมาย', # พระราชกำหนด
+    ]
+    final_title = None
+    for _title in final_name_titles:
+        final_title = event_info.get(_title, None)
+        if final_title:
+            break
     
     # Get enforce date
     enforce_date_string = event_info.get("วันที่", None)
@@ -370,6 +379,8 @@ event_scraper_dispatcher = {
     
     # Enforce
     'ข้อมูลการประกาศเป็นกฎหมาย': scrape_enforce_event,
+    'ข้อมูลประกาศในราชกิจจานุเบกษา': scrape_enforce_event, # พรบ งบ
+    'ข้อมูลการประกาศอนุมัติ พระราชกำหนด': scrape_enforce_event, # พระราชกำหนด
     
     # Reject
     'ข้อมูลร่างตกไป': scrape_reject_event
