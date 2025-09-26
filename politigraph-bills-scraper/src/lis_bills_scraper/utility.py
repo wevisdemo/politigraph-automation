@@ -40,7 +40,7 @@ def extract_vote_count_data(
     vote_option_index: Dict[str, List[str]]|None= {
         'agree_count': ['เห็นชอบ', 'รับหลักการ', 'เห็นด้วย'],
         'disagree_count': ['ไม่เห็นชอบ', 'ไม่รับหลักการ', 'ไม่เห็นด้วย'],
-        'abstain_count': ['งดออกเสียง'],
+        'abstain_count': ['งดออกเสียง', 'งด'],
         'novote_count': ['ไม่ลงคะแนน', 'ไม่ลงคะแนนเสียง', 'ไม่ประสงค์ลงคะแนน'],
     }
 ) -> Dict[str, Any]:
