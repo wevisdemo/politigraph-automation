@@ -256,6 +256,48 @@ def scrape_royal_assent(section_element: Tag) -> Dict[str, Any]:
         "result": royal_assent_result
     }
     
+def scrape_enforce_event(section_element: Tag) -> Dict[str, Any]:
+    # Get info table
+    info_table = section_element.find('tbody')
+    if not isinstance(info_table, Tag):
+        return {}
+    
+    _title_txt = f"ENFORCE"
+    print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
+    
+    ### Construct info data ###
+    info_text = ""
+    for row in info_table.find_all('tr'):
+        row_text = row.get_text(separator="|", strip=True)
+        info_text += row_text + "|"
+
+    event_info = construct_info_data(info_text)
+    
+    # Get bill's final title
+    final_title = event_info.get("พระราชบัญญัติรัฐธรรมนูญ", None)
+    
+    # Get enforce date
+    enforce_date_string = event_info.get("วันที่", None)
+    enforce_date = None
+    if enforce_date_string:
+        enforce_date = convert_thai_date_to_universal(enforce_date_string)
+    
+    result_event_data = {
+        "event_type": "ENFORCE",
+        "start_date": enforce_date,
+        "final_title": final_title,
+    }
+    
+    import json
+    print(json.dumps(
+        result_event_data,
+        indent=2,
+        ensure_ascii=False
+    ))
+    
+    print("".join(['=' for _ in range(42 + len(_title_txt))]))
+    
+    return result_event_data
 
 event_scraper_dispatcher = {
     # General bill's info
@@ -289,5 +331,8 @@ event_scraper_dispatcher = {
         scrape_senates_vote_event(section_element, vote_session=3),
         
     # Royal Assent
-    'ข้อมูลผลการนำขึ้นทูลเกล้าทูลกระหม่อมถวาย': scrape_royal_assent
+    'ข้อมูลผลการนำขึ้นทูลเกล้าทูลกระหม่อมถวาย': scrape_royal_assent,
+    
+    # Enforce
+    'ข้อมูลการประกาศเป็นกฎหมาย': scrape_enforce_event
 }

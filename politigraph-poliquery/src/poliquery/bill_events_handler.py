@@ -4,6 +4,7 @@ import asyncio
 from .apollo_connector import get_apollo_client
 from .query_helper.vote_events import agg_count_vote_events
 from .query_helper.royal_assent_event import get_royal_assent_events, create_royal_assent_event, update_royal_assent_event
+from .query_helper.enforce_event import agg_count_enforce_event, create_enforce_event
 from .query_helper.draft_vote_event import agg_count_draft_vote_events, update_draft_vote_event, create_draft_vote_event
 
 def is_vote_event_exist_in_bill(
@@ -224,6 +225,66 @@ def create_new_royal_assent_event(
     
     # Create new RoyalAssent event
     asyncio.run(create_royal_assent_event(
+        client=apollo_client,
+        params=params
+    ))
+    
+def create_new_enforce_event(
+    bill_info: Dict[str, Any],
+    event_info: Dict[str, Any]
+) -> None:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    # Get bill ID
+    bill_id = bill_info.get('id', "")
+    
+    # Get enforce date
+    enforce_date = event_info.get("start_date", None)
+    
+    # Get final title
+    final_title = event_info.get("final_title", None)
+    
+    # Check if enforce event exist
+    agg_count = asyncio.run(agg_count_enforce_event(
+        client=apollo_client,
+        params={
+            "where": {
+                "motions_SOME": {
+                    "id_EQ": bill_id
+                }
+            }
+        }
+    ))
+    if agg_count: # skip
+        return
+    
+    # Create new BillEnforceEvent
+    params = {
+        "input": [
+            {
+                "title": final_title,
+                "start_date": enforce_date,
+                "end_date": enforce_date,
+                "publish_status": "PUBLISHED",
+                "motions": {
+                    "connect": [
+                        {
+                            "where": {
+                                "node": {
+                                    "id_EQ": bill_id
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+    
+    # Create new RoyalAssent event
+    asyncio.run(create_enforce_event(
         client=apollo_client,
         params=params
     ))
