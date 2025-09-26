@@ -40,6 +40,12 @@ def get_meeting_list_from_page(
             })
     
     return meeting_list
+
+def clean_session_text(session_text: str|None) -> str|None:
+    if not session_text:
+        return
+    cleaned_text = re.sub("\s.*", "", session_text.strip()).strip()
+    return cleaned_text
         
 @cached(cache=TTLCache(maxsize=64, ttl=60))
 def get_msbis_meeting_list(
@@ -53,7 +59,7 @@ def get_msbis_meeting_list(
     session_response = request_meeting_records(
         parliament_number=term,
         year=issue_year,
-        session_txt=session,
+        session_txt=clean_session_text(session),
         page=1
     )
     soup = BeautifulSoup(BeautifulSoup(session_response.content, "html.parser").decode(), "html.parser")
