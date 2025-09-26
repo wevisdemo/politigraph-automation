@@ -168,13 +168,6 @@ def scrape_senates_vote_event(section_element: Tag, vote_session: int=1) -> Dict
     ### Construct info data ###
     event_info = construct_info_data(info_text)
     
-    # Construct vote data
-    vote_option_index = {
-        'disagree_count': 'ไม่เห็นชอบ',
-        'agree_count': 'เห็นชอบ',
-        'abstain_count': 'งดออกเสียง',
-        'novote_count': 'ไม่ลงคะแนน',
-    }
     # Clean vote text before parse to extract with function
     vote_count_data = {}
     vote_option_normalizer = {
@@ -197,7 +190,14 @@ def scrape_senates_vote_event(section_element: Tag, vote_session: int=1) -> Dict
         )
     
     # Get vote result
-    vote_result = event_info.get("มติ", "")
+    result_titles = [
+        'มติ', 'การพิจารณาของวุฒิสภา'
+    ]
+    vote_result = None
+    for _title in result_titles:
+        vote_result = event_info.get(_title, "")
+        if vote_result:
+            break
     
     # Get & Convert vote date
     raw_vote_date = event_info.get("วันที่", None)
@@ -369,6 +369,10 @@ event_scraper_dispatcher = {
     # Vote SENATE_1
     'ข้อมูลการพิจารณาของวุฒิสภา วาระที่ 1': lambda section_element:
         scrape_senates_vote_event(section_element, vote_session=1),
+    'ข้อมูลวุฒิสภาพิจารณาและลงมติ': lambda section_element:
+        scrape_senates_vote_event(section_element, vote_session=1), # พรบ งบ
+    'ข้อมูลวุฒิสภาพิจารณา': lambda section_element:
+        scrape_senates_vote_event(section_element, vote_session=1), # พระราชกำหนด
         
     # Vote SENATE_3
     'ข้อมูลการพิจารณาของวุฒิสภา วาระที่ 3': lambda section_element:
