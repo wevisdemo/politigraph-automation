@@ -299,6 +299,41 @@ def scrape_enforce_event(section_element: Tag) -> Dict[str, Any]:
     
     return result_event_data
 
+def scrape_reject_event(section_element: Tag) -> Dict[str, Any]:
+    # Get info table
+    info_table = section_element.find('tbody')
+    if not isinstance(info_table, Tag):
+        return {}
+    
+    _title_txt = f"REJECT"
+    print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
+    
+    ### Construct info data ###
+    info_text = ""
+    for row in info_table.find_all('tr'):
+        row_text = row.get_text(separator="|", strip=True)
+        info_text += row_text + "|"
+
+    event_info = construct_info_data(info_text)
+    
+    # Get reject reason
+    reject_reason = event_info.get("เหตุผล", None)
+    
+    result_event_data = {
+        "event_type": "REJECT",
+        "reject_reason": reject_reason,
+    }
+    
+    import json
+    print(json.dumps(
+        result_event_data,
+        indent=2,
+        ensure_ascii=False
+    ))
+    
+    print("".join(['=' for _ in range(42 + len(_title_txt))]))
+    return result_event_data
+
 event_scraper_dispatcher = {
     # General bill's info
     'ข้อมูลกลุ่มงานบริหารทั่วไปและสารบรรณ สำนักบริหารงานกลาง (สผ.)': scrape_bill_info,
@@ -334,5 +369,8 @@ event_scraper_dispatcher = {
     'ข้อมูลผลการนำขึ้นทูลเกล้าทูลกระหม่อมถวาย': scrape_royal_assent,
     
     # Enforce
-    'ข้อมูลการประกาศเป็นกฎหมาย': scrape_enforce_event
+    'ข้อมูลการประกาศเป็นกฎหมาย': scrape_enforce_event,
+    
+    # Reject
+    'ข้อมูลร่างตกไป': scrape_reject_event
 }
