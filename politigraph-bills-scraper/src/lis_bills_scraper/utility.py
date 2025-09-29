@@ -49,6 +49,8 @@ def extract_vote_count_data(
         raise ValueError("Invalid vote option index!!")
     
     # Get & Normalize vote text
+    if not vote_text:
+        return {}
     vote_text = vote_text.replace("\r", "")
     # vote_text = vote_text.replace("\n", " | ")
     vote_text = re.sub(r"\s+", " ", vote_text)
