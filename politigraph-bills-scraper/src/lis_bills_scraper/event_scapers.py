@@ -332,6 +332,8 @@ def scrape_reject_event(section_element: Tag) -> Dict[str, Any]:
     
     # Get reject reason
     reject_reason = event_info.get("เหตุผล", None)
+    if not reject_reason:
+        reject_reason = event_info.get("หมายเหตุ", None)
     
     result_event_data = {
         "event_type": "REJECT",
@@ -441,6 +443,7 @@ event_scraper_dispatcher = {
     
     # Reject
     'ข้อมูลร่างตกไป': scrape_reject_event,
+    'ข้อมูลไม่เข้าสู่กระบวนการพิจารณา': scrape_reject_event,
     
     # Merge
     'ข้อมูลการพิจารณาร่างพระราชบัญญัติ เป็นร่างหลัก': scrape_merge_event,
