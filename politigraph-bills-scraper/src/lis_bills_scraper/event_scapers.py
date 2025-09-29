@@ -368,7 +368,11 @@ def scrape_merge_event(section_element: Tag) -> Dict[str, Any]:
         # Get acceptance number
         acceptance_number = row_data[1].get_text(strip=True)
         # Get lis_id
-        sub_url = row_data[-1].find('a')['href']  # type: ignore
+        # Check a element
+        a_element = row_data[-1].find('a')  # type: ignore
+        if not a_element:
+            continue
+        sub_url = a_element['href']  # type: ignore
         lis_id = re.search(r"DOC_ID\=(\d+)", sub_url).group(1)  # type: ignore
         
         merged_bills.append({
