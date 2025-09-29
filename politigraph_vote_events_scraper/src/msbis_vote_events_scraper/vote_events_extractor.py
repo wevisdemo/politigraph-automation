@@ -60,8 +60,8 @@ def extract_vote_event(msbis_id:int) -> list:
         vote_date = decode_thai_date(date_string.strip())
         
         bill_list = soup.find('tr', {'id': "mydetail_o"}).find_all('li') # type: ignore
-        
-        return extract_vote_event_data(bill_list, msbis_id=msbis_id, date=vote_date)
+        if bill_list:
+            return extract_vote_event_data(bill_list, msbis_id=msbis_id, date=vote_date)
     
     return []  # Return empty list if no vote event found
 
