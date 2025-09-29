@@ -74,7 +74,12 @@ def scrape_co_proposer(section_element: Tag) -> Dict[str, Any]:
             if not re.search(r"^\d+", row_text) or re.search(r"^1", row_text): # if it is header row or first name
                 continue
             
-            _, name, party_name, *_ = row_text.split("|")
+            # Get name & party's name
+            _co_propose_text_data = row_text.split("|")
+            name = _co_propose_text_data[1]
+            party_name = ""
+            if len(_co_propose_text_data) >= 3:
+                party_name = _co_propose_text_data[2]
             
             co_proposer_list.append({
                 'name': name,
