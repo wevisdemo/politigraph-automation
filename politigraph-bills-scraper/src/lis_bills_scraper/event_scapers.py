@@ -343,6 +343,50 @@ def scrape_reject_event(section_element: Tag) -> Dict[str, Any]:
     print("".join(['=' for _ in range(42 + len(_title_txt))]))
     return result_event_data
 
+def scrape_merge_event(section_element: Tag) -> Dict[str, Any]:
+    # Get info table
+    info_table = section_element.find('table')
+    if not isinstance(info_table, Tag):
+        return {}
+    
+    _title_txt = f"MERGED"
+    print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
+    
+    # Extract table data to dict
+    merged_bills = []
+    for tr_row in info_table.find('tbody').find_all('tr', recursive=False):  # type: ignore
+        
+        row_data = tr_row.find_all('td')  # type: ignore
+        if not row_data:
+            continue
+        
+        # Get acceptance number
+        acceptance_number = row_data[1].get_text(strip=True)
+        # Get lis_id
+        sub_url = row_data[-1].find('a')['href']  # type: ignore
+        lis_id = re.search(r"DOC_ID\=(\d+)", sub_url).group(1)  # type: ignore
+        
+        merged_bills.append({
+            'acceptance_number': acceptance_number,
+            'sub_url': sub_url,
+            'lis_id': int(lis_id)
+        })
+        
+    import json
+    print(json.dumps(
+        merged_bills,
+        indent=2,
+        ensure_ascii=False
+    ))
+    
+    result_event_data = {
+        "event_type": "MERGE",
+        "merged_bills": merged_bills
+    }
+        
+    print("".join(['=' for _ in range(42 + len(_title_txt))]))
+    return result_event_data
+
 event_scraper_dispatcher = {
     # General bill's info
     'ข้อมูลกลุ่มงานบริหารทั่วไปและสารบรรณ สำนักบริหารงานกลาง (สผ.)': scrape_bill_info,
@@ -387,5 +431,8 @@ event_scraper_dispatcher = {
     'ข้อมูลการประกาศอนุมัติ พระราชกำหนด': scrape_enforce_event, # พระราชกำหนด
     
     # Reject
-    'ข้อมูลร่างตกไป': scrape_reject_event
+    'ข้อมูลร่างตกไป': scrape_reject_event,
+    
+    # Merge
+    'ข้อมูลการพิจารณาร่างพระราชบัญญัติ เป็นร่างหลัก': scrape_merge_event,
 }

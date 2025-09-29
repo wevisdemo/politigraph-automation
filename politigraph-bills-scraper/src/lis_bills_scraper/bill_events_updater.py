@@ -5,7 +5,7 @@ import asyncio
 from poliquery import get_all_bills_info, update_bill_info, \
     update_bill_co_proposer, create_new_draft_vote_event, \
     create_new_royal_assent_event, create_new_enforce_event, \
-    create_new_reject_event
+    create_new_reject_event, create_new_merge_event
 
 from .bill_events_scraper import scrape_bill_events
 
@@ -20,6 +20,7 @@ event_handler_dispatcher = {
     'ROYAL_ASSENT': create_new_royal_assent_event,
     'ENFORCE': create_new_enforce_event,
     'REJECT': create_new_reject_event,
+    'MERGE': create_new_merge_event,
 }
 
 def update_event_in_bill(
