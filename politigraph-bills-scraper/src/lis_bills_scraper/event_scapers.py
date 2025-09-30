@@ -337,7 +337,7 @@ def scrape_reject_event(section_element: Tag) -> Dict[str, Any]:
     
     result_event_data = {
         "event_type": "REJECT",
-        "reject_reason": reject_reason,
+        "reject_reason": reject_reason if reject_reason else "",
     }
     
     import json
