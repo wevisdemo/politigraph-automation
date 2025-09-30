@@ -302,12 +302,14 @@ def create_new_reject_event(
     apollo_client = get_apollo_client()
     
     # Get bill ID
-    bill_id = bill_info.get('id', "")
+    bill_id = bill_info.get('id', None)
+    if not bill_id:
+        raise ValueError("Bill's ID is None")
     
     # Get enforce date
     reject_reason = event_info.get("reject_reason", None)
     
-    # Check if enforce event exist
+    # Check if reject event exist
     agg_count = asyncio.run(agg_count_reject_event(
         client=apollo_client,
         params={
