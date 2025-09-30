@@ -83,8 +83,8 @@ async def update_reject_event(client: Client, params: dict):
 async def agg_count_reject_event(client: Client, params: dict) -> int:
     query = gql(
     """
-    query BillRejectEventsConnection {
-        billRejectEventsConnection {
+    query Query($where: BillRejectEventWhere) {
+        billRejectEventsConnection(where: $where) {
             aggregate {
                 count {
                     nodes
