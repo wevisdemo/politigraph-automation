@@ -438,6 +438,6 @@ def create_new_merge_event(
     # Create new merge event
     asyncio.run(create_and_connect_merge_event(
         client=apollo_client,
-        merged_bill_ids=merged_bill_ids
+        merged_bill_ids=list(set(merged_bill_ids + [bill_id]))
     ))
     
