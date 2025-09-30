@@ -83,8 +83,8 @@ async def update_merge_event(client: Client, params: dict):
 async def agg_count_merge_event(client: Client, params: dict) -> int:
     query = gql(
     """
-    query BillMergeEventsConnection {
-        billMergeEventsConnection {
+    query BillMergeEventsConnection($where: BillMergeEventWhere) {
+        billMergeEventsConnection(where: $where) {
             aggregate {
                 count {
                     nodes
