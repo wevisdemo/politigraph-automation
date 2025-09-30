@@ -6,7 +6,7 @@ from gql import Client
 
 from cachetools import cached, TTLCache
 
-@cached(cache=TTLCache(maxsize=256, ttl=30))
+@cached(cache=TTLCache(maxsize=1024, ttl=60))
 def get_apollo_client(
     subscribtion_endpoint='',
     token=''
