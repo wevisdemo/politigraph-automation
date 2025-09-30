@@ -38,7 +38,25 @@ def update_event_in_bill(
             event_info=event_info
         )
         
-async def scrape_bill_events_data(parliament_terms:int) -> List[Dict[str, Any]]:
+def is_bill_resolved(bill_status: str) -> bool:
+    
+    # Check reject bill
+    if re.search('ตกไป', bill_status):
+        return True
+    
+    # Check merge bill
+    if re.search('ถูกรวมร่าง', bill_status):
+        return True
+    
+    # Check enforce bill
+    if re.search('ประกาศในราชกิจจานุเบกษา', bill_status):
+        return True
+    
+    return False
+
+async def scrape_bill_events_data(
+    parliament_terms:int
+) -> List[Dict[str, Any]]:
     
     bill_events_data = []
     
@@ -49,6 +67,13 @@ async def scrape_bill_events_data(parliament_terms:int) -> List[Dict[str, Any]]:
         bills_info = await get_all_bills_info(parliament_terms=parliament_terms)
 
     for bill in bills_info:
+        
+        # Check bill's status
+        bill_status = bill.get('status', '')
+        print(f"\nbill status : {bill_status}\n")
+        if is_bill_resolved(bill_status):
+            continue
+        
         # Get url to scrape billEvents
         url = bill['links'][0]['url']
         
