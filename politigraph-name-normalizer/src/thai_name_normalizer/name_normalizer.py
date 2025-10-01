@@ -17,7 +17,10 @@ def normalize_thai_name(name: str) -> str:
     normalized_name = re.sub(r"\s+", " ", normalized_name)
     return normalized_name
 
-def remove_thai_name_prefix(name: str, prefixes:List[str]=[]) -> str:
+def remove_thai_name_prefix(name: str|None, prefixes:List[str]=[]) -> str:
+    # Check if name is None return empty string
+    if not name:
+        return ""
     # Load & combine two set of prefixes
     master_prefixes_list = NAME_PREFIXES + prefixes
     # Remove prefix from name
