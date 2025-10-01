@@ -75,6 +75,8 @@ async def scrape_bill_events_data(
             print(f"\nbill status : {bill_status}\n")
             continue
         
+        print("\n╔" + "".join('═' for _ in range(45)) + "╗")
+        print(f"Start scraping bill : {bill['id']}")
         # Get url to scrape billEvents
         url = bill['links'][0]['url']
         
@@ -86,6 +88,7 @@ async def scrape_bill_events_data(
             'bill': bill,
             'bill_events': bill_events
         })
+        print("╚" + "".join('═' for _ in range(45)) + "╝\n")
     
     return bill_events_data
 
