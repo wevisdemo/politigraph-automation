@@ -4,22 +4,7 @@ import math
 import re
 
 from bs4 import BeautifulSoup
-
-LIS_ENDPOINT = "https://lis.parliament.go.th/index/search_advance_detail.php"
-
-BILLS_TYPE_SYSTEM_INDEX: Dict[str, int] = {
-    'ร่างพระราชบัญญัติ': 3,
-    'ร่างพระราชบัญญัติงบประมาณรายจ่ายประจำปีงบประมาณ': 4,
-    'พระราชกำหนด': 5,
-}
-
-BIll_TYPE_CLASS_INDEX: Dict[str, str] = {
-    'ร่างพระราชบัญญัติ': 'NORMAL_BILL',
-    'ร่างพระราชบัญญัติงบประมาณรายจ่ายประจำปีงบประมาณ': 'BUDGET_BILL',
-    'พระราชกำหนด': 'EMERGENCY_DECREE',
-}
-
-OFFSET_STEP = 50
+from .lis_web_constants import LIS_ENDPOINT, BILLS_TYPE_SYSTEM_INDEX, BIll_TYPE_CLASS_INDEX, OFFSET_STEP
 
 async def get_bill_list(parliament_term: int) -> List[Dict[str, Any]]:
     """
