@@ -153,7 +153,7 @@ def create_new_multiple_bills(
     bill_ids = asyncio.run(batch_create_bills(bill_data=bill_data))
     return bill_ids
 
-@cached(cache=TTLCache(maxsize=256, ttl=120))
+# @cached(cache=TTLCache(maxsize=256, ttl=120))
 async def get_prime_minister_cabinet_index(bill_proposal_date: str|None) -> Dict[str, str]:
     
     # Initiate client
