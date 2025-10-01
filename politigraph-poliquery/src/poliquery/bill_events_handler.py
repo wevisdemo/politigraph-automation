@@ -440,4 +440,68 @@ def create_new_merge_event(
         client=apollo_client,
         merged_bill_ids=list(set(merged_bill_ids + [bill_id]))
     ))
+
+def add_retract_event(
+    acceptance_number: str,
+    lis_id: int,
+    classification: str
+) -> None:
     
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    # Get bill
+    bills = asyncio.run(get_bills(
+        client=apollo_client,
+        fields=[
+            'id',
+            'acceptance_number',
+            'title',
+            'classification',
+            'proposal_date',
+            'status',
+        ],
+        params={
+            'where': {
+                "acceptance_number_EQ": acceptance_number,
+                "lis_id_EQ": lis_id,
+                "classification_EQ": classification
+            }
+        }
+    ))
+    if not bills:
+        return
+    
+    # Check status
+    bill = bills[0]
+    bill_status = bill.get('status', 'ตกไป')
+    if 'ตกไป' in bill_status:
+        return
+    
+    # Add reject event to bill
+    # Create new BillRejectEvent
+    params = {
+        "input": [
+            {
+                "reject_reason": "ขอถอน",
+                "publish_status": "PUBLISHED",
+                "motions": {
+                    "connect": [
+                        {
+                            "where": {
+                                "node": {
+                                    "id_EQ": bill.get("id")
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+    
+    # Create new BillRejectEvent event
+    asyncio.run(create_reject_event(
+        client=apollo_client,
+        params=params
+    ))
