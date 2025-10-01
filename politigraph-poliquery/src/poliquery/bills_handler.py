@@ -33,6 +33,7 @@ async def get_all_bills_info(
         'title',
         'classification',
         'proposal_date',
+        'status',
         'result',
         'links {note\nurl}'
     ]
