@@ -22,7 +22,7 @@ async def get_all_bills_info(
     param = {
         "where": {
             "organizations_SOME": {
-            "id_EQ": f"สภาผู้แทนราษฎร-{parliament_terms}"
+                "id_EQ": f"สภาผู้แทนราษฎร-{parliament_terms}"
             }
         }
     }
@@ -252,7 +252,7 @@ def update_bill_info(
         cabinet_index = asyncio.run(get_prime_minister_cabinet_index(
             bill_proposal_date=proposal_date
         ))
-        print(cabinet_index)
+        # print(cabinet_index)
         print(f"cabinet prime minister : {prime_minister_name}")
         creators_param['Organization'] = [
             {
@@ -274,8 +274,8 @@ def update_bill_info(
             parliament_term=parliament_term
         )
         
-        import json
-        print(json.dumps(repr_member_names, indent=2, ensure_ascii=False))
+        # import json
+        # print(json.dumps(repr_member_names, indent=2, ensure_ascii=False))
         
         name_index = {
             p['name']: p['id'] for p in repr_member_names
@@ -314,8 +314,8 @@ def update_bill_info(
         'update': update_param
     }
     
-    import json
-    print(json.dumps(params, indent=2, ensure_ascii=False))
+    # import json
+    # print(json.dumps(params, indent=2, ensure_ascii=False))
     print("".join(["=" for _ in range(30)]))
     
     # Update bill info
