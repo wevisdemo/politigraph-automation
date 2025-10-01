@@ -313,7 +313,7 @@ def scrape_enforce_event(section_element: Tag) -> Dict[str, Any]:
     
     return result_event_data
 
-def scrape_reject_event(section_element: Tag) -> Dict[str, Any]:
+def scrape_reject_event(section_element: Tag, default_reject_reason: str="") -> Dict[str, Any]:
     # Get info table
     info_table = section_element.find('tbody')
     if not isinstance(info_table, Tag):
@@ -337,7 +337,7 @@ def scrape_reject_event(section_element: Tag) -> Dict[str, Any]:
     
     result_event_data = {
         "event_type": "REJECT",
-        "reject_reason": reject_reason if reject_reason else "",
+        "reject_reason": reject_reason if reject_reason else default_reject_reason,
     }
     
     import json
@@ -443,7 +443,8 @@ event_scraper_dispatcher = {
     
     # Reject
     'ข้อมูลร่างตกไป': scrape_reject_event,
-    'ข้อมูลไม่เข้าสู่กระบวนการพิจารณา': scrape_reject_event,
+    'ข้อมูลไม่เข้าสู่กระบวนการพิจารณา': lambda section_element:
+        scrape_reject_event(section_element, default_reject_reason='ไม่เข้าสู่กระบวนการพิจารณา'), # ไม่เข้าสู่กระบวนการพิจารณา
     
     # Merge
     'ข้อมูลการพิจารณาร่างพระราชบัญญัติ เป็นร่างหลัก': scrape_merge_event,
