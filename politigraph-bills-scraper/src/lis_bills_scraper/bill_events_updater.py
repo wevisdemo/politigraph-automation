@@ -55,7 +55,8 @@ def is_bill_resolved(bill_status: str) -> bool:
     return False
 
 async def scrape_bill_events_data(
-    parliament_terms:int
+    parliament_terms:int,
+    ignore_bill_status:bool=False
 ) -> List[Dict[str, Any]]:
     
     bill_events_data = []
@@ -70,8 +71,8 @@ async def scrape_bill_events_data(
         
         # Check bill's status
         bill_status = bill.get('status', '')
-        print(f"\nbill status : {bill_status}\n")
-        if is_bill_resolved(bill_status):
+        if not ignore_bill_status and is_bill_resolved(bill_status):
+            print(f"\nbill status : {bill_status}\n")
             continue
         
         # Get url to scrape billEvents
@@ -89,10 +90,14 @@ async def scrape_bill_events_data(
     return bill_events_data
 
 def scrape_and_update_bill_events(
-    parliament_term: int
+    parliament_term: int,
+    ignore_bill_status:bool=False
 ) -> None:
     
-    update_bill_events_info = asyncio.run(scrape_bill_events_data(parliament_terms=parliament_term))
+    update_bill_events_info = asyncio.run(scrape_bill_events_data(
+        parliament_terms=parliament_term, 
+        ignore_bill_status=ignore_bill_status
+    ))
     
     for update_info in update_bill_events_info:
         bill = update_info['bill']
