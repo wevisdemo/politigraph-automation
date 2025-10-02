@@ -6,3 +6,4 @@ from .politician_handler import *
 from .bills_handler import *
 from .bill_events_handler import *
 from .membership_handler import *
+from .parliament_handler import *
