@@ -28,7 +28,6 @@ def update_event_in_bill(
     bill_events: List[Dict[str, Any]]
 ) -> None:
     
-    print("Hello from update_event_in_bill")
     for event_info in bill_events:
         event_handler = event_handler_dispatcher.get(event_info.get('event_type', ""), None)
         if not event_handler:
@@ -75,7 +74,7 @@ async def scrape_bill_events_data(
             print(f"\nbill status : {bill_status}\n")
             continue
         
-        print("\n╔" + "".join('═' for _ in range(45)) + "╗")
+        print("\n╔" + "".join('═' for _ in range(60)) + "╗")
         print(f"Start scraping bill : {bill['id']}")
         # Get url to scrape billEvents
         url = bill['links'][0]['url']
@@ -88,7 +87,7 @@ async def scrape_bill_events_data(
             'bill': bill,
             'bill_events': bill_events
         })
-        print("╚" + "".join('═' for _ in range(45)) + "╝\n")
+        print("╚" + "".join('═' for _ in range(60)) + "╝\n")
     
     return bill_events_data
 

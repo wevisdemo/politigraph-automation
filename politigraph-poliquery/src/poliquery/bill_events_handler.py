@@ -69,8 +69,6 @@ def create_new_draft_vote_event(
     abstain_count = vote_count_data.get("abstain_count", None)
     novote_count = vote_count_data.get("novote_count", None)
     
-    print(f"bill ID : {bill_id}")
-    
     # Get event classification
     event_classification_index = {
         'VOTE_EVENT_MP_1': 'MP_1',
@@ -432,7 +430,6 @@ def create_new_merge_event(
             }
         }
     )):
-        print("found merge event")
         return # skip
     
     # Create new merge event
