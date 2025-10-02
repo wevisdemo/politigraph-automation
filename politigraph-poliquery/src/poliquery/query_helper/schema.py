@@ -3,7 +3,7 @@ from gql import gql, Client
 from aiocache import cached, Cache
 
 @cached(cache=Cache.MEMORY)
-async def get_allowed_fields_for_type(client: Client, type_name: str) -> Set[str]:
+async def get_allowed_fields_for_type(client: Client, type_name: str):
     """
     Introspects the client's schema to get all available fields for a given type.
     While cache the data for repeating call.
