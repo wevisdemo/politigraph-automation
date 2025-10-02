@@ -23,10 +23,10 @@ def main() -> None:
     
     # Scrape bill & billEvent for each term
     for term in terms:
-        print(f"Scrape Bill for House of Representatives {term}th term...")
+        print(f"\nScrape Bill for House of Representatives {term}th term...\n")
         scrape_and_create_new_bills(term)
         scrape_and_update_bill_events(term)
-        print(f"Cleanup BillEvent for House of Representatives {term}th term...")
+        print(f"\nCleanup BillEvent for House of Representatives {term}th term...\n")
         cleanup_bill(term)
 
 if __name__ == "__main__":
