@@ -91,11 +91,6 @@ def scrape_and_create_new_bills(
         parliament_term=parliament_term
     )
     
-    # Write ids into json TODO remove
-    import json
-    with open("examples/bills_id.json", "w") as fj:
-        json.dump(new_bills_id, fj, indent=4, ensure_ascii=False)
-    
     # print(new_bills_id)
     return new_bills_id
     
