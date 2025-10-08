@@ -97,3 +97,17 @@ async def agg_count_reject_event(client: Client, params: dict) -> int:
     async with client as session:
         result = await session.execute(query, variable_values=params)  
         return result['billRejectEventsConnection']['aggregate']['count']['nodes']
+    
+async def delete_reject_event(client: Client, params: dict) -> None:
+    query = gql(
+    """
+    mutation Mutation($where: BillRejectEventWhere) {
+        deleteBillRejectEvents(where: $where) {
+            nodesDeleted
+            relationshipsDeleted
+        }
+    }
+    """
+    )
+    async with client as session:
+        result = await session.execute(query, variable_values=params)  
