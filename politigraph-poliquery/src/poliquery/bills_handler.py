@@ -391,3 +391,46 @@ def update_bill_co_proposer(
     asyncio.run(update_multiple_co_proposer())
         
     return
+
+def update_bill_data(
+    lis_id: int, 
+    acceptance_number: str,
+    data: Dict[str, Any]
+) -> None:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    from .query_helper.schema import get_allowed_fields_for_type
+    
+    # Check validity of the field
+    valid_property = asyncio.run(get_allowed_fields_for_type(client=apollo_client, type_name='Bill'))
+    
+    if any(key not in valid_property for key in data.keys()):
+        raise KeyError("Invalid key")
+    
+    # Construct update param
+    update_param = {}
+    for key, value in data.items():
+        update_key = key + "_SET"
+        update_param[update_key] = value
+        
+    import json
+    print(json.dumps(
+        update_param,
+        indent=2,
+        ensure_ascii=False
+    ))
+    
+    # Update bill info
+    asyncio.run(update_bill(
+        client=apollo_client,
+        params={
+            "where": {
+                "lis_id_EQ": lis_id,
+                "acceptance_number_EQ": acceptance_number
+            },
+            "update": update_param
+        }
+    ))
+    
