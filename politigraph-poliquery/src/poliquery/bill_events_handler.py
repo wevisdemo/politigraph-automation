@@ -8,7 +8,7 @@ from .query_helper.royal_assent_event import get_royal_assent_events, create_roy
 from .query_helper.enforce_event import agg_count_enforce_event, create_enforce_event
 from .query_helper.reject_event import agg_count_reject_event, create_reject_event
 from .query_helper.draft_vote_event import agg_count_draft_vote_events, update_draft_vote_event, create_draft_vote_event
-from .query_helper.bills import get_bills
+from .query_helper.bills import get_bills, update_bill
 from .query_helper.merge_event import agg_count_merge_event, create_merge_event, update_merge_event
 
 def is_vote_event_exist_in_bill(
@@ -289,6 +289,20 @@ def create_new_enforce_event(
     asyncio.run(create_enforce_event(
         client=apollo_client,
         params=params
+    ))
+    
+    # Update name of this bill
+    update_bill_param = {
+        "where": {
+            "id_EQ": bill_id
+        },
+        "update": {
+            "title_SET": final_title
+        }
+    }
+    asyncio.run(update_bill(
+        client=apollo_client,
+        params=update_bill_param
     ))
     
 def create_new_reject_event(
