@@ -24,6 +24,11 @@ jobs:
         with:
           python-version: '3.10.11'
 
+      - name: Install dependencies
+        run: |
+            sudo apt-get update
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+
       - name: Scrap & Update Bills
         run: uv run scripts/scrape_bills.py
         env:
