@@ -10,6 +10,7 @@ def cleanup_bill(parliament_term: int) -> None:
         parliament_term=parliament_term
     ))
     
+    ############## Update bills with "ขอถอน" ##############
     # Filter retracted bills
     retracted_bill = [
         bill for bill in lis_bill_list if bill.get('result', '') == 'ขอถอน'
@@ -24,3 +25,5 @@ def cleanup_bill(parliament_term: int) -> None:
             lis_id=lis_id,
             classification=classification
         )
+        
+    ########################################################
