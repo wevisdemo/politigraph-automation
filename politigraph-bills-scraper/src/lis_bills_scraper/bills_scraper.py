@@ -91,8 +91,4 @@ async def get_bill_list(parliament_term: int) -> List[Dict[str, Any]]:
             # Increase offset value
             off_set += OFFSET_STEP
     
-    import json
-    # print(json.dumps(data, indent=2, ensure_ascii=False))
-    print(len(data))
-    
     return data

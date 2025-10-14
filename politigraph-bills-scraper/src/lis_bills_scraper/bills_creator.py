@@ -44,7 +44,6 @@ async def scrape_new_bills(
     ))
     
     web_bills, politigraph_bills = await asyncio.gather(get_bills_task, query_bills_task)
-    print("All tasks finished before printing this!!")
     
     # Extract lis_doc_id from url in politigraph data
     for bill in politigraph_bills:
@@ -91,6 +90,5 @@ def scrape_and_create_new_bills(
         parliament_term=parliament_term
     )
     
-    # print(new_bills_id)
     return new_bills_id
     

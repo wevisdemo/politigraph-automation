@@ -68,7 +68,6 @@ def extract_vote_count_data(
     }
     for pattern_str, repl_str in vote_option_normalizer.items():
         vote_text = re.sub(pattern_str, repl_str, vote_text)
-    # print(vote_text)
 
     vote_count_data = {}
     # Split text into chunk of text-number

@@ -70,8 +70,7 @@ async def scrape_bill_events_data(
         
         # Check bill's status
         bill_status = bill.get('status', '')
-        if not ignore_bill_status and is_bill_resolved(bill_status):
-            print(f"\nbill status : {bill_status}\n")
+        if not ignore_bill_status and is_bill_resolved(bill_status): # skip if bill already resolved
             continue
         
         print("\n╔" + "".join('═' for _ in range(60)) + "╗")
