@@ -48,7 +48,7 @@ def is_bill_resolved(bill_status: str) -> bool:
         return True
     
     # Check enforce bill
-    if re.search('ประกาศในราชกิจจานุเบกษา', bill_status):
+    if re.search('ออกเป็นกฎหมาย', bill_status):
         return True
     
     return False
