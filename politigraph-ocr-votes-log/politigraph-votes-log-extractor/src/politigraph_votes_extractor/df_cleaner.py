@@ -147,9 +147,16 @@ def clean_df_politician_name(
     
     # Load politicians name & clean them
     parties_name = df['ชื่อสังกัด'].to_list()
+    
     politicians_name = []
     for party_name in parties_name:
-        politicians_name.extend([d['name'] for d in get_people_in_party(party_name)])
+        people_in_party = get_people_in_party(party_name)
+        for person in people_in_party:
+            politicians_name.append(person['name'])
+            if not person['other_names']:
+                continue
+            politicians_name.extend([d['name'] for d in person['other_names']])
+            
     if len(politicians_name) == 0: # No politician names got returned back
         return df
     df['ชื่อ - สกุล'] = df['ชื่อ - สกุล'].apply(
