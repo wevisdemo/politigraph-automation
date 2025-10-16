@@ -55,6 +55,7 @@ def get_people_in_party(party_name:str) -> List[Dict[str, Any]]:
     field = [
         'id', 'name', 'prefix', 'firstname', 'middlename', 'lastname',
         'memberships {\nlabel\nstart_date\nend_date}',
+        'other_names { ... on AlternatePersonName { name } ... on AlternateName { name } }',
     ]
     
     people_result = asyncio.run(get_persons(
@@ -71,7 +72,10 @@ def get_representative_members_name(parliament_term:int=26) -> List[Dict[str, An
     # Initiate client
     apollo_client = get_apollo_client()
     
-    field = ['id', 'prefix', 'name']
+    field = [
+        'id', 'prefix', 'name',
+        'other_names { ... on AlternatePersonName { name } ... on AlternateName { name } }',
+    ]
     
     param = {
         "where": {
