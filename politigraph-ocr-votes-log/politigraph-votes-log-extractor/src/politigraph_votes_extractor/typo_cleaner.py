@@ -1,9 +1,9 @@
-from rapidfuzz import process, fuzz
-from Levenshtein import distance
+from typing import List
+from rapidfuzz import fuzz, distance
 
 def correct_typo(
     typo_text: str,
-    correct_texts_list: list,
+    correct_texts_list: List[str],
     similarity_threshold: int = 90
 ) -> str:
     """
@@ -13,11 +13,11 @@ def correct_typo(
     if not correct_texts_list:
         return typo_text
     
-    best_match = None
+    best_match = typo_text
     least_distance = float('inf')
     for correct_text in correct_texts_list:
         # Calculate Levenshtein distance
-        dist = distance(typo_text, correct_text)
+        dist = distance.Levenshtein.distance(typo_text, correct_text)
         # If the distance is less than the threshold, consider it a match
         if dist < least_distance:
             least_distance = dist
