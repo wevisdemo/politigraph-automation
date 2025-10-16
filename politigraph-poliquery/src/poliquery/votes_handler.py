@@ -144,13 +144,21 @@ def add_votes_to_vote_event(
             'name',
             'firstname',
             'middlename',
-            'lastname'
+            'lastname',
+            'other_names { ... on AlternatePersonName { name } ... on AlternateName { name } }',
         ],
         params=get_politician_param
     ))
     
     # Construct name index
-    name_index = { d['name']: d for d in politicians }
+    name_index = {}
+    for person in name_index:
+        name_index[person['name']] = person
+        other_names = person['other_names']
+        if not other_names:
+            continue
+        for alternate_name in other_names:
+            name_index[alternate_name['name']] = person
     
     def generate_create_param(
         vote_info: Dict[str, Any],
