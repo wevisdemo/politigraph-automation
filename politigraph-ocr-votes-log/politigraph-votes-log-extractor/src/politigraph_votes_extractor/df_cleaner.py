@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 
 from .typo_cleaner import correct_typo
-from .politigraph_data_loader import get_politician_names, get_politocal_party_names, get_politician_prefixes
+from thai_name_normalizer import remove_thai_name_prefix
+from poliquery import get_politician_prefixes, get_political_parties_name, get_people_in_party
 
 def merged_double_rows_name(
     df_original: pd.DataFrame,
@@ -124,99 +125,7 @@ def clean_df_politician_name(
         lambda name: re.sub(r"[^\u0E00-\u0E7F\s]", "", name).strip()
     )
     
-    # Remove name prefix
-    # TODO change from hardcode to load name_prefix from somewhere else
-    name_prefixes = [
-        "นาย", "นาง", "นางสาว",  
-        "ไนาย", # handle specific error in senate docs
-
-        "ดร.", "ศาสตราจารย์", "ศาสตราจารย์ ดร.", "ศ.ดร.",
-        "รองศาสตราจารย์", "รศ.", "ผู้ช่วยศาสตราจารย์", "ผศ.",
-        "รองศาสตราจารย์พิเศษ", "รศ.พิเศษ",
-
-        "พลเอก", "พลโท", "พลตรี", 
-        "พันเอก", "พันโท", "พันตรี", 
-        "ร้อยเอก", "ร้อยโท", "ร้อยตรี",
-        "ว่าที่พันเอก", "ว่าที่พันเอกหญิง", 
-        "ว่าที่พันโท", "ว่าที่พันโทหญิง", 
-        "ว่าที่พันตรี", "ว่าที่พันตรีหญิง",
-        "ว่าที่ร้อยเอก", "ว่าที่ร้อยเอกหญิง", 
-        "ว่าที่ร้อยโท", "ว่าที่ร้อยโทหญิง", 
-        "ว่าที่ร้อยตรี", "ว่าที่ร้อยตรีหญิง",
-        "จ่าสิบเอก", "จ่าสิบโท", "จ่าสิบตรี",
-        "สิบเอก", "สิบโท", "สิบตรี",
-
-        "พล.อ.", "พล.ท.", "พล.ต.",
-        "พ.อ.", "พ.ท.", "พ.ต.",
-        "ร.อ.", "ร.ท.", "ร.ต.",
-        "จ.ส.อ.", "จ.ส.ท.", "จ.ส.ต.",
-        "ส.อ.", "ส.ท.", "ส.ต.",
-
-        "พลตำรวจเอก", "พลตำรวจโท", "พลตำรวจตรี", 
-        "พันตำรวจเอก", "พันตำรวจโท", "พันตำรวจตรี", 
-        "ร้อยตำรวจเอก", "ร้อยตำรวจโท", "ร้อยตำรวจตรี",
-        "จ่าสิบตำรวจ", "สิบตำรวจเอก", "สิบตำรวจโท", "สิบตำรวจตรี",
-
-        "พล.ต.อ.", "พล.ต.ท.", "พล.ต.ต.",
-        "พ.ต.อ.", "พ.ต.ท.", "พ.ต.ต.",
-        "ร.ต.อ.", "ร.ต.ท.", "ร.ต.ต.",
-        "จ.ส.ต.", "ส.ต.อ.", "ส.ต.ท.", "ส.ต.ต."
-
-        # Medical
-        "นายแพทย์", "นพ.", "แพทย์หญิง", "พญ.",
-
-        # Navy Ranks (Full)
-        "พลเรือเอก", "พลเรือโท", "พลเรือตรี",
-        "นาวาเอก", "นาวาโท", "นาวาตรี",
-        "เรือเอก", "เรือโท", "เรือตรี",
-        "พันจ่าเอก", "พันจ่าโท", "พันจ่าตรี",
-        "จ่าเอก", "จ่าโท", "จ่าตรี",
-
-        # Navy Ranks (Abbreviated)
-        "พล.ร.อ.", "พล.ร.ท.", "พล.ร.ต.",
-        "น.อ.", "น.ท.", "น.ต.",
-        "ร.อ.", "ร.ท.", "ร.ต.",
-        "พ.จ.อ.", "พ.จ.ท.", "พ.จ.ต.",
-        "จ.อ.", "จ.ท.", "จ.ต.",
-
-        # Acting Navy Ranks
-        "ว่าที่นาวาเอก", "ว่าที่นาวาเอกหญิง",
-        "ว่าที่นาวาโท", "ว่าที่นาวาโทหญิง",
-        "ว่าที่นาวาตรี", "ว่าที่นาวาตรีหญิง",
-        "ว่าที่เรือเอก", "ว่าที่เรือเอกหญิง",
-        "ว่าที่เรือโท", "ว่าที่เรือโทหญิง",
-        "ว่าที่เรือตรี", "ว่าที่เรือตรีหญิง",
-        # Optional: Abbreviated Acting Navy Ranks (less common in formal lists)
-        "ว่าที่ น.อ.", "ว่าที่ น.อ.หญิง",
-        "ว่าที่ น.ท.", "ว่าที่ น.ท.หญิง",
-        "ว่าที่ น.ต.", "ว่าที่ น.ต.หญิง",
-        "ว่าที่ ร.อ.", "ว่าที่ ร.อ.หญิง",
-        "ว่าที่ ร.ท.", "ว่าที่ ร.ท.หญิง",
-        "ว่าที่ ร.ต.", "ว่าที่ ร.ต.หญิง",
-
-
-        # Acting Police Ranks
-        "ว่าที่พลตำรวจเอก", "ว่าที่พลตำรวจเอกหญิง",
-        "ว่าที่พลตำรวจโท", "ว่าที่พลตำรวจโทหญิง",
-        "ว่าที่พลตำรวจตรี", "ว่าที่พลตำรวจตรีหญิง",
-        "ว่าที่พันตำรวจเอก", "ว่าที่พันตำรวจเอกหญิง",
-        "ว่าที่พันตำรวจโท", "ว่าที่พันตำรวจโทหญิง",
-        "ว่าที่พันตำรวจตรี", "ว่าที่พันตำรวจตรีหญิง",
-        "ว่าที่ร้อยตำรวจเอก", "ว่าที่ร้อยตำรวจเอกหญิง",
-        "ว่าที่ร้อยตำรวจโท", "ว่าที่ร้อยตำรวจโทหญิง",
-        "ว่าที่ร้อยตำรวจตรี", "ว่าที่ร้อยตำรวจตรีหญิง",
-        # Optional: Abbreviated Acting Police Ranks (less common in formal lists)
-        "ว่าที่ พล.ต.อ.", "ว่าที่ พล.ต.อ.หญิง",
-        "ว่าที่ พล.ต.ท.", "ว่าที่ พล.ต.ท.หญิง",
-        "ว่าที่ พล.ต.ต.", "ว่าที่ พล.ต.ต.หญิง",
-        "ว่าที่ พ.ต.อ.", "ว่าที่ พ.ต.อ.หญิง",
-        "ว่าที่ พ.ต.ท.", "ว่าที่ พ.ต.ท.หญิง",
-        "ว่าที่ พ.ต.ต.", "ว่าที่ พ.ต.ต.หญิง",
-        "ว่าที่ ร.ต.อ.", "ว่าที่ ร.ต.อ.หญิง",
-        "ว่าที่ ร.ต.ท.", "ว่าที่ ร.ต.ท.หญิง",
-        "ว่าที่ ร.ต.ต.", "ว่าที่ ร.ต.ต.หญิง",
-    ]
-    name_prefixes.extend(get_politician_prefixes())  # Add any additional prefixes from the input
+    # Clean typo in prefix
     perfix_pattern = {
         "ว่าที่": r"^วาที่", # handle specific case of ว่าที่..
         "ผู้ช่วยศาสตราจารย์": r"^ผูชวยศาสตราจารย"
@@ -226,19 +135,25 @@ def clean_df_politician_name(
         for correct_prefix, pattern in perfix_pattern.items():
             new_name = re.sub(pattern, correct_prefix, new_name)
         return new_name
-    df['ชื่อ - สกุล'] = df['ชื่อ - สกุล'].apply(clean_prefixes_typo) # clean prefix typo
-    df['ชื่อ - สกุล'] = df['ชื่อ - สกุล'].apply(
-        lambda name: min(
-            [re.sub(r"^" + prefix, "", name).strip() for prefix in name_prefixes],
-            key=len
-        )
-    )
     
-    politician_names = get_politician_names()
-    if len(politician_names) == 0: # No politician names got returned back
+    # Load prefixes from politigraph
+    prefixes = get_politician_prefixes()
+    # Remove name prefix
+    df['ชื่อ - สกุล'] = df['ชื่อ - สกุล'].apply(clean_prefixes_typo) # clean prefix typo
+    df['ชื่อ - สกุล'] = df['ชื่อ - สกุล'].apply(lambda name: remove_thai_name_prefix(
+        name=name,
+        prefixes=prefixes
+    ))
+    
+    # Load politicians name & clean them
+    parties_name = df['ชื่อสังกัด'].to_list()
+    politicians_name = []
+    for party_name in parties_name:
+        politicians_name.extend([d['name'] for d in get_people_in_party(party_name)])
+    if len(politicians_name) == 0: # No politician names got returned back
         return df
     df['ชื่อ - สกุล'] = df['ชื่อ - สกุล'].apply(
-        lambda name: correct_typo(name, politician_names).strip()
+        lambda name: correct_typo(name, politicians_name).strip()
     )
     
     return df
@@ -248,12 +163,12 @@ def clean_df_political_party(
 ):
     df = df_original.copy()
     
-    # Remove anything before the word 'พรรค'
+    # Remove anything before and the word 'พรรค'
     df['ชื่อสังกัด'] = df['ชื่อสังกัด'].apply(
-        lambda name: re.sub(r".*?(?=พรรค)", "", name)
+        lambda name: re.sub(r".*?พรรค", "", name)
     )
     
-    parties_name = get_politocal_party_names()
+    parties_name = get_political_parties_name()
     if len(parties_name) == 0: # No parties names got returned back
         return df
     df['ชื่อสังกัด'] = df['ชื่อสังกัด'].apply(
@@ -290,11 +205,11 @@ def clean_votelog_df(
     # Clean vote options
     df = clean_df_vote_options(df)
     
-    # Clean Politician Name
-    df = clean_df_politician_name(df)
-    
     # Clean Political Party Name
     df = clean_df_political_party(df)
+    
+    # Clean Politician Name
+    df = clean_df_politician_name(df)
     
     # Clean rows with 3 or more empty values
     df = remove_rows_with_many_empty_values(df)
