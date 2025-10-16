@@ -33,15 +33,19 @@ def get_political_parties_name(
     orgs = asyncio.run(get_organizations(
         client=apollo_client,
         fields=[
-          'name'  
+          'name',
+          'other_names { name }'
         ],
         params={
             "where": where_param
         }
     ))
     
-    parties_name = [
-        d['name'] for d in orgs
-    ]
+    parties_name = []
+    for party in orgs:
+        parties_name.append(party['name'])
+        if not party['other_names']:
+            continue
+        parties_name.extend([d['name'] for d in party['other_names']])
     
     return parties_name
