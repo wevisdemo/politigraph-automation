@@ -313,3 +313,30 @@ async def update_vote_data(
         }
     )
     
+def get_votes_in_vote_event(
+    vote_event_id:str
+) -> List[Dict[str, Any]]:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    get_param = {
+        "where": {
+            "vote_events_SOME": {
+                "id_EQ": vote_event_id
+            }
+        }
+    }
+    
+    return asyncio.run(get_votes(
+        client=apollo_client,
+        fields=[
+            'id',
+            'vote_order',
+            'badge_number',
+            'voter_name',
+            'voter_party',
+            'option'
+        ],
+        params=get_param
+    ))
