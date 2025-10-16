@@ -77,7 +77,8 @@ def get_party_posts(party_name: str) -> List[Dict[str, Any]]:
         params={
             "where": {
                 "organizations_SINGLE": {
-                    "id_EQ": "พรรค" + party_name
+                    "classification_EQ": "POLITICAL_PARTY",
+                    "name_EQ": party_name
                 }
             }
         }
@@ -100,7 +101,7 @@ async def create_new_post_in_party(
                             "where": {
                                 "node": {
                                     "classification_EQ": "POLITICAL_PARTY",
-                                    "id_EQ": "พรรค" + party_name
+                                    "name_EQ": party_name
                                 }
                             }
                         }
@@ -165,7 +166,8 @@ def create_new_political_party_membership(
                             "node": {
                                 "role_EQ": post_role,
                                 "organizations_SINGLE": {
-                                    "id_EQ": "พรรค" + party_name
+                                    "classification_EQ": "POLITICAL_PARTY",
+                                    "name_EQ": party_name
                                 }
                             }
                         }
