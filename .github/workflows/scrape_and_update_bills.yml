@@ -2,8 +2,8 @@ name: Scrape & Update Bills / BillEvents
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 17 * * SUN'  # Every Sunday at 17:00 UTC(1:00 AM GMT+7)
+  # schedule:
+  #   - cron: '0 17 * * SUN'  # Every Sunday at 17:00 UTC(1:00 AM GMT+7)
 
 permissions:
   contents: 'read'
