@@ -152,7 +152,7 @@ def add_votes_to_vote_event(
     
     # Construct name index
     name_index = {}
-    for person in name_index:
+    for person in politicians:
         name_index[person['name']] = person
         other_names = person['other_names']
         if not other_names:
