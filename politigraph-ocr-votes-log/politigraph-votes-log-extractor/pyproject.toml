@@ -3,7 +3,7 @@ name = "politigraph_votes_extractor"
 version = "0.1.0"
 dependencies = [
     "requests", "pandas", "numpy", 
-    "opencv_python", "pdf2image", "Pillow", 'thai_name_normalizer',
+    "opencv_python", "pdf2image", "PyMuPDF", "Pillow", 'thai_name_normalizer',
     "rapidfuzz==3.14.1",
     "easyocr", "poliquery", "gql==3.5.0",
 ]
