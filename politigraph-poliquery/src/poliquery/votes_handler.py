@@ -2,6 +2,7 @@ import asyncio
 from typing import List, Dict, Any, Sequence
 
 from gql import Client
+from cachetools import cached, TTLCache
 
 from .apollo_connector import get_apollo_client
 from .query_helper.vote_events import get_vote_events, update_vote_event
@@ -101,22 +102,10 @@ def get_votes_from_vote_event(
     
     return votes
 
-def add_votes_to_vote_event(
-    vote_event_id: str,
-    vote_logs: List[Dict[str, Any]],
-    batch_max: int=5
-) -> None:
-    """
-    Add new votes to voteEvent
-
-    Args:
-        vote_event_id: str
-            voteEvent's ID
-        vote_logs: List[Dict[str, Any]]
-            List of votes info
-        batch_max: int @optional
-            The max amount of votes create in ONE query
-    """
+@cached(cache=TTLCache(maxsize=124, ttl=120))
+def get_politician_name_index(
+    vote_event_id:str
+) -> Dict[str, Dict[str, Any]]:
     
     # Initiate client
     apollo_client = get_apollo_client()
@@ -159,6 +148,30 @@ def add_votes_to_vote_event(
             continue
         for alternate_name in other_names:
             name_index[alternate_name['name']] = person
+    return name_index
+
+def add_votes_to_vote_event(
+    vote_event_id: str,
+    vote_logs: List[Dict[str, Any]],
+    batch_max: int=5
+) -> None:
+    """
+    Add new votes to voteEvent
+
+    Args:
+        vote_event_id: str
+            voteEvent's ID
+        vote_logs: List[Dict[str, Any]]
+            List of votes info
+        batch_max: int @optional
+            The max amount of votes create in ONE query
+    """
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    # Get politician names index
+    name_index = get_politician_name_index(vote_event_id=vote_event_id)
     
     def generate_create_param(
         vote_info: Dict[str, Any],
@@ -320,7 +333,69 @@ async def update_vote_data(
             "update": update_param
         }
     )
+        
+def update_votes_person_connection(
+    vote_event_id: str,
+) -> None:
     
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    # Get politician names index
+    name_index = get_politician_name_index(vote_event_id=vote_event_id)
+    import json
+    print(json.dumps(name_index, indent=2, ensure_ascii=False))
+        
+    # Get votes
+    votes = asyncio.run(get_votes(
+        client=apollo_client,
+        fields=['id', 'voter_name', 'voters { id }'],
+        params={
+            "where": {
+                "vote_events_SOME": {
+                    "id_EQ": vote_event_id
+                }
+            }
+        }
+    ))
+    
+    # Update connection
+    async def update_votes_person(votes: List[Dict[str, Any]]):
+        for vote in votes:
+            
+            # Check if voter already exist
+            if vote.get('voters', []):
+                continue
+            
+            vote_id = vote.get('id', '')
+            person_id = name_index.get(vote.get('voter_name', ''), {}).get('id', None)
+
+            update_param = {
+                "where": {
+                    "id_EQ": vote_id
+                },
+                "update": {
+                    "voters": [
+                    {
+                        "connect": [
+                        {
+                            "where": {
+                                "node": {
+                                    "id_EQ": person_id
+                                }
+                            }
+                        }
+                        ]
+                    }
+                    ]
+                }
+            }
+            await update_votes(
+                client=apollo_client,
+                params=update_param
+            )
+    asyncio.run(update_votes_person(votes=votes))
+        
 def get_votes_in_vote_event(
     vote_event_id:str
 ) -> List[Dict[str, Any]]:
