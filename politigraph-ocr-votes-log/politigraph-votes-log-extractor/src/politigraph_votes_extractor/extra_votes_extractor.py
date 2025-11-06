@@ -6,6 +6,7 @@ import pandas as pd
 from PIL import Image
 from pdf2image import convert_from_path, pdfinfo_from_path
 
+from .pdf_converter import load_pdf_to_image
 from .image_processing import process_to_gray_scale
 from .bbox_helper import convert_rect_to_bbox
 
@@ -137,7 +138,7 @@ def extract_extra_votes(pdf_file_path: str, reader=None) -> pd.DataFrame:
     last_page = _pdf_info['Pages']
     
     # Convert to images
-    pdf_images = convert_from_path(pdf_file_path, dpi=300, first_page=last_page)
+    pdf_images = load_pdf_to_image(pdf_file_path, dpi=300, first_page=last_page)
     image = pdf_images[0]
     
     btm_table_image = detect_table_in_btm_page(image)

@@ -5,6 +5,7 @@ import numpy as np
 import numpy.typing as npt
 from pdf2image import convert_from_path
 
+from .pdf_converter import load_pdf_to_image
 from .bbox_helper import convert_rect_to_bbox, detect_text_bbox, group_bboxs_into_rows, filter_border_bboxes
 from .image_processing import dilate_image_vertical, process_to_gray_scale
 from .table_detector import detect_blocks
@@ -201,7 +202,7 @@ def get_doc_data(
 def extract_doc_data(pdf_file_path: str, reader=None) -> dict:
     assert reader, "OCR Reader Not Found!!"
     
-    pdf_image = convert_from_path(pdf_file_path, dpi=300, last_page=1)[0]
+    pdf_image = load_pdf_to_image(pdf_file_path, dpi=300, last_page=1)[0]
     print(f"Extract validate data from {pdf_file_path}...")
     
     doc_data = get_doc_data(pdf_image, reader=reader)

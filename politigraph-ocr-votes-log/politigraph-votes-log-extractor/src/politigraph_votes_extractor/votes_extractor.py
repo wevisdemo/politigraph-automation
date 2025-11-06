@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from pdf2image import convert_from_path
 
+from .pdf_converter import load_pdf_to_image
 from .table_detector import get_table_bbox
 from .table_extractor import extract_data_from_table
 from .typo_cleaner import is_header_valid
@@ -11,7 +12,7 @@ def extract_votelog(pdf_file_path: str, reader=None) -> pd.DataFrame:
     
     assert reader, "OCR Reader Not Found!!"
     
-    pdf_images = convert_from_path(pdf_file_path, dpi=300)
+    pdf_images = load_pdf_to_image(pdf_file_path, dpi=300)
     print(f"Extract votelog from {pdf_file_path}...")
     
     # Initiate base dataframe
