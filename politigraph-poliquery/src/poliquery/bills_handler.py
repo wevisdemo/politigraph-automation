@@ -27,14 +27,30 @@ async def get_all_bills_info(
         }
     }
     
+    bill_events_field = {
+        'DraftVoteEvent': ['id', 'classification'],
+        'VoteEvent': ['id', 'classification'],
+        'BillRoyalAssentEvent': ['id', 'result'],
+        'BillMergeEvent': ['id', 'main_bill_id'],
+        'BillRejectEvent': ['id', 'reject_reason'],
+        'BillEnforceEvent': ['id', 'title'],
+    }
+    
+    bill_event_param = "bill_events {"
+    for event, field in bill_events_field.items():
+        bill_event_param += f" ... on {event} " + "{ " + " ".join(field + ['__typename']) + " }"
+    bill_event_param += " }"
+    
     query_field = [
         'id',
         'acceptance_number',
+        'lis_id',
         'title',
         'classification',
         'proposal_date',
         'status',
-        'links {note\nurl}'
+        'links {note\nurl}',
+        bill_event_param,
     ]
     
     bills = await get_bills(
