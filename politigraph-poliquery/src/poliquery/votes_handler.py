@@ -369,6 +369,7 @@ def update_votes_person_connection(
             
             vote_id = vote.get('id', '')
             person_id = name_index.get(vote.get('voter_name', ''), {}).get('id', None)
+            print(f"update connection for {vote.get('voter_name', '')}...")
 
             update_param = {
                 "where": {
@@ -394,6 +395,7 @@ def update_votes_person_connection(
                 client=apollo_client,
                 params=update_param
             )
+            await asyncio.sleep(0.5)
     asyncio.run(update_votes_person(votes=votes))
         
 def get_votes_in_vote_event(
