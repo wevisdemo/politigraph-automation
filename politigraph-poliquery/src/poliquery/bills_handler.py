@@ -154,7 +154,7 @@ def create_new_multiple_bills(
     return bill_ids
 
 # @cached(cache=TTLCache(maxsize=256, ttl=120))
-async def get_prime_minister_cabinet_index(bill_proposal_date: str|None) -> Dict[str, str]:
+async def get_prime_minister_cabinet_index(bill_proposal_date: str|None=None) -> Dict[str, str]:
     
     # Initiate client
     apollo_client = get_apollo_client()
@@ -162,8 +162,6 @@ async def get_prime_minister_cabinet_index(bill_proposal_date: str|None) -> Dict
     param = {
         "where": {
             "memberships_SOME": {
-                # "start_date_LTE": bill_proposal_date,
-                # "end_date_GTE": bill_proposal_date,
                 "posts_SOME": {
                     "role_EQ": "นายกรัฐมนตรี"
                 }
@@ -191,8 +189,6 @@ async def get_prime_minister_cabinet_index(bill_proposal_date: str|None) -> Dict
             params={
                 "where": {
                     "classification_EQ": "CABINET",
-                    "founding_date_LTE": bill_proposal_date,
-                    "dissolution_date_GT": bill_proposal_date,
                     "posts_SOME": {
                         "role_EQ": "นายกรัฐมนตรี",
                         "memberships_SOME": {
