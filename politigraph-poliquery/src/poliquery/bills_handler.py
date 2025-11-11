@@ -21,7 +21,15 @@ async def get_all_bills_info(
     
      # Construct house of representative ID index
     hor_index = {
-        h['term']: h['id'] for h in get_all_house_of_representatives()
+        h['term']: h['id'] for h in await get_organizations(
+            client=apollo_client,
+            fields=['id', 'name', 'term'],
+            params={
+                "where": {
+                    "classification_EQ": "HOUSE_OF_REPRESENTATIVE"
+                }
+            }
+        )
     }
     
     # Get latest parliament term
