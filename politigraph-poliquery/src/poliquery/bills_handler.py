@@ -8,6 +8,7 @@ from .query_helper.bills import get_bills, create_bill, update_bill
 from .query_helper.persons import get_persons
 from .query_helper.organizations import get_organizations
 from .politician_handler import get_politician_prefixes, get_representative_members_name, get_people_in_party
+from .parliament_handler import get_all_house_of_representatives
 
 from cachetools import cached, TTLCache
 
@@ -18,11 +19,16 @@ async def get_all_bills_info(
     # Initiate client
     apollo_client = get_apollo_client()
     
+     # Construct house of representative ID index
+    hor_index = {
+        h['term']: h['id'] for h in get_all_house_of_representatives()
+    }
+    
     # Get latest parliament term
     param = {
         "where": {
             "organizations_SOME": {
-                "id_EQ": f"สภาผู้แทนราษฎร-{parliament_terms}"
+                "id_EQ": hor_index.get(str(parliament_terms)),
             }
         }
     }
