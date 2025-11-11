@@ -4,6 +4,9 @@ import asyncio
 from .apollo_connector import get_apollo_client
 from .query_helper.organizations import get_organizations
 
+from cachetools import cached, TTLCache
+
+@cached(cache=TTLCache(maxsize=256, ttl=120))
 def get_all_house_of_representatives() -> List[Dict[str, Any]]:
     
      # Initiate client
