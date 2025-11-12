@@ -458,4 +458,24 @@ def update_bill_data(
             "update": update_param
         }
     ))
+ 
+async def create_bills_in_chunk(
+    params: List[Dict[str, Any]],
+    batch_size: int=5
+) -> None:
     
+    # Initiate client
+    apollo_client = get_apollo_client()
+
+    def chunker(seq, size):
+        return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
+    for param_chunk in chunker(params, batch_size):
+        await create_bill(
+            client=apollo_client,
+            params={
+                'input': param_chunk
+            }
+        )
+    
+    return
