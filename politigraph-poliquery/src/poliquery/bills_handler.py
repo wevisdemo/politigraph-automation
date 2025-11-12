@@ -36,7 +36,7 @@ async def get_all_bills_info(
     param = {
         "where": {
             "organizations_SOME": {
-                "id_EQ": hor_index.get(str(parliament_terms)),
+                "id_EQ": hor_index.get(parliament_terms),
             }
         }
     }
