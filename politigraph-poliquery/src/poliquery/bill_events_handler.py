@@ -5,7 +5,8 @@ from gql import Client
 from .apollo_connector import get_apollo_client
 from .query_helper.vote_events import agg_count_vote_events
 from .query_helper.royal_assent_event import get_royal_assent_events, create_royal_assent_event, update_royal_assent_event
-from .query_helper.enforce_event import agg_count_enforce_event, create_enforce_event
+from .query_helper.enforce_event import agg_count_enforce_event, create_enforce_event # TODO remove
+from .query_helper.enact_event import create_enact_event
 from .query_helper.reject_event import agg_count_reject_event, create_reject_event
 from .query_helper.draft_vote_event import agg_count_draft_vote_events, update_draft_vote_event, create_draft_vote_event # TODO remove
 from .query_helper.bill_vote_event import create_bill_vote_event
@@ -536,5 +537,128 @@ async def create_bill_vote_event_in_chunk(
                 'input': param_chunk
             }
         )
+    
+    return
+
+async def create_bill_merge_event_in_chunk(
+    params: List[Dict[str, Any]],
+    batch_size: int=5
+) -> None:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+
+    def chunker(seq, size):
+        return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
+    for param_chunk in chunker(params, batch_size):
+        await create_merge_event(
+            client=apollo_client,
+            params={
+                'input': param_chunk
+            }
+        )
+    
+    return
+
+async def create_bill_royal_assent_event_in_chunk(
+    params: List[Dict[str, Any]],
+    batch_size: int=5
+) -> None:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+
+    def chunker(seq, size):
+        return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
+    for param_chunk in chunker(params, batch_size):
+        await create_royal_assent_event(
+            client=apollo_client,
+            params={
+                'input': param_chunk
+            }
+        )
+    
+    return
+
+async def create_bill_enact_event_in_chunk(
+    params: List[Dict[str, Any]],
+    batch_size: int=5
+) -> None:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+
+    def chunker(seq, size):
+        return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
+    for param_chunk in chunker(params, batch_size):
+        await create_enact_event(
+            client=apollo_client,
+            params={
+                'input': param_chunk
+            }
+        )
+        
+    # Curate bill ID to update status to Rejected
+    bill_ids = [
+        p['motions']['connect'][0]['where']['node']['id_EQ'] for p in params
+    ]
+    # Update these bills status to REJECT
+    for bill_id in bill_ids:
+        await update_bill(
+            client=apollo_client,
+            params={
+                "where": {
+                    "id_EQ": bill_id
+                },
+                "update": {
+                    "status_SET": "ENACTED"
+                }
+            }
+        )
+        await asyncio.sleep(0.1)
+    
+    return
+
+async def create_bill_reject_event_in_chunk(
+    params: List[Dict[str, Any]],
+    batch_size: int=5
+) -> None:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+
+    def chunker(seq, size):
+        return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
+    # Create Reject event
+    for param_chunk in chunker(params, batch_size):
+        await create_reject_event(
+            client=apollo_client,
+            params={
+                'input': param_chunk
+            }
+        )
+        
+    # Curate bill ID to update status to Rejected
+    bill_ids = [
+        p['motions']['connect'][0]['where']['node']['id_EQ'] for p in params
+    ]
+    # Update these bills status to REJECT
+    for bill_id in bill_ids:
+        await update_bill(
+            client=apollo_client,
+            params={
+                "where": {
+                    "id_EQ": bill_id
+                },
+                "update": {
+                    "status_SET": "REJECTED"
+                }
+            }
+        )
+        await asyncio.sleep(0.1)
     
     return
