@@ -25,7 +25,7 @@ def is_vote_event_exist_in_bill(
     param = {
         "where": {
             "classification_EQ": classification,
-            "motions_SOME": {
+            "bills_SOME": {
                 "id_EQ": bill_id
             }
         }
@@ -112,7 +112,7 @@ def create_new_draft_vote_event(
             params={
                 "where": {
                     "classification_EQ": event_classification,
-                    "motions_SOME": {
+                    "bills_SOME": {
                         "id_EQ": bill_id
                     }
                 },
@@ -138,7 +138,7 @@ def create_new_draft_vote_event(
                     "abstain_count": abstain_count,
                     "novote_count": novote_count,
                     "publish_status": "UNPUBLISHED",
-                    "motions": {
+                    "bills": {
                         "connect": [
                         {
                             "where": {
@@ -178,7 +178,7 @@ def create_new_royal_assent_event(
         ],
         params={
             "where": {
-                "motions_SOME": {
+                "bills_SOME": {
                     "id_EQ": bill_id
                 }
             }
@@ -194,7 +194,7 @@ def create_new_royal_assent_event(
                 client=apollo_client,
                 params={
                     "where": {
-                        "motions_SOME": {
+                        "bills_SOME": {
                             "id_EQ": bill_id
                         }
                     },
@@ -212,7 +212,7 @@ def create_new_royal_assent_event(
             {
                 "result": result,
                 "publish_status": "PUBLISHED" if result else "UNPUBLISHED",
-                "motions": {
+                "bills": {
                     "connect": [
                         {
                             "where": {
@@ -255,7 +255,7 @@ def create_new_enforce_event(
         client=apollo_client,
         params={
             "where": {
-                "motions_SOME": {
+                "bills_SOME": {
                     "id_EQ": bill_id
                 }
             }
@@ -272,7 +272,7 @@ def create_new_enforce_event(
                 "start_date": enforce_date,
                 "end_date": enforce_date,
                 "publish_status": "PUBLISHED",
-                "motions": {
+                "bills": {
                     "connect": [
                         {
                             "where": {
@@ -328,7 +328,7 @@ def create_new_reject_event(
         client=apollo_client,
         params={
             "where": {
-                "motions_SOME": {
+                "bills_SOME": {
                     "id_EQ": bill_id
                 }
             }
@@ -343,7 +343,7 @@ def create_new_reject_event(
             {
                 "reject_reason": reject_reason,
                 "publish_status": "PUBLISHED",
-                "motions": {
+                "bills": {
                     "connect": [
                         {
                             "where": {
@@ -386,7 +386,7 @@ async def create_and_connect_merge_event(
                 "id_EQ": new_mereg_event_id
             },
             "update": {
-                "motions": [
+                "bills": [
                     {
                         "connect": [{
                             "where": {
@@ -440,7 +440,7 @@ def create_new_merge_event(
         client=apollo_client,
         params={
             "where": {
-                "motions_SOME": {
+                "bills_SOME": {
                     "id_IN": merged_bill_ids
                 }
             }
@@ -498,7 +498,7 @@ def add_retract_event(
             {
                 "reject_reason": "ขอถอน",
                 "publish_status": "PUBLISHED",
-                "motions": {
+                "bills": {
                     "connect": [
                         {
                             "where": {
@@ -603,7 +603,7 @@ async def create_bill_enact_event_in_chunk(
         
     # Curate bill ID to update status to Rejected
     bill_ids = [
-        p['motions']['connect'][0]['where']['node']['id_EQ'] for p in params
+        p['bills']['connect'][0]['where']['node']['id_EQ'] for p in params
     ]
     # Update these bills status to REJECT
     for bill_id in bill_ids:
@@ -644,7 +644,7 @@ async def create_bill_reject_event_in_chunk(
         
     # Curate bill ID to update status to Rejected
     bill_ids = [
-        p['motions']['connect'][0]['where']['node']['id_EQ'] for p in params
+        p['bills']['connect'][0]['where']['node']['id_EQ'] for p in params
     ]
     # Update these bills status to REJECT
     for bill_id in bill_ids:
