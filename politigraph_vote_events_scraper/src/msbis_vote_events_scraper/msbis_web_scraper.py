@@ -83,7 +83,7 @@ def get_pagination_number(soup):
     pages = pagination.find_all("a")
     if not pages:
         return 1
-    print(f"found {len(pages)} pages")
+    # print(f"found {len(pages)} pages")
     return len(pages)
 
 def scrap_votings_id(soup):
