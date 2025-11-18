@@ -43,8 +43,9 @@ async def get_all_bills_info(
     
     bill_events_field = {
         'BillVoteEvent': [
-            'id', 'classification', 'start_date', 'result', 'msbis_id',\
-                'agree_count', 'disagree_count', 'abstain_count', 'novote_count'
+            'id', 'classification', 'start_date', 'result', \
+            'msbis_id', 'session_identifier',\
+            'agree_count', 'disagree_count', 'abstain_count', 'novote_count'
         ],
         'BillRoyalAssentEvent': ['id', 'result'],
         'BillMergeEvent': ['id', 'main_bill_id', 'total_merged_bills'],
