@@ -42,12 +42,14 @@ async def get_all_bills_info(
     }
     
     bill_events_field = {
-        'DraftVoteEvent': ['id', 'classification'],
-        'VoteEvent': ['id', 'classification'],
+        'BillVoteEvent': [
+            'id', 'classification', 'start_date', 'result', 'msbis_id',\
+                'agree_count', 'disagree_count', 'abstain_count', 'novote_count'
+        ],
         'BillRoyalAssentEvent': ['id', 'result'],
-        'BillMergeEvent': ['id', 'main_bill_id'],
+        'BillMergeEvent': ['id', 'main_bill_id', 'total_merged_bills'],
         'BillRejectEvent': ['id', 'reject_reason'],
-        'BillEnforceEvent': ['id', 'title'],
+        'BillEnactEvent': ['id', 'title'],
     }
     
     bill_event_param = "bill_events {"
