@@ -61,7 +61,7 @@ async def create_bill_vote_event(client: Client, params: dict) -> Dict[str, Any]
         result = await session.execute(query, variable_values=params)  
         return result
     
-async def update_draft_vote_event(client: Client, params: dict):
+async def update_bill_vote_event(client: Client, params: dict):
     query = gql(
     """
     mutation UpdateBillVoteEvents($where: BillVoteEventWhere, $update: BillVoteEventUpdateInput) {
