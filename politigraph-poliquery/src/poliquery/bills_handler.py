@@ -480,5 +480,6 @@ async def create_bills_in_chunk(
                 'input': param_chunk
             }
         )
+        await asyncio.sleep(0.1)
     
     return
