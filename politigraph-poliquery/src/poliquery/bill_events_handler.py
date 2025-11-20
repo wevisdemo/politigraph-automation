@@ -518,6 +518,11 @@ def add_retract_event(
         client=apollo_client,
         params=params
     ))
+
+# =============================== Optimized Bill Scraper ==============================
+
+def chunker(seq, size):
+    return (seq[pos:pos + size] for pos in range(0, len(seq), size))
     
 async def create_bill_vote_event_in_chunk(
     params: List[Dict[str, Any]],
@@ -527,9 +532,6 @@ async def create_bill_vote_event_in_chunk(
     # Initiate client
     apollo_client = get_apollo_client()
 
-    def chunker(seq, size):
-        return (seq[pos:pos + size] for pos in range(0, len(seq), size))
-
     for param_chunk in chunker(params, batch_size):
         await create_bill_vote_event(
             client=apollo_client,
@@ -537,6 +539,7 @@ async def create_bill_vote_event_in_chunk(
                 'input': param_chunk
             }
         )
+        await asyncio.sleep(0.2)
     
     return
 
@@ -548,9 +551,6 @@ async def create_bill_merge_event_in_chunk(
     # Initiate client
     apollo_client = get_apollo_client()
 
-    def chunker(seq, size):
-        return (seq[pos:pos + size] for pos in range(0, len(seq), size))
-
     for param_chunk in chunker(params, batch_size):
         await create_merge_event(
             client=apollo_client,
@@ -558,6 +558,7 @@ async def create_bill_merge_event_in_chunk(
                 'input': param_chunk
             }
         )
+        await asyncio.sleep(0.2)
     
     return
 
@@ -569,9 +570,6 @@ async def create_bill_royal_assent_event_in_chunk(
     # Initiate client
     apollo_client = get_apollo_client()
 
-    def chunker(seq, size):
-        return (seq[pos:pos + size] for pos in range(0, len(seq), size))
-
     for param_chunk in chunker(params, batch_size):
         await create_royal_assent_event(
             client=apollo_client,
@@ -579,6 +577,7 @@ async def create_bill_royal_assent_event_in_chunk(
                 'input': param_chunk
             }
         )
+        await asyncio.sleep(0.2)
     
     return
 
@@ -589,9 +588,6 @@ async def create_bill_enact_event_in_chunk(
     
     # Initiate client
     apollo_client = get_apollo_client()
-
-    def chunker(seq, size):
-        return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
     for param_chunk in chunker(params, batch_size):
         await create_enact_event(
@@ -618,7 +614,7 @@ async def create_bill_enact_event_in_chunk(
                 }
             }
         )
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.2)
     
     return
 
@@ -629,9 +625,6 @@ async def create_bill_reject_event_in_chunk(
     
     # Initiate client
     apollo_client = get_apollo_client()
-
-    def chunker(seq, size):
-        return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
     # Create Reject event
     for param_chunk in chunker(params, batch_size):
@@ -659,7 +652,7 @@ async def create_bill_reject_event_in_chunk(
                 }
             }
         )
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.2)
     
     return
 
@@ -675,7 +668,7 @@ async def update_bill_vote_events(
             client=apollo_client,
             params=param
         )
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.2)
         
     return
 
@@ -691,7 +684,7 @@ async def update_bill_royal_assent_events(
             client=apollo_client,
             params=param
         )
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.2)
         
     return
 
@@ -707,7 +700,7 @@ async def update_bill_enact_events(
             client=apollo_client,
             params=param
         )
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.2)
         
     return
 
@@ -723,6 +716,6 @@ async def update_bill_reject_events(
             client=apollo_client,
             params=param
         )
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.2)
         
     return
