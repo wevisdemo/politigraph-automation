@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Hashable
+from typing import List, Dict, Any, Hashable, TypeVar
 import asyncio
 
 from thai_name_normalizer import remove_thai_name_prefix
@@ -464,22 +464,86 @@ def update_bill_data(
  
 async def create_bills_in_chunk(
     params: List[Dict[str, Any]],
-    batch_size: int=5
+    batch_size: int=3
 ) -> None:
     
     # Initiate client
     apollo_client = get_apollo_client()
 
-    def chunker(seq, size):
-        return (seq[pos:pos + size] for pos in range(0, len(seq), size))
-
+    T = TypeVar('T')
+    def chunker(seq: List[T], size:int) -> List[List[T]]:
+        return [seq[pos:pos + size] for pos in range(0, len(seq), size)]
+    
+    # Check & Exclude any param with long connection param
+    long_params:List[Dict] = []
+    if any(
+        len(param.get('co_proposers', {}).get('connect', [])) > 20\
+            for param in params
+    ):
+        long_params.extend([
+            param for param in params\
+                if len(param.get('co_proposers', {}).get('connect', [])) > 20
+        ])
+        params = [param for param in params if param not in long_params]
+    
+    # Create bill with short param
     for param_chunk in chunker(params, batch_size):
-        await create_bill(
+        results = await create_bill(
             client=apollo_client,
             params={
                 'input': param_chunk
             }
         )
-        await asyncio.sleep(0.1)
+        print(f"Created bill successfully id : {results.get('createBills', {}).get('bills', [])[0].get('id')}")
+        await asyncio.sleep(3)
+        # pass
+        
+    # Create bill with long param
+    for param in long_params:
+        # Get all co-proposer param
+        co_proposer_conn = param.get('co_proposers', {}).get('connect', [])
+        
+        # Pull only first 5 connection to create
+        _first_five = co_proposer_conn[:5]
+        co_proposer_conn = co_proposer_conn[5:] # remove first 5 connects
+        
+        import json
+        # print(json.dumps(_first_five, indent=2, ensure_ascii=False))
+        # Create bill
+        param['co_proposers']['connect'] = _first_five
+        results = await create_bill(
+            client=apollo_client,
+            params={
+                'input': [param]
+            }
+        )
+        await asyncio.sleep(1)
+        # print(".............................")
+        # print(json.dumps(results, indent=2, ensure_ascii=False))
+        # print(".............................")
+        
+        # Get bill's ID
+        bills = results.get('createBills', {}).get('bills', [])
+        if not bills:
+            continue
+        bill_id = bills[0].get('id')
+        
+        # Update connection
+        for connect_chunk in chunker(co_proposer_conn, size=10):
+            
+            await update_bill(
+                client=apollo_client,
+                params={
+                    "where": {
+                        "id_EQ": bill_id
+                    },
+                    "update": {
+                        "co_proposers": [{
+                            "connect": connect_chunk
+                        }]
+                    }
+                }
+            )
+            await asyncio.sleep(1)
     
     return
