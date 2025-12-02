@@ -494,7 +494,10 @@ async def create_bills_in_chunk(
                 'input': param_chunk
             }
         )
-        await asyncio.sleep(3)
+        for bill in results.get('createBills', {}).get('bills', []):
+            print(f"Created bill : {bill.get('id')}")
+            
+        await asyncio.sleep(5)
         # pass
         
     # Create bill with long param
@@ -516,7 +519,7 @@ async def create_bills_in_chunk(
                 'input': [param]
             }
         )
-        await asyncio.sleep(1)
+        await asyncio.sleep(3)
         
         # Get bill's ID
         bills = results.get('createBills', {}).get('bills', [])
@@ -542,6 +545,6 @@ async def create_bills_in_chunk(
                 }
             )
             print(f"\tAdded bill's co-proposers total : {len(connect_chunk)} people")
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)
     
     return
