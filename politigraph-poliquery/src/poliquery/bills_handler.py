@@ -494,11 +494,11 @@ async def create_bills_in_chunk(
                 'input': param_chunk
             }
         )
-        print(f"Created bill successfully id : {results.get('createBills', {}).get('bills', [])[0].get('id')}")
         await asyncio.sleep(3)
         # pass
         
     # Create bill with long param
+    print("🚧 Starting create bills with long param...")
     for param in long_params:
         # Get all co-proposer param
         co_proposer_conn = param.get('co_proposers', {}).get('connect', [])
@@ -508,7 +508,6 @@ async def create_bills_in_chunk(
         co_proposer_conn = co_proposer_conn[5:] # remove first 5 connects
         
         import json
-        # print(json.dumps(_first_five, indent=2, ensure_ascii=False))
         # Create bill
         param['co_proposers']['connect'] = _first_five
         results = await create_bill(
@@ -518,15 +517,13 @@ async def create_bills_in_chunk(
             }
         )
         await asyncio.sleep(1)
-        # print(".............................")
-        # print(json.dumps(results, indent=2, ensure_ascii=False))
-        # print(".............................")
         
         # Get bill's ID
         bills = results.get('createBills', {}).get('bills', [])
         if not bills:
             continue
         bill_id = bills[0].get('id')
+        print(f"Created bill : {bill_id}")
         
         # Update connection
         for connect_chunk in chunker(co_proposer_conn, size=10):
@@ -544,6 +541,7 @@ async def create_bills_in_chunk(
                     }
                 }
             )
+            print(f"\tAdded bill's co-proposers total : {len(connect_chunk)} people")
             await asyncio.sleep(1)
     
     return
