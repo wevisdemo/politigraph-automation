@@ -6,6 +6,8 @@ from bs4 import BeautifulSoup, Tag
 from .utility import convert_thai_date_to_universal, extract_vote_count_data
 from .msbis_scraper import get_msbis_id
 
+from thai_name_normalizer import convert_thai_number_str_to_arabic
+
 def construct_info_data(info_text: str) -> Dict[str, Any]:
     event_info = {}
     for info_a, info_b in zip(info_text.split("|"), info_text.split("|")[1:]):
@@ -71,7 +73,7 @@ def scrape_co_proposer(section_element: Tag) -> Dict[str, Any]:
         for co_proposer in co_proposer_table.find_all('tr'):
             row_text = co_proposer.get_text(separator="|", strip=True)
             
-            if not re.search(r"^\d+", row_text) or re.search(r"^1", row_text): # if it is header row or first name
+            if not re.search(r"^\d+", row_text) or re.search(r"^1(?!\d)", row_text): # if it is header row or first name
                 continue
             
             # Get name & party's name
@@ -101,7 +103,7 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
         }
     
     _title_txt = f"MP_{vote_session}"
-    print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
+    # print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
     
     ### Construct info text data ###
     info_text = ""
@@ -139,15 +141,30 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
     # Get & Convert vote date
     raw_vote_date = event_info.get("วันที่", "")
     vote_date = convert_thai_date_to_universal(raw_vote_date)
-    print("".join(['=' for _ in range(42 + len(_title_txt))]))
     
-    return {
+    event_data = {
         "event_type": f"VOTE_EVENT_MP_{vote_session}",
+        "classification": f"MP_{vote_session}",
         "msbis_id": msbis_id,
-        "vote_date": vote_date,
-        "vote_result": vote_result,
-        "vote_count": vote_count_data
+        "start_date": vote_date,
+        "end_date": vote_date,
+        "result": vote_result,
+        "vote_count": vote_count_data,
+        "session_year": issue_year,
+        "session_number": issue_number,
+        "session_type": session,
     }
+    
+    # Flatten vote count data for compare when checking for update
+    for vote_type, count in vote_count_data.items():
+        event_data[vote_type] = count
+        
+    # import json
+    # print(json.dumps(event_data, indent=2, ensure_ascii=False))
+    
+    # print("".join(['=' for _ in range(42 + len(_title_txt))]))
+    
+    return event_data
     
 def scrape_senates_vote_event(section_element: Tag, vote_session: int=1) -> Dict[str, Any]:
     
@@ -159,7 +176,8 @@ def scrape_senates_vote_event(section_element: Tag, vote_session: int=1) -> Dict
         }
         
     _title_txt = f"SENATE_{vote_session}"
-    print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
+    
+    # print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
         
     ### Construct info text data ###
     info_text = ""
@@ -186,7 +204,7 @@ def scrape_senates_vote_event(section_element: Tag, vote_session: int=1) -> Dict
         # Clean text
         for pattern_str, repl_str in vote_option_normalizer.items():
             vote_text = re.sub(pattern_str, repl_str, vote_text)
-        print(vote_text)
+        # print(vote_text)
         
         # Extract vote count data
         vote_count_data = extract_vote_count_data(
@@ -203,6 +221,12 @@ def scrape_senates_vote_event(section_element: Tag, vote_session: int=1) -> Dict
         vote_result = event_info.get(_title, "")
         if vote_result:
             break
+        
+    # Get session identifier
+    issue_year = event_info.get("ปีที่", None)
+    session = event_info.get("สมัย", None)
+    
+    issue_number = event_info.get("ครั้งที่", None)
     
     # Get & Convert vote date
     raw_vote_date = event_info.get("วันที่", None)
@@ -212,19 +236,28 @@ def scrape_senates_vote_event(section_element: Tag, vote_session: int=1) -> Dict
     
     result_event_data = {
         "event_type": f"VOTE_EVENT_SENATE_{vote_session}",
-        "vote_date": vote_date,
-        "vote_result": vote_result,
-        "vote_count": vote_count_data
+        "classification": f"SENATE_{vote_session}",
+        "start_date": vote_date,
+        "end_date": vote_date,
+        "result": vote_result,
+        "vote_count": vote_count_data,
+        # Senate do not have session year data due to different length in term
+        "session_number": issue_number,
+        "session_type": session,
     }
     
-    import json
-    print(json.dumps(
-        result_event_data,
-        indent=2,
-        ensure_ascii=False
-    ))
+    # Flatten vote count data for compare when checking for update
+    for vote_type, count in vote_count_data.items():
+        result_event_data[vote_type] = count
     
-    print("".join(['=' for _ in range(42 + len(_title_txt))]))
+    # import json
+    # print(json.dumps(
+    #     result_event_data,
+    #     indent=2,
+    #     ensure_ascii=False
+    # ))
+    
+    # print("".join(['=' for _ in range(42 + len(_title_txt))]))
     
     return result_event_data
 
@@ -235,7 +268,7 @@ def scrape_royal_assent(section_element: Tag) -> Dict[str, Any]:
         return {}
     
     _title_txt = f"ROYAL_ASSENT"
-    print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
+    # print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
     
     ### Construct info data ###
     info_text = ""
@@ -249,26 +282,26 @@ def scrape_royal_assent(section_element: Tag) -> Dict[str, Any]:
     royal_assent_result = event_info.get("พระบรมราชวินิจฉัย", None)
     
     import json
-    print(json.dumps(
-        event_info,
-        indent=2,
-        ensure_ascii=False
-    ))
-    print("".join(['=' for _ in range(42 + len(_title_txt))]))
+    # print(json.dumps(
+    #     event_info,
+    #     indent=2,
+    #     ensure_ascii=False
+    # ))
+    # print("".join(['=' for _ in range(42 + len(_title_txt))]))
     
     return {
         "event_type": "ROYAL_ASSENT",
         "result": royal_assent_result
     }
     
-def scrape_enforce_event(section_element: Tag) -> Dict[str, Any]:
+def scrape_enact_event(section_element: Tag) -> Dict[str, Any]:
     # Get info table
     info_table = section_element.find('tbody')
     if not isinstance(info_table, Tag):
         return {}
     
-    _title_txt = f"ENFORCE"
-    print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
+    _title_txt = f"ENACT"
+    # print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
     
     ### Construct info data ###
     info_text = ""
@@ -288,28 +321,29 @@ def scrape_enforce_event(section_element: Tag) -> Dict[str, Any]:
     for _title in final_name_titles:
         final_title = event_info.get(_title, None)
         if final_title:
+            final_title = convert_thai_number_str_to_arabic(final_title)
             break
     
-    # Get enforce date
-    enforce_date_string = event_info.get("วันที่", None)
-    enforce_date = None
-    if enforce_date_string:
-        enforce_date = convert_thai_date_to_universal(enforce_date_string)
+    # Get enact date
+    enacted_date_string = event_info.get("วันที่", None)
+    enacted_date = None
+    if enacted_date_string:
+        enacted_date = convert_thai_date_to_universal(enacted_date_string)
     
     result_event_data = {
-        "event_type": "ENFORCE",
-        "start_date": enforce_date,
-        "final_title": final_title,
+        "event_type": "ENACT",
+        "start_date": enacted_date,
+        "title": final_title,
     }
     
     import json
-    print(json.dumps(
-        result_event_data,
-        indent=2,
-        ensure_ascii=False
-    ))
+    # print(json.dumps(
+    #     result_event_data,
+    #     indent=2,
+    #     ensure_ascii=False
+    # ))
     
-    print("".join(['=' for _ in range(42 + len(_title_txt))]))
+    # print("".join(['=' for _ in range(42 + len(_title_txt))]))
     
     return result_event_data
 
@@ -320,7 +354,7 @@ def scrape_reject_event(section_element: Tag, default_reject_reason: str="") -> 
         return {}
     
     _title_txt = f"REJECT"
-    print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
+    # print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
     
     ### Construct info data ###
     info_text = ""
@@ -341,13 +375,13 @@ def scrape_reject_event(section_element: Tag, default_reject_reason: str="") -> 
     }
     
     import json
-    print(json.dumps(
-        result_event_data,
-        indent=2,
-        ensure_ascii=False
-    ))
+    # print(json.dumps(
+    #     result_event_data,
+    #     indent=2,
+    #     ensure_ascii=False
+    # ))
     
-    print("".join(['=' for _ in range(42 + len(_title_txt))]))
+    # print("".join(['=' for _ in range(42 + len(_title_txt))]))
     return result_event_data
 
 def scrape_merge_event(section_element: Tag) -> Dict[str, Any]:
@@ -357,11 +391,12 @@ def scrape_merge_event(section_element: Tag) -> Dict[str, Any]:
         return {}
     
     _title_txt = f"MERGED"
-    print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
+    # print("".join(['=' for _ in range(20)]), _title_txt, "".join(['=' for _ in range(20)]))
     
     # Extract table data to dict
     merged_bills = []
-    for tr_row in info_table.find('tbody').find_all('tr', recursive=False):  # type: ignore
+    merged_bill_table_element = info_table.find('tbody').find_all('tr', recursive=False) # type: ignore
+    for tr_row in merged_bill_table_element: 
         
         row_data = tr_row.find_all('td')  # type: ignore
         if not row_data:
@@ -384,18 +419,19 @@ def scrape_merge_event(section_element: Tag) -> Dict[str, Any]:
         })
         
     import json
-    print(json.dumps(
-        merged_bills,
-        indent=2,
-        ensure_ascii=False
-    ))
+    # print(json.dumps(
+    #     merged_bills,
+    #     indent=2,
+    #     ensure_ascii=False
+    # ))
     
     result_event_data = {
         "event_type": "MERGE",
-        "merged_bills": merged_bills
+        "merged_bills": merged_bills,
+        "total_merged_bills": len(merged_bill_table_element) + 1 # add +1 for the bill that got scraped
     }
         
-    print("".join(['=' for _ in range(42 + len(_title_txt))]))
+    # print("".join(['=' for _ in range(42 + len(_title_txt))]))
     return result_event_data
 
 event_scraper_dispatcher = {
@@ -436,10 +472,10 @@ event_scraper_dispatcher = {
     # Royal Assent
     'ข้อมูลผลการนำขึ้นทูลเกล้าทูลกระหม่อมถวาย': scrape_royal_assent,
     
-    # Enforce
-    'ข้อมูลการประกาศเป็นกฎหมาย': scrape_enforce_event,
-    'ข้อมูลประกาศในราชกิจจานุเบกษา': scrape_enforce_event, # พรบ งบ
-    'ข้อมูลการประกาศอนุมัติ พระราชกำหนด': scrape_enforce_event, # พระราชกำหนด
+    # Enact
+    'ข้อมูลการประกาศเป็นกฎหมาย': scrape_enact_event,
+    'ข้อมูลประกาศในราชกิจจานุเบกษา': scrape_enact_event, # พรบ งบ
+    'ข้อมูลการประกาศอนุมัติ พระราชกำหนด': scrape_enact_event, # พระราชกำหนด
     
     # Reject
     'ข้อมูลร่างตกไป': scrape_reject_event,

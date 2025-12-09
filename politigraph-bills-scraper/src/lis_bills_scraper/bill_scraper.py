@@ -1,28 +1,17 @@
 from typing import List, Dict, Any
+import re, math
 import requests
-import math
-import re
-
 from bs4 import BeautifulSoup
 from .lis_web_constants import LIS_ENDPOINT, BILLS_TYPE_SYSTEM_INDEX, BIll_TYPE_CLASS_INDEX, OFFSET_STEP
+from thai_name_normalizer import convert_thai_number_str_to_arabic
 
-async def get_bill_list(parliament_term: int) -> List[Dict[str, Any]]:
-    """
-    Scrape bills from the given parliament term
-
-    Args:
-        parliament_term: int
-            Parliament's term.
-
-    Returns:
-        A list of bill data.
-    """
-    
-    bills_index = BILLS_TYPE_SYSTEM_INDEX
+def scrape_bill_list(
+    parliament_term: int
+) -> List[Dict[str, Any]]:
     
     data = []
     
-    for bill_type, sys_id in bills_index.items():
+    for bill_type, sys_id in BILLS_TYPE_SYSTEM_INDEX.items():
         print(bill_type, f"S_SYSTEM : {sys_id}")
         
         total_search_result = math.inf
@@ -70,6 +59,12 @@ async def get_bill_list(parliament_term: int) -> List[Dict[str, Any]]:
                 if not bill_info: # skip header
                     continue
                 
+                # Get bill's acceptance_number
+                acceptance_number = convert_thai_number_str_to_arabic(str(bill_info[3]))
+                
+                # Get bill title
+                bill_title = convert_thai_number_str_to_arabic(str(bill_info[4]))
+                
                 # Get url & extract Doc ID
                 url = bill_info[-1]
                 doc_id = 0
@@ -80,15 +75,15 @@ async def get_bill_list(parliament_term: int) -> List[Dict[str, Any]]:
                     'bill_type': bill_type,
                     'classification': BIll_TYPE_CLASS_INDEX[bill_type],
                     'year': bill_info[2],
-                    'acceptance_number': bill_info[3],
-                    'title': bill_info[4],
+                    'acceptance_number': acceptance_number,
+                    'title': bill_title,
                     'proposer': bill_info[5],
                     'result': bill_info[6],
-                    'lis_doc_id': doc_id,
-                    'url': url,
+                    'lis_id': doc_id,
+                    'url': "/".join(LIS_ENDPOINT.split('/')[:-1]) + '/' + str(url),
                 })
                 
             # Increase offset value
             off_set += OFFSET_STEP
-    
+            
     return data

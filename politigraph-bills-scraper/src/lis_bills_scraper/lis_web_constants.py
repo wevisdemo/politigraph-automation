@@ -14,4 +14,15 @@ BIll_TYPE_CLASS_INDEX: Dict[str, str] = {
     'พระราชกำหนด': 'EMERGENCY_DECREE',
 }
 
+BILL_EVENT_TYPENAME_INDEX = {
+    'MERGE': 'BillMergeEvent',
+    'ROYAL_ASSENT': 'BillRoyalAssentEvent',
+    'REJECT': 'BillRejectEvent',
+    'ENACT': 'BillEnactEvent',
+    'VOTE_EVENT_MP_1': 'BillVoteEvent',
+    'VOTE_EVENT_MP_3': 'BillVoteEvent',
+    'VOTE_EVENT_SENATE_1': 'BillVoteEvent',
+    'VOTE_EVENT_SENATE_3': 'BillVoteEvent',
+}
+
 OFFSET_STEP = 50

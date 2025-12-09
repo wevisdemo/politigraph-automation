@@ -1,3 +1,1 @@
-from .bills_creator import scrape_and_create_new_bills
-from .bill_events_updater import scrape_and_update_bill_events
-from .bill_cleanup import cleanup_bill
+from .bills_data_updater import update_bills_data
