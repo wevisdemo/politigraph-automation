@@ -464,7 +464,7 @@ def update_bill_data(
  
 async def create_bills_in_chunk(
     params: List[Dict[str, Any]],
-    batch_size: int=3
+    batch_size: int|None=None
 ) -> None:
     
     # Initiate client
@@ -477,7 +477,7 @@ async def create_bills_in_chunk(
     # Check & Exclude any param with long connection param
     long_params:List[Dict] = []
     if any(
-        len(param.get('co_proposers', {}).get('connect', [])) > 20\
+        len(param.get('co_proposers', {}).get('connect', [])) > 10\
             for param in params
     ):
         long_params.extend([
@@ -487,7 +487,7 @@ async def create_bills_in_chunk(
         params = [param for param in params if param not in long_params]
     
     # Create bill with short param
-    for param_chunk in chunker(params, batch_size):
+    for param_chunk in chunker(params, size=1):
         results = await create_bill(
             client=apollo_client,
             params={
@@ -529,7 +529,7 @@ async def create_bills_in_chunk(
         print(f"Created bill : {bill_id}")
         
         # Update connection
-        for connect_chunk in chunker(co_proposer_conn, size=10):
+        for connect_chunk in chunker(co_proposer_conn, size=5):
             
             await update_bill(
                 client=apollo_client,

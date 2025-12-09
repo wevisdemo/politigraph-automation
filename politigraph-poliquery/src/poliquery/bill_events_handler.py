@@ -539,7 +539,7 @@ async def create_bill_vote_event_in_chunk(
                 'input': param_chunk
             }
         )
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(2)
     
     return
 
@@ -558,7 +558,7 @@ async def create_bill_merge_event_in_chunk(
                 'input': param_chunk
             }
         )
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(2)
     
     return
 
@@ -577,7 +577,7 @@ async def create_bill_royal_assent_event_in_chunk(
                 'input': param_chunk
             }
         )
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(2)
     
     return
 
@@ -614,7 +614,7 @@ async def create_bill_enact_event_in_chunk(
                 }
             }
         )
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(2)
     
     return
 
@@ -652,7 +652,7 @@ async def create_bill_reject_event_in_chunk(
                 }
             }
         )
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(2)
     
     return
 
@@ -668,7 +668,7 @@ async def update_bill_vote_events(
             client=apollo_client,
             params=param
         )
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(2)
         
     return
 
@@ -684,7 +684,7 @@ async def update_bill_royal_assent_events(
             client=apollo_client,
             params=param
         )
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(2)
         
     return
 
@@ -700,7 +700,7 @@ async def update_bill_enact_events(
             client=apollo_client,
             params=param
         )
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(2)
         
     return
 
@@ -716,6 +716,6 @@ async def update_bill_reject_events(
             client=apollo_client,
             params=param
         )
-        await asyncio.sleep(0.2)
+        await asyncio.sleep(2)
         
     return
