@@ -66,11 +66,7 @@ def update_bills_data(
         
         # Scrape bill list
         _start_time = time.time()
-        if os.path.exists('bill_list.pkl'):
-            with open('bill_list.pkl', 'rb') as file:
-                bills_list = pickle.load(file)
-        else:
-            bills_list = scrape_bill_list(parliament_term=term)
+        bills_list = scrape_bill_list(parliament_term=term)
         _end_time = time.time()
         elapsed_time = _end_time - _start_time
         print(f"⏳ Scrape Bills completed in : {elapsed_time:.4f} seconds")
@@ -104,7 +100,7 @@ def update_bills_data(
                     
         # Scrape billEvent
         _start_time = time.time()
-        # scrape_bill_events()
+        scrape_bill_events()
         _end_time = time.time()
         elapsed_time = _end_time - _start_time
         print(f"⏳ Scrape events completed in : {elapsed_time:.4f} seconds")
@@ -117,7 +113,7 @@ def update_bills_data(
         elapsed_time = _end_time - _start_time
         print(f"⏳ Create bills completed in : {elapsed_time:.4f} seconds")
         
-        time.sleep(2)
+        time.sleep(5)
         # Update politigraph bill list after create new bills
         with open('politigraph_bill_list.pkl', 'wb') as file:
             pickle.dump(
@@ -143,7 +139,6 @@ def update_bills_data(
         # - prime_minister_index
         clean_up_files(
             exception=[
-                'bill_list',
                 'prime_minister_index.pkl'
             ]
         )
