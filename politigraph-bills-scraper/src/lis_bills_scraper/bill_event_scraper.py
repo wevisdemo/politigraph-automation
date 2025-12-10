@@ -83,7 +83,7 @@ def scrape_bill_events():
     load_dotenv()
     SCAPE_MODE = os.getenv('SCRAPE_MODE', None)
         
-    for idx, bill in tqdm(enumerate(bill_list)):
+    for idx, bill in tqdm(enumerate(bill_list), disable=None):
         
         # Check status of bill from politigraph bill
         # If already resolved, then skip
