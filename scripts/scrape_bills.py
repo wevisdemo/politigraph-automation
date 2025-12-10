@@ -11,7 +11,7 @@
 # thai_name_normalizer = { path = "../politigraph-name-normalizer", editable = true }
 # ///
 
-from lis_bills_scraper import scrape_and_create_new_bills, scrape_and_update_bill_events, cleanup_bill
+from lis_bills_scraper import update_bills_data
 from poliquery import get_all_house_of_representatives
 
 def main() -> None:
@@ -24,10 +24,7 @@ def main() -> None:
     # Scrape bill & billEvent for each term
     for term in terms:
         print(f"\nScrape Bill for House of Representatives {term}th term...\n")
-        scrape_and_create_new_bills(term)
-        scrape_and_update_bill_events(term)
-        print(f"\nCleanup BillEvent for House of Representatives {term}th term...\n")
-        cleanup_bill(term)
+        update_bills_data(term)
 
 if __name__ == "__main__":
     main()

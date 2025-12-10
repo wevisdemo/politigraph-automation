@@ -2,8 +2,18 @@ name: Scrape & Update Bills / BillEvents
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: '0 17 * * SUN'  # Every Sunday at 17:00 UTC(1:00 AM GMT+7)
+    inputs:
+      scrape_mode:
+        description: 'Selecting scrape mode, `ALL` to scrape and update all bills'
+        required: true
+        default: 'none'
+        type: choice
+        options:
+          - ALL
+          - none
+
+  schedule:
+    - cron: '0 20 * * SUN'  # Every Sunday at 20:00 UTC(4:00 AM GMT+7)
 
 permissions:
   contents: 'read'
@@ -34,3 +44,4 @@ jobs:
         env:
           POLITIGRAPH_SUBSCRIBTION_ENDPOINT: "${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}"
           POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
+          SCRAPE_MODE: ${{ github.event_name == 'schedule' && '' || inputs.scrape_mode == 'none' && '' || inputs.scrape_mode }}
