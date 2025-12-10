@@ -3,6 +3,14 @@ name: Scrape & Update Bills / BillEvents
 on:
   workflow_dispatch:
     inputs:
+      parliament_period:
+        description: 'Selecting the period of the parliament, either LATEST for the latest term or PREVIOUS for previous term of parliament'
+        required: true
+        default: 'LATEST'
+        type: choice
+        options:
+          - LATEST
+          - PREVIOUS
       scrape_mode:
         description: 'Selecting scrape mode, `ALL` to scrape and update all bills'
         required: true
@@ -45,3 +53,4 @@ jobs:
           POLITIGRAPH_SUBSCRIBTION_ENDPOINT: "${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}"
           POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
           SCRAPE_MODE: ${{ github.event_name == 'schedule' && '' || inputs.scrape_mode == 'none' && '' || inputs.scrape_mode }}
+          PARLIAMENT_PERIOD: ${{ github.event_name == 'schedule' && 'LATEST' || inputs.parliament_period }}
