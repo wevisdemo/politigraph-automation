@@ -40,8 +40,6 @@ def update_vote_param(
         },
         'update': update_param
     }   
-    print(event.get('id'))
-    print(json.dumps(result_param, indent=2, ensure_ascii=False))
     
     return result_param
 
@@ -61,8 +59,6 @@ def update_royal_assent_param(
             'result_SET': result
         }
     }
-    print(event.get('id'))
-    print(json.dumps(result_param, indent=2, ensure_ascii=False))
     
     return result_param
 
@@ -82,8 +78,6 @@ def update_enact_param(
             'title_SET': title
         }
     }
-    print(event.get('id'))
-    print(json.dumps(result_param, indent=2, ensure_ascii=False))
     
     return result_param
 
@@ -103,8 +97,6 @@ def update_reject_param(
             'reject_reason_SET': reject_reason
         }
     }
-    print(event.get('id'))
-    print(json.dumps(result_param, indent=2, ensure_ascii=False))
     
     return result_param
     

@@ -84,8 +84,6 @@ def create_merge_param(
     event: Dict[str, Any],
 ) -> Dict[str, Any]|None:
     
-    # print(json.dumps(event, indent=2, ensure_ascii=False))
-    
     # Load cache merged lis_id
     if not os.path.exists('merged_lis_id.pkl'):
         with open('merged_lis_id.pkl', 'wb') as file:

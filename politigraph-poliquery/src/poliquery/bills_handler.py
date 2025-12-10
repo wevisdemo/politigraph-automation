@@ -442,13 +442,6 @@ def update_bill_data(
     for key, value in data.items():
         update_key = key + "_SET"
         update_param[update_key] = value
-        
-    import json
-    print(json.dumps(
-        update_param,
-        indent=2,
-        ensure_ascii=False
-    ))
     
     # Update bill info
     asyncio.run(update_bill(

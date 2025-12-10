@@ -98,7 +98,6 @@ def scrape_bill_events():
         if matched_bill \
             and SCAPE_MODE != 'ALL' \
             and matched_bill.get('status', '') != 'IN_PROGRESS': # already resolved
-            # print(f"Bill resolved with status : {matched_bill.get('status')}")
             continue
         
         # Scrape event
