@@ -14,6 +14,21 @@
 from lis_bills_scraper import update_bills_data
 from poliquery import get_all_house_of_representatives
 
+def format_number_list(numbers):
+    # Empty list, return ""
+    if not numbers:
+        return ""
+    
+    # Convert all integers to strings
+    strings = [str(n) for n in numbers]
+    
+    # Handle single item
+    if len(strings) == 1:
+        return strings[0]
+    
+    # Join all items except the last with ", " and add the last item with " and "
+    return ", ".join(strings[:-1]) + " and " + strings[-1]
+
 def main() -> None:
     # Get all House of Representatives
     hor = get_all_house_of_representatives()
@@ -22,9 +37,8 @@ def main() -> None:
     ]
     
     # Scrape bill & billEvent for each term
-    for term in terms:
-        print(f"\nScrape Bill for House of Representatives {term}th term...\n")
-        update_bills_data(term)
+    print(f"\nScrape Bill for House of Representatives {format_number_list(terms)}th term...\n")
+    update_bills_data(terms)
 
 if __name__ == "__main__":
     main()
