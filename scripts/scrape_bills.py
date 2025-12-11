@@ -2,7 +2,7 @@
 # requires-python = "==3.10.11"
 # dependencies = [
 #     "thai_name_normalizer", "poliquery", "msbis-vote-events-scraper",
-#     "lis_bills_scraper", "tqdm"
+#     "lis_bills_scraper"
 # ]
 # [tool.uv.sources]
 # poliquery = { path = "../politigraph-poliquery", editable = true }

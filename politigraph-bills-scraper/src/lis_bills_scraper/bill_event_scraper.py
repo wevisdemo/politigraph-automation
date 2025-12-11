@@ -3,7 +3,6 @@ import os, requests
 import json
 import pickle
 from dotenv import load_dotenv
-from tqdm.auto import tqdm
 
 from bs4 import BeautifulSoup
 
@@ -83,7 +82,7 @@ def scrape_bill_events():
     load_dotenv()
     SCAPE_MODE = os.getenv('SCRAPE_MODE', None)
         
-    for idx, bill in tqdm(enumerate(bill_list), disable=None):
+    for idx, bill in enumerate(bill_list):
         
         # Check status of bill from politigraph bill
         # If already resolved, then skip
