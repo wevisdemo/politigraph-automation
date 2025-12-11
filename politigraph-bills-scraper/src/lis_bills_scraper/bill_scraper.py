@@ -65,6 +65,10 @@ def scrape_bill_list(
                 # Get bill title
                 bill_title = convert_thai_number_str_to_arabic(str(bill_info[4]))
                 
+                # Check if bill is a test page, then skip
+                if re.search(r"ทดสอบ|ร่างหลัก|ร่างทำนองเดียวกัน", bill_title):
+                    continue
+                
                 # Get url & extract Doc ID
                 url = bill_info[-1]
                 doc_id = 0
