@@ -199,6 +199,19 @@ def create_enact_param(
         }
     }
     
+    # Add link node if pdf file is present
+    if event.get('announcement_report_link'):
+        create_param['links'] = {
+            "create": [
+                {
+                    "node": {
+                        "note": "ราชกิจจานุเบกษา",
+                        "url": event.get('announcement_report_link'),
+                    }
+                }
+            ]
+        }
+    
     return create_param
 
 def create_reject_param(

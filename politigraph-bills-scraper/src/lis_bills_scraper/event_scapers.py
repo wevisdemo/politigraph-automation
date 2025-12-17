@@ -329,11 +329,18 @@ def scrape_enact_event(section_element: Tag) -> Dict[str, Any]:
     enacted_date = None
     if enacted_date_string:
         enacted_date = convert_thai_date_to_universal(enacted_date_string)
+        
+    # Get official report pdf link
+    report_link = info_table.find('a')
+    announcement_report_link = None
+    if report_link:
+        announcement_report_link = report_link['href'] # type: ignore
     
     result_event_data = {
         "event_type": "ENACT",
         "start_date": enacted_date,
         "title": final_title,
+        "announcement_report_link": announcement_report_link,
     }
     
     import json
