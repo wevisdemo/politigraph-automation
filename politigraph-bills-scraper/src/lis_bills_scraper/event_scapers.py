@@ -50,6 +50,9 @@ def scrape_bill_info(section_element: Tag) -> Dict[str, Any]:
     
     # Get propose date string
     raw_date_string = event_info.get("ลงวันที่") or event_info.get("วันที่รับ")
+    
+    # Get Recipient name
+    recipient = event_info.get("ผู้รับเรื่อง")
 
     # Convert the date if it was found, otherwise assign None
     proposed_date = convert_thai_date_to_universal(raw_date_string) if raw_date_string else None
@@ -59,7 +62,8 @@ def scrape_bill_info(section_element: Tag) -> Dict[str, Any]:
         "event_type": "GENERAL_INFO",
         "proposer": proposer,
         "prime_minister": prime_minister,
-        "proposal_date": proposed_date
+        "proposal_date": proposed_date,
+        "recipient": recipient,
     }
     
 def scrape_co_proposer(section_element: Tag) -> Dict[str, Any]:

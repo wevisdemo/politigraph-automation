@@ -69,6 +69,11 @@ def add_new_bill_instruction(
     if not info_event: # no info event don't create yet
         return
     
+    # Check if is it a test bill
+    if info_event.get('recipient') and info_event.get('recipient') == 'admin':
+        print(f"Test bill detected!! {bill.get('title')}")
+        return
+    
     # Add proposed_date
     proposed_date = info_event.get('proposal_date', None)
     if not proposed_date: # no proposed_date don't create yet
