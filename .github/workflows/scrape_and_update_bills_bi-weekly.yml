@@ -1,0 +1,64 @@
+name: (Bi-Weekly) Scrape & Update Bills / BillEvents
+
+on:
+
+  schedule:
+    - cron: '0 23 * * SUN'  # Every Sunday at 20:00 UTC(4:00 AM GMT+7)
+
+permissions:
+  contents: 'read'
+    
+jobs:
+  check-week:
+    runs-on: ubuntu-latest
+    outputs:
+      # Expose the step output to other jobs
+      should_run: ${{ steps.decider.outputs.should_run }}
+    steps:
+      - name: Check week number
+        id: decider
+        run: |
+          # Get week number (00-53)
+          WEEK_NUM=$(date +%U)
+          echo "Current Week: $WEEK_NUM"
+
+          # Logic: Check if week is Even (0) or Odd (1)
+          # Change '-eq 0' to '-eq 1' if you want to swap the schedule
+          if [ $((WEEK_NUM % 2)) -eq 0 ]; then
+            echo "It is an even week. Triggering next job."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "It is an odd week. Skipping next job."
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  run_python_script:
+    needs: check-week
+    # This 'if' ensures this job acts based on the previous job's output
+    if: ${{ needs.check-week.outputs.should_run == 'true' }}
+    runs-on: ubuntu-latest
+
+    env:
+      MODE: "dev"
+      ACTIONS_RUNNER_DEBUG: true
+
+    steps:
+      - uses: actions/checkout@v3  # Setup
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.11'
+
+      - name: Install dependencies
+        run: |
+            sudo apt-get update
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Scrap & Update Bills
+        run: uv run scripts/scrape_bills.py
+        env:
+          POLITIGRAPH_SUBSCRIBTION_ENDPOINT: "${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}"
+          POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
+          SCRAPE_MODE: 'ALL'
+          PARLIAMENT_PERIOD: 'LATEST'
