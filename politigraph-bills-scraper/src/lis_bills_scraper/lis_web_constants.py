@@ -20,6 +20,7 @@ BILL_EVENT_TYPENAME_INDEX = {
     'REJECT': 'BillRejectEvent',
     'ENACT': 'BillEnactEvent',
     'VOTE_EVENT_MP_1': 'BillVoteEvent',
+    'VOTE_EVENT_MP_2': 'BillVoteEvent',
     'VOTE_EVENT_MP_3': 'BillVoteEvent',
     'VOTE_EVENT_SENATE_1': 'BillVoteEvent',
     'VOTE_EVENT_SENATE_3': 'BillVoteEvent',

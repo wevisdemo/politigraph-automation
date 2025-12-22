@@ -169,6 +169,63 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
     # print("".join(['=' for _ in range(42 + len(_title_txt))]))
     
     return event_data
+
+def scrape_representatives_mp_2(section_element: Tag) -> Dict[str, Any]:
+    
+    # Get info table
+    info_table = section_element.find('tbody')
+    if not isinstance(info_table, Tag):
+        return {
+            "event_type": f"VOTE_EVENT_MP_2",
+        }
+    
+    ### Construct info text data ###
+    info_text = ""
+    for row in info_table.find_all('tr', recursive=False):
+        row_text = row.get_text(separator="|", strip=True)
+        info_text += row_text + "|"
+    
+    # Clean info text to get only vote date
+    info_text = re.sub(r"(^.+?\|)?(.?ที่ประชุมพิจารณา(.|\n)*$)", r"\g<2>", info_text)
+    
+    ### Construct info data ###
+    event_info = construct_info_data(info_text)
+    
+    # Get msbis info
+    term = event_info.get("ชุดที่", None)
+    issue_year = event_info.get("ปีที่", None)
+    session = event_info.get("สมัย", None)
+    issue_number = event_info.get("ครั้งที่", None)
+    
+    # Get & Convert vote date
+    raw_vote_date = event_info.get("วันที่", "")
+    vote_date = convert_thai_date_to_universal(raw_vote_date)
+    
+    # Get result
+    vote_result = event_info.get('ผลการวินิจฉัยร่างพระราชบัญญัติ', "")
+    
+    event_data = {
+        "event_type": f"VOTE_EVENT_MP_2",
+        "classification": f"MP_2",
+        "start_date": vote_date,
+        "end_date": vote_date,
+        "result": vote_result,
+        "session_year": issue_year,
+        "session_number": issue_number,
+        "session_type": session,
+    }
+    
+    report_links = info_table.find_all('a')
+    links_data = []
+    for link in report_links:
+        links_data.append({
+            'note': link.get_text(strip=True),
+            'url': link['href'] # type: ignore
+        })
+        
+    event_data['links'] = links_data
+    
+    return event_data
     
 def scrape_senates_vote_event(section_element: Tag, vote_session: int=1) -> Dict[str, Any]:
     
@@ -459,7 +516,11 @@ event_scraper_dispatcher = {
         scrape_representatives_vote_event(section_element, vote_session=1),
     'ข้อมูลการพิจารณาร่างฯ ของรัฐสภา วาระที่ 1': lambda section_element:
         scrape_representatives_vote_event(section_element, vote_session=1), 
-               
+    
+    # Vote MP_2
+    'ข้อมูลการพิจารณาของสภาผู้แทนราษฎร วาระที่ 2': lambda section_element:
+        scrape_representatives_mp_2(section_element),
+                   
     # Vote MP_3
     'ข้อมูลการพิจารณาของสภาผู้แทนราษฎร วาระที่ 3': lambda section_element:
         scrape_representatives_vote_event(section_element, vote_session=3),

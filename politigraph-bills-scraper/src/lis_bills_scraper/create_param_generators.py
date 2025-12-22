@@ -79,6 +79,84 @@ def create_vote_param(
     
     return create_param
 
+def create_mp_2_param(
+    bill: Dict[str, Any],
+    event: Dict[str, Any],
+) -> Dict[str, Any]:
+    
+    ############# Get info #############
+    bill_id = bill.get('id', '')
+    
+    bill_title = bill.get('title', '')
+    event_classification = "MP_2"
+    vote_date = event.get('start_date', None)
+    vote_result = event.get('result', None)
+    
+    if any([event.get('session_year'), event.get('session_number'), event.get('session_type')]):
+        session_identifier = "การประชุม"
+        session_identifier += f" ปีที่ {event.get('session_year')}" if event.get('session_year') else ""
+        session_identifier += f" {event.get('session_type')}" if event.get('session_type') else ""
+        session_identifier += f" ครั้งที่ {event.get('session_number')}" if event.get('session_number') else ""
+    else:
+        session_identifier = None
+            
+    ####################################
+    
+    
+    ############# Construct create param #############
+    
+    title = str(bill_title) + {
+        'MP_1': ' วาระที่ 1',
+        'MP_3': ' วาระที่ 3',
+        'SENATE_1': ' วุฒิสภา วาระที่ 3',
+        'SENATE_3': ' วุฒิสภา วาระที่ 3',
+    }.get(event_classification, '')
+    title = re.sub(r"\s+(วาระ|วุฒิสภา)", r" \1", title)
+
+    create_param = {
+        "title": title,
+        "classification": event_classification,
+        "start_date": vote_date,
+        "end_date": vote_date,
+        "session_identifier": session_identifier,
+        "result": vote_result,
+        "publish_status": "PUBLISHED",
+        "bills": {
+            "connect": [
+            {
+                "where": {
+                    "node": {
+                        "id_EQ": bill_id
+                    }
+                }
+            }
+            ]
+        }
+    }
+    
+    ####################################################
+    
+    ################ Check & Add Links #################
+    
+    links = event.get('links', [])
+    links_create_param = []
+    if links:
+        for link in links:
+            links_create_param.append({
+                "node": {
+                    "note": link.get("note"),
+                    "url": link.get("url"),
+                }
+            })
+    
+    create_param["links"] = {
+        "create": links_create_param
+    }
+    
+    ####################################################
+    
+    return create_param
+
 def create_merge_param(
     bill: Dict[str, Any],
     event: Dict[str, Any],
@@ -244,6 +322,10 @@ CERATE_PARAM_DISPATCH = {
         event=event,
         assembly='MP',
         issue=1
+    ),
+    'VOTE_EVENT_MP_2': lambda bill, event: create_mp_2_param(
+        bill=bill,
+        event=event,
     ),
     'VOTE_EVENT_MP_3': lambda bill, event: create_vote_param(
         bill=bill,
