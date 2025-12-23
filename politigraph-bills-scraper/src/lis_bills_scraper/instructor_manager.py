@@ -171,6 +171,29 @@ def add_new_events_instruction(
     events: List[Dict[str, Any]],
 ) -> None:
     
+    # Check duplicate MP_2
+    mp_2_events = [
+        e for e in events if e.get('event_type') == 'VOTE_EVENT_MP_2'
+    ]
+    if len(mp_2_events) > 1: # more than 1 mp2
+        # Remove any duplicate MP_2 events
+        _taken_start_date = []
+        events = [
+            e for e in events if e.get('event_type') != 'VOTE_EVENT_MP_2'
+        ]
+        
+        # If all have no date pull only last one
+        if all([_e.get('start_date') is None for _e in mp_2_events]):
+            mp_2_events = mp_2_events[-1:]
+        else:
+            mp_2_events = [_e for _e in mp_2_events if _e.get('start_date')]
+            
+        # Add back to events list but skip any duplicate
+        for event in mp_2_events[::-1]: # loop in reverse to get the latest first
+            if event.get("start_date") in _taken_start_date:
+                continue
+            events.append(event)
+    
     for event in events:
         event_type = event.get('event_type', '')
         create_event_handler = CERATE_PARAM_DISPATCH.get(event_type, None)
