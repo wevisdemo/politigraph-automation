@@ -312,14 +312,15 @@ def scrape_senates_vote_event(section_element: Tag, vote_session: int=1) -> Dict
     for vote_type, count in vote_count_data.items():
         result_event_data[vote_type] = count
     
-    # import json
-    # print(json.dumps(
-    #     result_event_data,
-    #     indent=2,
-    #     ensure_ascii=False
-    # ))
-    
-    # print("".join(['=' for _ in range(42 + len(_title_txt))]))
+    report_links = info_table.find_all('a')
+    links_data = []
+    for link in report_links:
+        links_data.append({
+            'note': link.get_text(strip=True),
+            'url': link['href'] # type: ignore
+        })
+        
+    result_event_data['links'] = links_data
     
     return result_event_data
 
