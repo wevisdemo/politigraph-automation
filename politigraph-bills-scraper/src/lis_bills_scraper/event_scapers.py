@@ -202,7 +202,8 @@ def scrape_representatives_mp_2(section_element: Tag) -> Dict[str, Any]:
     vote_date = convert_thai_date_to_universal(raw_vote_date)
     
     # Get result
-    vote_result = event_info.get('ผลการวินิจฉัยร่างพระราชบัญญัติ', "")
+    budget_involvement = event_info.get('ร่างฯที่คณะกรรมาธิการแก้ไข', "")
+    vote_result = budget_involvement
     
     event_data = {
         "event_type": f"VOTE_EVENT_MP_2",
