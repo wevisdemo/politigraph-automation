@@ -48,12 +48,11 @@ def main():
     
     # Check if there are specific name to update
     SELECT_POLITICIANS_NAME=os.getenv('SELECT_POLITICIANS_NAME')
-    if not SELECT_POLITICIANS_NAME:
-        SELECT_POLITICIANS_NAME = ''
-        
-    # Modify string to match file name pattern
-    SELECT_POLITICIANS_NAME = re.sub(r"\s", "-", SELECT_POLITICIANS_NAME)
-    selected_names = [re.sub(r'\s+', ' ', name).strip() for name in SELECT_POLITICIANS_NAME.split("|")]
+    selected_names = []
+    if SELECT_POLITICIANS_NAME:
+        # Modify string to match file name pattern
+        SELECT_POLITICIANS_NAME = re.sub(r"\s", "-", SELECT_POLITICIANS_NAME)
+        selected_names = [re.sub(r'\s+', ' ', name).strip() for name in SELECT_POLITICIANS_NAME.split("|")]
     
     # Read & Crop politician images from Google Drive
     read_and_save_images_from_drive(
