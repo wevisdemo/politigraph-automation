@@ -109,6 +109,9 @@ def read_and_save_images_from_drive(
     
     files = list_files_in_drive_folder(service, drive_folder_id)
     
+    if select_names:
+        print(f"Selected names:\n{select_names}")
+        
     for file in files:
         file_id = file['id']
         file_name = file['name']
