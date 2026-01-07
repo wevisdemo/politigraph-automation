@@ -58,6 +58,8 @@ def main():
     SELECT_POLITICIANS_NAME=os.getenv('SELECT_POLITICIANS_NAME')
     if SELECT_POLITICIANS_NAME and not SELECT_PARTIES_NAME:
         print("Skip cropping party images...")
+        # Create empty folder to prevent failed Upload step
+        os.makedirs(PARTY_LOGOS_DIR_PATH, exist_ok=True)
         return
         
     # Read & Save party logos from Google Drive

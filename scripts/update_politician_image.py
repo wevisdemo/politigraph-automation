@@ -57,6 +57,8 @@ def main():
     # Check if there are specific party name to update
     SELECT_PARTIES_NAME=os.getenv('SELECT_PARTIES_NAME')
     if SELECT_PARTIES_NAME and not SELECT_POLITICIANS_NAME:
+        # Create empty folder to prevent failed Upload step
+        os.makedirs(POLITICIAN_IMAGES_DIR_PATH, exist_ok=True)
         print("Skip cropping politician images...")
         return
     
