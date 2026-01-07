@@ -45,13 +45,28 @@ def main():
     service = build("drive", "v3", credentials=credentials)
     
     PARTY_LOGOS_DIR_PATH = "tmp/cropped-party-logos"
+    
+    # Check if there are specific name to update
+    SELECT_PARTIES_NAME=os.getenv('SELECT_PARTIES_NAME')
+    selected_names = []
+    if SELECT_PARTIES_NAME:
+        # Modify string to match file name pattern
+        SELECT_PARTIES_NAME = re.sub(r"\s", "-", SELECT_PARTIES_NAME)
+        selected_names = [re.sub(r'\s+', ' ', name).strip() for name in SELECT_PARTIES_NAME.split("|")]
+        
+    # Check if there are specific party name to update
+    SELECT_POLITICIANS_NAME=os.getenv('SELECT_POLITICIANS_NAME')
+    if SELECT_POLITICIANS_NAME and not SELECT_PARTIES_NAME:
+        print("Skip cropping party images...")
+        return
         
     # Read & Save party logos from Google Drive
     read_and_save_images_from_drive(
         service, 
         PARTY_LOGOS_DRIVE_FOLDER_ID, 
         output_dir_path=PARTY_LOGOS_DIR_PATH,
-        crop=False  # Don't crop party logos, just save them
+        crop=False,  # Don't crop party logos, just save them
+        select_names=selected_names
     )
 
     for file in os.listdir(PARTY_LOGOS_DIR_PATH):

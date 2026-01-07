@@ -53,6 +53,12 @@ def main():
         # Modify string to match file name pattern
         SELECT_POLITICIANS_NAME = re.sub(r"\s", "-", SELECT_POLITICIANS_NAME)
         selected_names = [re.sub(r'\s+', ' ', name).strip() for name in SELECT_POLITICIANS_NAME.split("|")]
+        
+    # Check if there are specific party name to update
+    SELECT_PARTIES_NAME=os.getenv('SELECT_PARTIES_NAME')
+    if SELECT_PARTIES_NAME and not SELECT_POLITICIANS_NAME:
+        print("Skip cropping politician images...")
+        return
     
     # Read & Crop politician images from Google Drive
     read_and_save_images_from_drive(
