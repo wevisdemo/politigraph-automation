@@ -16,7 +16,10 @@ from .query_helper.merge_event import agg_count_merge_event, create_merge_event,
 
 def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
-    
+
+############################### CREATE ###############################
+#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV#
+
 async def create_bill_vote_event_in_chunk(
     params: List[Dict[str, Any]],
     batch_size: int=5
@@ -148,6 +151,9 @@ async def create_bill_reject_event_in_chunk(
         await asyncio.sleep(2)
     
     return
+
+############################### UPDATE ###############################
+#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV#
 
 async def update_bill_vote_events(
     params: List[Dict[str, Any]]
