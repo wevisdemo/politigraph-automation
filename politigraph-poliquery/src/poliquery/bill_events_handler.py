@@ -3,15 +3,12 @@ import asyncio
 from gql import Client
 
 from .apollo_connector import get_apollo_client
-from .query_helper.vote_events import agg_count_vote_events
-from .query_helper.royal_assent_event import get_royal_assent_events, create_royal_assent_event, update_royal_assent_event
-from .query_helper.enforce_event import agg_count_enforce_event, create_enforce_event # TODO remove
+from .query_helper.royal_assent_event import create_royal_assent_event, update_royal_assent_event
 from .query_helper.enact_event import create_enact_event, update_enact_event
-from .query_helper.reject_event import agg_count_reject_event, create_reject_event, update_reject_event
-from .query_helper.draft_vote_event import agg_count_draft_vote_events, update_draft_vote_event, create_draft_vote_event # TODO remove
+from .query_helper.reject_event import create_reject_event, update_reject_event
 from .query_helper.bill_vote_event import create_bill_vote_event, update_bill_vote_event
-from .query_helper.bills import get_bills, update_bill
-from .query_helper.merge_event import agg_count_merge_event, create_merge_event, update_merge_event
+from .query_helper.bills import update_bill
+from .query_helper.merge_event import create_merge_event
 
 
 def chunker(seq, size):
