@@ -8,11 +8,36 @@ from .query_helper.enact_event import create_enact_event, update_enact_event
 from .query_helper.reject_event import create_reject_event, update_reject_event
 from .query_helper.bill_vote_event import create_bill_vote_event, update_bill_vote_event
 from .query_helper.bills import update_bill
-from .query_helper.merge_event import create_merge_event
+from .query_helper.merge_event import get_merge_events, create_merge_event
 
 
 def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
+################################ GET #################################
+#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV#
+
+async def get_bill_merge_events(id: str|None):
+    # Initiate client
+    apollo_client = get_apollo_client()
+    where_param = {}
+    if id:
+        where_param = {
+            'where': {
+                'id_EQ': id
+            }
+        }
+    return await get_merge_events(
+        client=apollo_client,
+        fields=[
+            'id',
+            'total_merged_bills',
+            'main_bill_id',
+            'bills { \n\tid\n\ttitle\n\tcreators {\n\t... on Person {\n\t\tid\n\t\tprefix\n\t\tname\n\t}\n\t... on Organization {\n\t\tid\n\t\tname\n\t}}\n\tlinks { \n\t\tnote\n\t\turl\n\t}\n}',
+        ],
+        params=where_param
+    )
+    
 
 ############################### CREATE ###############################
 #VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV#
