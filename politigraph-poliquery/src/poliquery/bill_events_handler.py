@@ -8,8 +8,9 @@ from .query_helper.enact_event import create_enact_event, update_enact_event
 from .query_helper.reject_event import create_reject_event, update_reject_event
 from .query_helper.bill_vote_event import create_bill_vote_event, update_bill_vote_event
 from .query_helper.bills import update_bill
-from .query_helper.merge_event import get_merge_events, create_merge_event
+from .query_helper.merge_event import get_merge_events, create_merge_event, update_merge_event
 
+from cachetools import cached, TTLCache
 
 def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
@@ -17,16 +18,18 @@ def chunker(seq, size):
 ################################ GET #################################
 #VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV#
 
-async def get_bill_merge_events(id: str|None):
+@cached(cache=TTLCache(maxsize=256, ttl=60))
+async def get_bill_merge_events(id: str|None, include_updated_events:bool=False):
     # Initiate client
     apollo_client = get_apollo_client()
-    where_param = {}
+    main_bill_where_param = {}
+    if not include_updated_events:
+        main_bill_where_param['main_bill_id_EQ'] = None
     if id:
-        where_param = {
-            'where': {
-                'id_EQ': id
-            }
-        }
+        main_bill_where_param['id_EQ'] = id
+    where_param = {
+        'where': main_bill_where_param
+    }
     return await get_merge_events(
         client=apollo_client,
         fields=[
@@ -238,5 +241,61 @@ async def update_bill_reject_events(
             params=param
         )
         await asyncio.sleep(2)
+        
+    return
+
+############################### NEW VERSION ###############################
+#VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV#
+
+async def update_main_bill_in_merge_events(
+    merge_event_id: str|None,
+    main_bill_id: str|None
+) -> None:
+    
+    # Initiate client
+    apollo_client = get_apollo_client()
+    
+    # Get merge event
+    merge_event = next(iter(await get_bill_merge_events(id=merge_event_id, include_updated_events=True)), None)
+    
+    if not merge_event:
+        raise ValueError("BillMergeEvent ID does not exist!!")
+    
+    # Check if main_bill_id in in this merge event bills
+    if not main_bill_id in [b.get('id') for b in merge_event.get('bills', [])]:
+        raise ValueError("Bill's ID not in BillMergeEvent!!")
+    
+    # Update main bill
+    await update_merge_event(
+        client=apollo_client,
+        params={
+            "where": {
+                "id_EQ": merge_event_id
+            },
+            "update": {
+                "main_bill_id_SET": main_bill_id
+            }
+        }
+    )
+    
+    # Get all bill
+    bill_list = merge_event.get('bills', [])
+    # Update bill status
+    for bill in bill_list:
+        # Check ID
+        if bill.get('id') == main_bill_id: # is min bill
+            continue
+        await update_bill(
+            client=apollo_client,
+            params={
+                "where": {
+                    "id_EQ": bill.get('id')
+                },
+                "update": {
+                    "status_SET": "MERGED"
+                }
+            }
+        )
+    print("UPDATE SUCCESSFULLY!!")
         
     return
