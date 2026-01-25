@@ -54,3 +54,9 @@ jobs:
           POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
           SCRAPE_MODE: ${{ github.event_name == 'schedule' && '' || inputs.scrape_mode == 'none' && '' || inputs.scrape_mode }}
           PARLIAMENT_PERIOD: ${{ github.event_name == 'schedule' && 'LATEST' || inputs.parliament_period }}
+
+      - name: Check & Update BillMergeEvents
+        run: uv run scripts/update_merge_events.py
+        env:
+          POLITIGRAPH_SUBSCRIBTION_ENDPOINT: "${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}"
+          POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
