@@ -8,7 +8,8 @@ from poliquery import get_bill_merge_events, update_main_bill_in_merge_events
 def detect_main_bill(bill_list:List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     
     # Scrape each bill
-    merge_bill_index = []
+    appoint_url_list = [] # contain doc url from appoint committee event
+    result_url_list = [] # contain doc url from result committee event
     for bill in bill_list:
         lis_url = next(iter(
             [l for l in bill.get('links', []) if l.get('note') == 'ระบบสารสนเทศด้านนิติบัญญัติ']
@@ -17,17 +18,33 @@ def detect_main_bill(bill_list:List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         if not lis_url:
             raise ValueError(f"No link for bill : {bill.get('id')}")
         
-        doc_url = get_appoint_committee_event_doc(lis_url)
-        merge_bill_index.append({
+        appoint_comm_url, result_comm_url = get_appoint_committee_event_doc(lis_url)
+            
+        appoint_url_list.append({
             'id': bill.get('id'),
             'title': bill.get('title'),
             'proposer': next(iter(bill.get('creators', [])), None),
-            'is_main_bill': True if doc_url else False,
-            'doc_url': doc_url,
+            'is_main_bill': True if appoint_comm_url else False,
+            'doc_url': appoint_comm_url,
         })
-        time.sleep(1)
+        result_url_list.append({
+            'id': bill.get('id'),
+            'title': bill.get('title'),
+            'proposer': next(iter(bill.get('creators', [])), None),
+            'is_main_bill': True if result_comm_url else False,
+            'doc_url': result_comm_url,
+        })
         
-    return merge_bill_index
+    # Return the one with only one doc, if exist
+    for lst in (appoint_url_list, result_url_list):
+        if sum(1 for u in lst if u.get('is_main_bill')) == 1:
+            return lst
+
+    return max(
+        appoint_url_list, 
+        result_url_list, 
+        key=lambda l: sum(1 for d in l if d.get('doc_url') is not None)
+    )
 
 def check_and_update_merge_bills(merge_event_id: str|None=None) -> List[Dict[str, Any]]:
     
