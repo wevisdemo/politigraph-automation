@@ -23,6 +23,7 @@ def request_meeting_records(
         "session_name": urllib.parse.quote_plus(session_txt, encoding='tis-620')
     }
     break_i = 0
+    response = None
     while True:
         try:
             if break_i >= 5:
@@ -32,6 +33,9 @@ def request_meeting_records(
         except:
             break_i += 1
             time.sleep(10)
+    
+    if not response:
+        raise ConnectionError("Cannot get response from msbis website")
     return response
 
 def request_joint_meeting_records(
