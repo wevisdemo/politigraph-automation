@@ -18,7 +18,9 @@ def get_all_house_of_representatives() -> List[Dict[str, Any]]:
         fields=['id', 'name', 'term'],
         params={
             "where": {
-                "classification_EQ": "HOUSE_OF_REPRESENTATIVE"
+                "classification": {
+                    "eq": "HOUSE_OF_REPRESENTATIVE"
+                }
             }
         }
     ))
