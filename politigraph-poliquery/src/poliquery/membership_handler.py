@@ -19,12 +19,18 @@ def get_person_current_memberships(
     
     param = {
         "where": {
-            "end_date_EQ": None,
-            "members_SOME": {
-            "Person": {
-                "id_EQ": person_id
-            }
+            "end_date": {
+                "eq": None
             },
+            "members": {
+                "some": {
+                    "Person": {
+                        "id": {
+                            "eq": person_id
+                        }
+                    }
+                },
+            }
         }
     }
     
@@ -52,7 +58,9 @@ def update_membership_info(
     
     params = {
         "where": {
-            "id_EQ": membership_id
+            "id": {
+                "eq": membership_id
+            }
         },
         "update": update_param
     }
@@ -76,9 +84,15 @@ def get_party_posts(party_name: str) -> List[Dict[str, Any]]:
         ],
         params={
             "where": {
-                "organizations_SINGLE": {
-                    "classification_EQ": "POLITICAL_PARTY",
-                    "name_EQ": party_name
+                "organizations": {
+                    "single": {
+                        "classification": {
+                            "eq": "POLITICAL_PARTY",
+                        },
+                        "name_EQ": {
+                            "eq": party_name,
+                        }
+                    }
                 }
             }
         }
@@ -100,8 +114,12 @@ async def create_new_post_in_party(
                         {
                             "where": {
                                 "node": {
-                                    "classification_EQ": "POLITICAL_PARTY",
-                                    "name_EQ": party_name
+                                    "classification": {
+                                        "eq": "POLITICAL_PARTY",
+                                    },
+                                    "name": {
+                                        "eq": party_name
+                                    }
                                 }
                             }
                         }
@@ -152,7 +170,9 @@ def create_new_political_party_membership(
                             {
                                 "where": {
                                     "node": {
-                                        "id_EQ": person_id
+                                        "id": {
+                                            "eq": person_id
+                                        }
                                     }
                                 }
                             }
@@ -164,10 +184,18 @@ def create_new_political_party_membership(
                     {
                         "where": {
                             "node": {
-                                "role_EQ": post_role,
-                                "organizations_SINGLE": {
-                                    "classification_EQ": "POLITICAL_PARTY",
-                                    "name_EQ": party_name
+                                "role": {
+                                    "eq": post_role
+                                },
+                                "organizations": {
+                                    "single": {
+                                        "classification": {
+                                            "eq": "POLITICAL_PARTY",
+                                        },
+                                        "name": {
+                                            "eq": party_name
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -202,8 +230,12 @@ async def create_new_post_in_cabinet(
                         {
                             "where": {
                                 "node": {
-                                    "classification_EQ": "CABINET",
-                                    "id_EQ": f"คณะรัฐมนตรี-{cabinet_term}"
+                                    "classification": {
+                                        "eq": "CABINET",
+                                    },
+                                    "id": {
+                                        "eq": f"คณะรัฐมนตรี-{cabinet_term}"
+                                    }
                                 }
                             }
                         }
@@ -239,7 +271,9 @@ def create_new_cabinet_membership(
                             {
                                 "where": {
                                     "node": {
-                                        "id_EQ": person_id
+                                        "id": {
+                                            "eq": person_id
+                                        }
                                     }
                                 }
                             }
@@ -251,9 +285,15 @@ def create_new_cabinet_membership(
                     {
                         "where": {
                             "node": {
-                                "role_EQ": post_role,
-                                "organizations_SINGLE": {
-                                    "id_EQ": f"คณะรัฐมนตรี-{cabinet_term}"
+                                "role": {
+                                    "eq": post_role,
+                                },
+                                "organizations": {
+                                    "single": {
+                                        "id": {
+                                            "eq": f"คณะรัฐมนตรี-{cabinet_term}"
+                                        }
+                                    }
                                 }
                             }
                         }
