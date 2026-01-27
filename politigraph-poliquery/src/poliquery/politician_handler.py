@@ -12,14 +12,37 @@ def get_politician_prefixes() -> List[str]:
     apollo_client = get_apollo_client()
     
     # Get latest parliament term
+    # param = {
+    #     "where": {
+    #         "memberships_SOME": {
+    #             "posts_SOME": {
+    #                 "organizations_SOME": {
+    #                 "parents_SOME": {
+    #                     "classification_EQ": "PARLIAMENT"
+    #                 }
+    #                 }
+    #             }
+    #         }
+    #     }
+    # }
     param = {
         "where": {
-            "memberships_SOME": {
-                "posts_SOME": {
-                    "organizations_SOME": {
-                    "parents_SOME": {
-                        "classification_EQ": "PARLIAMENT"
-                    }
+            "memberships": {
+                "some": {
+                    "posts": {
+                        "some": {
+                            "organizations": {
+                                "some": {
+                                    "parents": {
+                                        "some": {
+                                            "classification": {
+                                                "eq": "PARLIAMENT"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -39,15 +62,37 @@ def get_people_in_party(party_name:str) -> List[Dict[str, Any]]:
     # Initiate client
     apollo_client = get_apollo_client()
     
+    # param = {
+    #     "where": {
+    #         "memberships_SOME": {
+    #         "posts_SOME": {
+    #             "organizations_SOME": {
+    #             "classification_EQ": "POLITICAL_PARTY",
+    #             "name_EQ": party_name
+    #             }
+    #         }
+    #         }
+    #     }
+    # }
     param = {
         "where": {
-            "memberships_SOME": {
-            "posts_SOME": {
-                "organizations_SOME": {
-                "classification_EQ": "POLITICAL_PARTY",
-                "name_EQ": party_name
+            "memberships": {
+                "some": {
+                    "posts": {
+                        "some": {
+                            "organizations": {
+                                "some": {
+                                    "classification": {
+                                        "eq": "POLITICAL_PARTY"
+                                    },
+                                    "name": {
+                                        "eq": party_name
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-            }
             }
         }
     }
@@ -77,13 +122,35 @@ def get_representative_members_name(parliament_term:int=26) -> List[Dict[str, An
         'other_names { ... on AlternatePersonName { name } ... on AlternateName { name } }',
     ]
     
+    # param = {
+    #     "where": {
+    #         "memberships_SOME": {
+    #             "posts_SOME": {
+    #                 "role_EQ": "สมาชิกสภาผู้แทนราษฎร",
+    #                 "organizations_SOME": {
+    #                     "id_EQ": f"สภาผู้แทนราษฎร-{parliament_term}"
+    #                 }
+    #             }
+    #         }
+    #     }
+    # }
     param = {
         "where": {
-            "memberships_SOME": {
-                "posts_SOME": {
-                    "role_EQ": "สมาชิกสภาผู้แทนราษฎร",
-                    "organizations_SOME": {
-                        "id_EQ": f"สภาผู้แทนราษฎร-{parliament_term}"
+            "memberships": {
+                "some": {
+                    "posts": {
+                        "some": {
+                            "role": {
+                                "eq": "สมาชิกสภาผู้แทนราษฎร"
+                            },
+                            "organizations": {
+                                "some": {
+                                    "id": {
+                                        "eq": f"สภาผู้แทนราษฎร-{parliament_term}"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
