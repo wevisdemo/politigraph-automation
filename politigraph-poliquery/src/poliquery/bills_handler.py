@@ -362,7 +362,9 @@ def update_bill_info(
         ]
         
     update_param = {
-        "proposal_date_SET": proposal_date
+        "proposal_date": {
+            "set": proposal_date
+        }
     }
     if creators_param:
         update_param['creators'] = creators_param
