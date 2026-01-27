@@ -36,7 +36,9 @@ def update_vote_param(
     
     result_param = {
         'where': {
-            'id_EQ': event.get('id')
+            'id': {
+                "eq": event.get('id')
+            }
         },
         'update': update_param
     }   
@@ -53,7 +55,9 @@ def update_royal_assent_param(
     ############# Construct update param #############
     result_param = {
         'where': {
-            'id_EQ': event.get('id')
+            'id': {
+                "eq": event.get('id')
+            }
         },
         'update': {
             'result_SET': result
@@ -72,7 +76,9 @@ def update_enact_param(
     ############# Construct update param #############
     result_param = {
         'where': {
-            'id_EQ': event.get('id')
+            'id': {
+                "eq": event.get('id')
+            }
         },
         'update': {
             'title_SET': title
@@ -91,7 +97,9 @@ def update_reject_param(
     ############# Construct update param #############
     result_param = {
         'where': {
-            'id_EQ': event.get('id')
+            'id': {
+                "eq": event.get('id')
+            }
         },
         'update': {
             'reject_reason_SET': reject_reason
