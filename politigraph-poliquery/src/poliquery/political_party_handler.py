@@ -18,17 +18,27 @@ def get_political_parties_name(
     apollo_client = get_apollo_client()
     
     where_param = {
-        "classification_EQ": "POLITICAL_PARTY"
+        "classification": {
+            "eq": "POLITICAL_PARTY"
+        }
     }
     
     if start_before:
-        where_param["founding_date_LT"] = start_before
+        where_param["founding_date"] = {
+            "lt": start_before
+        }
     if end_before:
-        where_param["dissolution_date_LT"] = end_before
+        where_param["dissolution_date"] = {
+            "lt": end_before
+        }
     if start_after:
-        where_param["founding_date_GT"] = start_after
+        where_param["founding_date"] = {
+            "gt": start_after
+        }
     if end_after:
-        where_param["dissolution_date_GT"] = end_after
+        where_param["dissolution_date"] = {
+            "gt": end_after
+        }
     
     orgs = asyncio.run(get_organizations(
         client=apollo_client,
