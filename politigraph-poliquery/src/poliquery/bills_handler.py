@@ -369,7 +369,9 @@ def update_bill_info(
     
     params = {
         'where': {
-            "id_EQ": bill_id
+            "id": {
+                "eq": bill_id
+            }
         },
         'update': update_param
     }
