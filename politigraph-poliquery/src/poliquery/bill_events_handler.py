@@ -128,10 +128,14 @@ async def create_bill_enact_event_in_chunk(
             client=apollo_client,
             params={
                 "where": {
-                    "id_EQ": bill_id
+                    "id": {
+                        "eq": bill_id
+                    }
                 },
                 "update": {
-                    "status_SET": "ENACTED"
+                    "status": {
+                        "set": "ENACTED"
+                    }
                 }
             }
         )
@@ -166,10 +170,14 @@ async def create_bill_reject_event_in_chunk(
             client=apollo_client,
             params={
                 "where": {
-                    "id_EQ": bill_id
+                    "id": {
+                        "eq": bill_id
+                    }
                 },
                 "update": {
-                    "status_SET": "REJECTED"
+                    "status": {
+                        "set": "REJECTED"
+                    }
                 }
             }
         )
@@ -270,10 +278,14 @@ async def update_main_bill_in_merge_events(
         client=apollo_client,
         params={
             "where": {
-                "id_EQ": merge_event_id
+                "id": {
+                    "eq": merge_event_id
+                }
             },
             "update": {
-                "main_bill_id_SET": main_bill_id
+                "main_bill_id": {
+                    "set": main_bill_id
+                }
             }
         }
     )
@@ -289,10 +301,14 @@ async def update_main_bill_in_merge_events(
             client=apollo_client,
             params={
                 "where": {
-                    "id_EQ": bill.get('id')
+                    "id": {
+                        "eq": bill.get('id')
+                    }
                 },
                 "update": {
-                    "status_SET": "MERGED"
+                    "status": {
+                        "set": "MERGED"
+                    }
                 }
             }
         )
