@@ -28,11 +28,15 @@ def update_vote_param(
     update_param = {}
     for key, value in update_data.items():
         if value:
-            update_param[key + '_SET'] = value
+            update_param[key] = {
+                "set": value
+            }
             
     # Add vote count
     for vote_option, vote_count in event.get('vote_count', {}).items():
-        update_param[vote_option + '_SET'] = vote_count
+        update_param[vote_option] = {
+            "set": vote_count
+        }
     
     result_param = {
         'where': {
@@ -60,7 +64,9 @@ def update_royal_assent_param(
             }
         },
         'update': {
-            'result_SET': result
+            'result': {
+                "set": result
+            }
         }
     }
     
@@ -81,7 +87,9 @@ def update_enact_param(
             }
         },
         'update': {
-            'title_SET': title
+            'title': {
+                "set": title
+            }
         }
     }
     
@@ -102,7 +110,9 @@ def update_reject_param(
             }
         },
         'update': {
-            'reject_reason_SET': reject_reason
+            'reject_reason': {
+                "set": reject_reason
+            }
         }
     }
     
