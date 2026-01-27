@@ -53,7 +53,9 @@ def create_vote_param(
             {
                 "where": {
                     "node": {
-                        "id_EQ": bill_id
+                        "id": {
+                            "eq": bill_id
+                        }
                     }
                 }
             }
@@ -126,7 +128,9 @@ def create_mp_2_param(
             {
                 "where": {
                     "node": {
-                        "id_EQ": bill_id
+                        "id": {
+                            "eq": bill_id
+                        }
                     }
                 }
             }
@@ -204,7 +208,9 @@ def create_merge_param(
         connect_params.append({
             "where": {
                 "node": {
-                    "id_EQ": matched_bill.get('id')
+                    "id": {
+                        "eq": matched_bill.get('id')
+                    }
                 }
             }
         })
@@ -213,7 +219,9 @@ def create_merge_param(
     connect_params.append({
         "where": {
             "node": {
-                "id_EQ": bill.get('id')
+                "id": {
+                    "eq": bill.get('id')
+                }
             }
         }
     })
@@ -244,7 +252,9 @@ def create_royal_assent_param(
             {
                 "where": {
                     "node": {
-                        "id_EQ": bill.get('id')
+                        "id": {
+                            "eq": bill.get('id')
+                        }
                     }
                 }
             }
@@ -269,7 +279,9 @@ def create_enact_param(
             {
                 "where": {
                     "node": {
-                        "id_EQ": bill.get('id')
+                        "id": {
+                            "eq": bill.get('id')
+                        }
                     }
                 }
             }
@@ -305,7 +317,9 @@ def create_reject_param(
                 {
                     "where": {
                         "node": {
-                            "id_EQ": bill.get('id')
+                            "id": {
+                                "eq": bill.get('id')
+                            }
                         }
                     }
                 }
