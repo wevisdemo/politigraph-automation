@@ -13,8 +13,12 @@ def get_latest_parliament_term(default:int=25) -> int:
     # Get latest parliament term
     param = {
         "where": {
-            "classification_EQ": "HOUSE_OF_REPRESENTATIVE",
-            "dissolution_date_EQ": None
+            "classification": {
+                "eq": "HOUSE_OF_REPRESENTATIVE"
+            },
+            "dissolution_date": {
+                "eq": None
+            }
         },
         "sort": [{"founding_date": "DESC"}]
     }
@@ -35,7 +39,7 @@ def get_latest_msbis_id(default:int=0) -> int:
     
     param = {
         "sort": [{ "msbis_id": "DESC" }],
-        "where": {"msbis_id_GT": 0},
+        "where": {"msbis_id": { "gt": 0 }},
         "limit": 1
     }
     result = asyncio.run(get_vote_events(client=apollo_client, fields=['msbis_id'], params=param))
@@ -90,11 +94,19 @@ def create_new_vote_event(parliament_term: int, vote_event_info: dict, include_s
     org_connect_params = [{
         "where": {
             "node": {
-                "classification_EQ": "HOUSE_OF_REPRESENTATIVE",
-                "founding_date_LTE": start_date,
+                "classification": {
+                  "eq": "HOUSE_OF_REPRESENTATIVE"  
+                },
+                "founding_date": {
+                    "lte": start_date
+                },
                 "OR": [
-                    {"dissolution_date_GTE": start_date},
-                    {"dissolution_date_EQ": None},
+                    {"dissolution_date": {
+                        "gte": start_date
+                    }},
+                    {"dissolution_date": {
+                        "eq": None
+                    }},
                 ]
             }
         }
@@ -110,11 +122,19 @@ def create_new_vote_event(parliament_term: int, vote_event_info: dict, include_s
             org_connect_params.append({
                 "where": {
                     "node": {
-                        "classification_EQ": "HOUSE_OF_SENATE",
-                        "founding_date_LTE": start_date,
+                        "classification": {
+                            "eq": "HOUSE_OF_SENATE",
+                        },
+                        "founding_date": {
+                            "lte": start_date,
+                        },
                         "OR": [
-                            {"dissolution_date_GTE": start_date},
-                            {"dissolution_date_EQ": None},
+                            {"dissolution_date": {
+                                "gte": start_date
+                            }},
+                            {"dissolution_date": {
+                                "eq": None
+                            }},
                         ]
                     }
                 }
