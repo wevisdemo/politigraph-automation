@@ -24,9 +24,13 @@ async def get_bill_merge_events(id: str|None, include_updated_events:bool=False)
     apollo_client = get_apollo_client()
     main_bill_where_param = {}
     if not include_updated_events:
-        main_bill_where_param['main_bill_id_EQ'] = None
+        main_bill_where_param['main_bill_id'] = {
+            "eq": None
+        }
     if id:
-        main_bill_where_param['id_EQ'] = id
+        main_bill_where_param['id'] = {
+            "eq": id
+        }
     where_param = {
         'where': main_bill_where_param
     }
@@ -120,7 +124,7 @@ async def create_bill_enact_event_in_chunk(
         
     # Curate bill ID to update status to Rejected
     bill_ids = [
-        p['bills']['connect'][0]['where']['node']['id_EQ'] for p in params
+        p['bills']['connect'][0]['where']['node']['id']['eq'] for p in params
     ]
     # Update these bills status to REJECT
     for bill_id in bill_ids:
@@ -162,7 +166,7 @@ async def create_bill_reject_event_in_chunk(
         
     # Curate bill ID to update status to Rejected
     bill_ids = [
-        p['bills']['connect'][0]['where']['node']['id_EQ'] for p in params
+        p['bills']['connect'][0]['where']['node']['id']['eq'] for p in params
     ]
     # Update these bills status to REJECT
     for bill_id in bill_ids:
