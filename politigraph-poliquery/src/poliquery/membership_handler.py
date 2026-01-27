@@ -89,7 +89,7 @@ def get_party_posts(party_name: str) -> List[Dict[str, Any]]:
                         "classification": {
                             "eq": "POLITICAL_PARTY",
                         },
-                        "name_EQ": {
+                        "name": {
                             "eq": party_name,
                         }
                     }
