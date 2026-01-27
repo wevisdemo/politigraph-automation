@@ -26,7 +26,9 @@ async def get_all_bills_info(
             fields=['id', 'name', 'term'],
             params={
                 "where": {
-                    "classification_EQ": "HOUSE_OF_REPRESENTATIVE"
+                    "classification": {
+                        "eq": "HOUSE_OF_REPRESENTATIVE"
+                    }
                 }
             }
         )
@@ -35,8 +37,12 @@ async def get_all_bills_info(
     # Get latest parliament term
     param = {
         "where": {
-            "organizations_SOME": {
-                "id_EQ": hor_index.get(parliament_terms),
+            "organizations": {
+                "some": {
+                    "id": {
+                        "eq": hor_index.get(parliament_terms),
+                    }
+                }
             }
         }
     }
@@ -119,8 +125,12 @@ def create_new_multiple_bills(
                 "connect": [{
                             "where": {
                                 "node": {
-                                    "classification_EQ": "HOUSE_OF_REPRESENTATIVE",
-                                    "id_EQ": f"สภาผู้แทนราษฎร-{parliament_term}"
+                                    "classification": {
+                                        "eq": "HOUSE_OF_REPRESENTATIVE",
+                                    },
+                                    "id": {
+                                        "eq": f"สภาผู้แทนราษฎร-{parliament_term}"
+                                    }
                                 }
                             }
                         }]
@@ -194,9 +204,15 @@ async def get_prime_minister_cabinet_index(bill_proposal_date: str|None=None) ->
     
     param = {
         "where": {
-            "memberships_SOME": {
-                "posts_SOME": {
-                    "role_EQ": "นายกรัฐมนตรี"
+            "memberships": {
+                "some": {
+                    "posts": {
+                        "some": {
+                            "role": {
+                                "eq": "นายกรัฐมนตรี"
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -221,17 +237,29 @@ async def get_prime_minister_cabinet_index(bill_proposal_date: str|None=None) ->
             ],
             params={
                 "where": {
-                    "classification_EQ": "CABINET",
-                    "posts_SOME": {
-                        "role_EQ": "นายกรัฐมนตรี",
-                        "memberships_SOME": {
-                            "members_SOME": {
-                                "Person": {
-                                    "id_EQ": prime_minister['id']
+                    "classification": {
+                        "eq": "CABINET",
+                    },
+                    "posts": {
+                        "some": {
+                            "role": {
+                                "eq": "นายกรัฐมนตรี",
+                            },
+                            "memberships": {
+                                "some": {
+                                    "members": {
+                                        "some": {
+                                            "Person": {
+                                                "id": {
+                                                    "eq": prime_minister['id']
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                        }
-                    },
+                        },
+                    }
                 }
             }
         )
@@ -288,7 +316,9 @@ def update_bill_info(
                     {
                         "where": {
                                 "node": {
-                                    "id_EQ": cabinet_index.get(prime_minister_name, None)
+                                    "id": {
+                                        "eq": cabinet_index.get(prime_minister_name, None)
+                                    }
                             }
                         }
                     }
@@ -321,7 +351,9 @@ def update_bill_info(
                     {
                         "where": {
                                 "node": {
-                                    "id_EQ": name_index.get(proposer_name, None)
+                                    "id": {
+                                        "eq": name_index.get(proposer_name, None)
+                                    }
                             }
                         }
                     }
@@ -395,7 +427,11 @@ def update_bill_co_proposer(
         for person in update_inst:
             connect_params.append({
                 "where": {
-                    "node": { "id_EQ": person['id'] }
+                    "node": { 
+                        "id": {
+                            "eq": person['id']
+                        } 
+                    }
                 }
             })
             if len(connect_params) >= 10:
@@ -403,7 +439,9 @@ def update_bill_co_proposer(
                     client=apollo_client,
                     params={
                         "where": {
-                            "id_EQ": bill_id
+                            "id": {
+                                "eq": bill_id
+                            }
                         },
                         "update": {
                             "co_proposers": [
@@ -440,16 +478,21 @@ def update_bill_data(
     # Construct update param
     update_param = {}
     for key, value in data.items():
-        update_key = key + "_SET"
-        update_param[update_key] = value
+        update_param[key] = {
+            "set": value
+        }
     
     # Update bill info
     asyncio.run(update_bill(
         client=apollo_client,
         params={
             "where": {
-                "lis_id_EQ": lis_id,
-                "acceptance_number_EQ": acceptance_number
+                "lis_id": {
+                    "eq": lis_id
+                },
+                "acceptance_number": {
+                    "eq": acceptance_number
+                }
             },
             "update": update_param
         }
@@ -528,7 +571,9 @@ async def create_bills_in_chunk(
                 client=apollo_client,
                 params={
                     "where": {
-                        "id_EQ": bill_id
+                        "id": {
+                            "eq": bill_id
+                        }
                     },
                     "update": {
                         "co_proposers": [{
