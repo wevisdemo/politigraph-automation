@@ -26,7 +26,9 @@ def update_politician_image_url(
     firstname = name.split(" ")[0]
     params = {
         "where": {
-            "firstname_CONTAINS": firstname
+            "firstname": {
+                    "contains": firstname
+                }
             }
     }
     
@@ -43,10 +45,14 @@ def update_politician_image_url(
     # Construct params
     params = {
         "where": {
-            "id_EQ": person_id_index.get(name, None)
+            "id": {
+                "eq": person_id_index.get(name, None)
+            },
         },
         "update": {
-            "image_SET": image_url
+            "image": {
+                "set": image_url
+            }
         }
     }
     result = asyncio.run(update_person(client=apollo_client, params=params))
@@ -71,11 +77,17 @@ def update_party_logo_image_url(
     
     params = {
         "where": {
-            "classification_EQ": "POLITICAL_PARTY",
-            "name_EQ": party_name
+            "classification": {
+                "eq": "POLITICAL_PARTY"    
+            },
+            "name": {
+                "eq": party_name
+            }
         },
         "update": {
-            "image_SET": image_url
+            "image": {
+                "set": image_url
+            }
         }
     }
     result = asyncio.run(update_organiztion(
