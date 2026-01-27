@@ -18,7 +18,9 @@ def get_validation_data(vote_event_id: str) -> Dict[str, Any]:
     
     agg_param = {
         "where": {
-            "id_EQ": vote_event_id
+            "id": {
+                "eq": vote_event_id
+            }
         }
     }
     matched_vote_events = asyncio.run(get_vote_events(
@@ -56,14 +58,26 @@ def update_vote_event_validation_data(
         
     update_vote_event_param = {
         "where": {
-            "id_EQ": vote_event_id
+            "id": {
+                "eq": vote_event_id
+            }
         },
         "update": {
-            "agree_count_SET": agree_count,
-            "disagree_count_SET": disagree_count,
-            "abstain_count_SET": abstained_count,
-            "novote_count_SET": novoted_count,
-            "publish_status_SET": publish_status
+            "agree_count": {
+                "set": agree_count
+            },
+            "disagree_count": {
+                "set": disagree_count
+            },
+            "abstain_count": {
+                "set": abstained_count
+            },
+            "novote_count": {
+                "set": novoted_count
+            },
+            "publish_status": {
+                "set": publish_status
+            }
         }
     }
     
@@ -93,8 +107,12 @@ def get_votes_from_vote_event(
         fields=['id', 'vote_order', 'badge_number', 'voter_name', 'voter_party', 'option'],
         params={
             "where": {
-                "vote_events_SOME": {
-                   "id_EQ": vote_event_id
+                "vote_events": {
+                    "some": {
+                        "id": {
+                            "eq": vote_event_id
+                        }
+                    }
                 }
             }
         }
@@ -114,11 +132,21 @@ def get_politician_name_index(
     # Construct param
     get_politician_param = {
         "where": {
-            "memberships_SOME": {
-                "posts_SOME": {
-                    "organizations_SOME": {
-                        "events_SOME": {
-                            "id_EQ": vote_event_id
+            "memberships": {
+                "some": {
+                    "posts": {
+                        "some": {
+                            "organizations": {
+                                "some": {
+                                    "events": {
+                                        "some": {
+                                            "id": {
+                                                "eq": vote_event_id
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -193,7 +221,9 @@ def add_votes_to_vote_event(
                 "connect": [{
                     "where": {
                         "node": {
-                            "id_EQ": matched_politician['id']
+                            "id": {
+                                "eq": matched_politician['id']
+                            }
                         }
                     }
                   }]
@@ -210,7 +240,9 @@ def add_votes_to_vote_event(
             if batch_count >= batch_max:
                 update_vote_event_param = {
                     "where": {
-                        "id_EQ": vote_event_id
+                        "id": {
+                            "eq": vote_event_id
+                        }
                     },
                     "update": {
                         "votes": [{
@@ -234,7 +266,9 @@ def add_votes_to_vote_event(
         if create_params:
             update_vote_event_param = {
                 "where": {
-                    "id_EQ": vote_event_id
+                    "id": {
+                        "eq": vote_event_id
+                    }
                 },
                 "update": {
                     "votes": [{
@@ -274,7 +308,9 @@ def replace_votes_in_vote_event(
         client=apollo_client,
         params={
             "where": {
-                "id_EQ": vote_event_id
+                "id": {
+                    "eq": vote_event_id
+                }
             },
             "update": {
                 "votes": [{
@@ -317,18 +353,26 @@ async def update_vote_data(
     # Construct update param
     update_param = {}
     if voter_name:
-        update_param['voter_name_SET'] = voter_name
+        update_param['voter_name'] = {
+            "set": voter_name
+        }
     if voter_party:
-        update_param['voter_party_SET'] = voter_party
+        update_param['voter_party'] = {
+            "set": voter_party
+        }
     if option:
-        update_param['option_SET'] = option
+        update_param['option'] = {
+            "set": option
+        }
     
     # Update vote
     await update_votes(
         client=apollo_client,
         params={
             "where": {
-                "id_EQ": vote_id
+                "id": {
+                    "eq": vote_id
+                }
             },
             "update": update_param
         }
@@ -352,8 +396,12 @@ def update_votes_person_connection(
         fields=['id', 'voter_name', 'voters { id }'],
         params={
             "where": {
-                "vote_events_SOME": {
-                    "id_EQ": vote_event_id
+                "vote_events": {
+                    "some": {
+                        "id": {
+                            "eq": vote_event_id
+                        }
+                    }
                 }
             }
         }
@@ -373,7 +421,9 @@ def update_votes_person_connection(
 
             update_param = {
                 "where": {
-                    "id_EQ": vote_id
+                    "id": {
+                        "eq": vote_id
+                    }
                 },
                 "update": {
                     "voters": [
@@ -382,7 +432,9 @@ def update_votes_person_connection(
                         {
                             "where": {
                                 "node": {
-                                    "id_EQ": person_id
+                                    "id": {
+                                        "eq": person_id
+                                    }
                                 }
                             }
                         }
@@ -407,8 +459,12 @@ def get_votes_in_vote_event(
     
     get_param = {
         "where": {
-            "vote_events_SOME": {
-                "id_EQ": vote_event_id
+            "vote_events": {
+                "some": {
+                    "id": {
+                        "eq": vote_event_id
+                    }
+                }
             }
         }
     }
