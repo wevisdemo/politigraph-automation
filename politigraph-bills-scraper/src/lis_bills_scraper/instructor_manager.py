@@ -17,9 +17,11 @@ def get_co_proposer_param(co_proposer: List[Dict[str, str]]) -> List[Dict[str, A
         result.append({
             "where": {
               "node": {
-                "id_EQ": name_index.get(
-                    remove_thai_name_prefix(proposer.get('name', ''))
-                )
+                "id": {
+                    "eq": name_index.get(
+                        remove_thai_name_prefix(proposer.get('name', ''))
+                    )
+                }
               }
             }
           })
@@ -90,8 +92,12 @@ def add_new_bill_instruction(
         "connect": [{
             "where": {
                 "node": {
-                    "classification_EQ": "HOUSE_OF_REPRESENTATIVE",
-                    "id_EQ": hor_index.get(parliament_term),
+                    "classification": {
+                        "eq": "HOUSE_OF_REPRESENTATIVE",
+                    },
+                    "id": {
+                        "eq": hor_index.get(parliament_term),
+                    }
                 }
             }
         }]
@@ -109,9 +115,11 @@ def add_new_bill_instruction(
                     {
                         "where": {
                             "node": {
-                                "id_EQ": name_index.get(
-                                    remove_thai_name_prefix(proposer)
-                                )
+                                "id": {
+                                    "eq": name_index.get(
+                                        remove_thai_name_prefix(proposer)
+                                    )
+                                }
                             }
                         }
                     }
@@ -128,11 +136,13 @@ def add_new_bill_instruction(
                     {
                         "where": {
                             "node": {
-                                "id_EQ": prime_minister_index.get(
-                                    remove_thai_name_prefix(
-                                        prime_miniter_name
+                                "id": {
+                                    "eq": prime_minister_index.get(
+                                        remove_thai_name_prefix(
+                                            prime_miniter_name
+                                        )
                                     )
-                                )
+                                }
                             }
                         }
                     }
@@ -238,7 +248,9 @@ def add_new_events_instruction(
                     {
                         "where": {
                             "node": {
-                                "id_EQ": bill.get('id')
+                                "id": {
+                                    "eq": bill.get('id')
+                                }
                             }
                         }
                     }
