@@ -45,11 +45,24 @@ def extract_vote_count_data(
         'disagree_count': ['ไม่เห็นชอบ', 'ไม่รับหลักการ', 'ไม่เห็นด้วย'],
         'abstain_count': ['งดออกเสียง', 'งด'],
         'novote_count': ['ไม่ลงคะแนน', 'ไม่ลงคะแนนเสียง', 'ไม่ประสงค์ลงคะแนน'],
-    }
+    },
+    vote_result:str|None=""
 ) -> Dict[str, Any]:
     
     if not vote_option_index:
         raise ValueError("Invalid vote option index!!")
+    
+    # Check if pass and contain only one number
+    if vote_result and vote_result.strip() in ['รับหลักการ']\
+        and re.search(r"^\d+$", vote_text.strip()):
+            number_match = re.search(r"^\d+$", vote_text.strip())
+            if number_match:
+                return {
+                    'agree_count': int(number_match.group(0)),
+                    'disagree_count': None,
+                    'abstain_count': None,
+                    'novote_count': None,
+                }
     
     # Get & Normalize vote text
     if not vote_text:

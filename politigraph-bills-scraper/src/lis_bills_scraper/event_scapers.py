@@ -121,8 +121,14 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
     ### Construct info data ###
     event_info = construct_info_data(info_text)
     
+    # Get vote result
+    vote_result = event_info.get("มติ", "")
+    
     # Extract vote count data
-    vote_count_data = extract_vote_count_data(vote_text=event_info.get("คะแนนเสียง", ""),)
+    vote_count_data = extract_vote_count_data(
+        vote_text=event_info.get("คะแนนเสียง", ""),
+        vote_result=vote_result
+    )
         
     # Get msbis info
     term = event_info.get("ชุดที่", None)
@@ -139,9 +145,6 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
         issue_number=issue_number,
     )
         
-    # Get vote result
-    vote_result = event_info.get("มติ", "")
-    
     # Get & Convert vote date
     raw_vote_date = event_info.get("วันที่", "")
     vote_date = convert_thai_date_to_universal(raw_vote_date)
