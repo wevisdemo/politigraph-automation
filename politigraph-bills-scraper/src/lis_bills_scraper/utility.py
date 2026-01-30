@@ -39,7 +39,7 @@ def extract_vote_num(num_text: str) -> int:
     return max(all_nums)
 
 def extract_vote_count_data(
-    vote_text: str,
+    vote_text: str|None,
     vote_option_index: Dict[str, List[str]]|None= {
         'agree_count': ['เห็นชอบ', 'รับหลักการ', 'เห็นด้วย'],
         'disagree_count': ['ไม่เห็นชอบ', 'ไม่รับหลักการ', 'ไม่เห็นด้วย'],
@@ -51,6 +51,14 @@ def extract_vote_count_data(
     
     if not vote_option_index:
         raise ValueError("Invalid vote option index!!")
+    
+    if not vote_text:
+        return {
+            'agree_count': None,
+            'disagree_count': None,
+            'abstain_count': None,
+            'novote_count': None,
+        }
     
     # Check if pass and contain only one number
     if vote_result and vote_result.strip() in ['รับหลักการ']\
