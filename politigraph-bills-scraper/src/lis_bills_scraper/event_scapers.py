@@ -3,7 +3,7 @@ import re
 
 from bs4 import BeautifulSoup, Tag
 
-from .utility import convert_thai_date_to_universal, extract_vote_count_data
+from .utility import convert_thai_date_to_universal, extract_vote_count_data, clean_vote_text
 from .msbis_scraper import get_msbis_id
 
 from thai_name_normalizer import convert_thai_number_str_to_arabic
@@ -125,8 +125,10 @@ def scrape_representatives_vote_event(section_element: Tag, vote_session: int=1)
     vote_result = event_info.get("มติ", "")
     
     # Extract vote count data
+    vote_text = event_info.get("คะแนนเสียง", "")
+    vote_text = clean_vote_text(vote_text)
     vote_count_data = extract_vote_count_data(
-        vote_text=event_info.get("คะแนนเสียง", ""),
+        vote_text=vote_text,
         vote_result=vote_result
     )
         
@@ -258,19 +260,10 @@ def scrape_senates_vote_event(section_element: Tag, vote_session: int=1) -> Dict
     
     # Clean vote text before parse to extract with function
     vote_count_data = {}
-    vote_option_normalizer = {
-        r"\s+": " ",
-        r"วาระที่\s+\d{1}": "",
-        r"(\d+)": r"\g<1> เสียง",
-        r"(\d+\s?)เสียง\s+": r"\g<1>เสียง\n",
-        r"หลักก.{1}ร": "หลักการ",
-    }
     vote_text = event_info.get("คะแนนเสียง", None)
     if vote_text:
         # Clean text
-        for pattern_str, repl_str in vote_option_normalizer.items():
-            vote_text = re.sub(pattern_str, repl_str, vote_text)
-        # print(vote_text)
+        vote_text = clean_vote_text(vote_text)
         
         # Extract vote count data
         vote_count_data = extract_vote_count_data(

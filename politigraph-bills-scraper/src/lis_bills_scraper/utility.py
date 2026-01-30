@@ -31,12 +31,29 @@ def convert_thai_date_to_universal(thai_date_str:str|None) -> str|None:
     return date_obj.strftime('%Y-%m-%d')
 
 def extract_vote_num(num_text: str) -> int:
-    if 'ไม่มี' in num_text:
+    if re.search(r"(ไม่มี|-)", num_text):
         return 0
     all_nums = [
         int(num) for num in re.findall(r"\d+", num_text)
     ]
     return max(all_nums)
+
+def clean_vote_text(vote_text: str|None) -> str|None:
+    if not vote_text:
+        return
+    
+    vote_option_normalizer = {
+        r"\s+": " ",
+        r"วาระที่\s+\d{1}": "",
+        r"(\d+)": r"\g<1> เสียง",
+        r"(\d+\s?)เสียง\s+": r"\g<1>เสียง\n",
+        r"หลักก.{1}ร": "หลักการ",
+    }
+    # Clean text
+    for pattern_str, repl_str in vote_option_normalizer.items():
+        vote_text = re.sub(pattern_str, repl_str, vote_text)
+    
+    return vote_text
 
 def extract_vote_count_data(
     vote_text: str|None,
@@ -92,7 +109,7 @@ def extract_vote_count_data(
 
     vote_count_data = {}
     # Split text into chunk of text-number
-    splited_texts = re.split(r"(\d+\+\d+=\d+|\d+|ไม่มี)", vote_text)
+    splited_texts = re.split(r"(\d+\+\d+=\d+|\d+|ไม่มี|-)", vote_text)
     
     # Pair splited texts to get vote count data
     for key, num_text in zip(splited_texts, splited_texts[1:]):
