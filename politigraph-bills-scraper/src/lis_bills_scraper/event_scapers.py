@@ -262,7 +262,8 @@ def scrape_senates_vote_event(section_element: Tag, vote_session: int=1) -> Dict
         r"\s+": " ",
         r"วาระที่\s+\d{1}": "",
         r"(\d+)": r"\g<1> เสียง",
-        r"(\d+\s?)เสียง\s+": r"\g<1>เสียง\n"
+        r"(\d+\s?)เสียง\s+": r"\g<1>เสียง\n",
+        r"หลักก.{1}ร": "หลักการ",
     }
     vote_text = event_info.get("คะแนนเสียง", None)
     if vote_text:
