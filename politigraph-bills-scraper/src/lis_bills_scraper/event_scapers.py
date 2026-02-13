@@ -43,6 +43,14 @@ def scrape_bill_info(section_element: Tag) -> Dict[str, Any]:
     
     # Get proposer
     proposer = event_info.get("เสนอโดย", "")
+    # Check creator_type
+    if 'สมาชิกสภาผู้แทนราษฎร' in proposer:
+        creator_type = 'POLITICIAN'
+    elif 'คณะรัฐมนตรี' in proposer:
+        creator_type = 'ASSEMBLY'
+    elif 'ประชาชนผู้มีสิทธิเลือกตั้ง' in proposer:
+        creator_type = 'PEOPLE'
+    # Clean proposer
     proposer = re.sub(r"สมาชิกสภาผู้แทนราษฎร|\s+", " ", proposer).strip()
     
     # Get prime minister
@@ -60,6 +68,7 @@ def scrape_bill_info(section_element: Tag) -> Dict[str, Any]:
     return {
         "parliament_term": parliament_term,
         "event_type": "GENERAL_INFO",
+        "creator_type": creator_type,
         "proposer": proposer,
         "prime_minister": prime_minister,
         "proposal_date": proposed_date,

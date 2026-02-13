@@ -43,13 +43,12 @@ def add_new_bill_instruction(
     # Get events from bill data
     events = bill.get('bill_events', [])
         
-    # Construct bsae create new bill parameter
+    # Construct base create new bill parameter
     create_param = {
         "title": bill.get('title', 'PLACE HOLDER'),
         "acceptance_number": bill.get('acceptance_number', None),
         "lis_id": bill.get('lis_id', None),
         "classification": bill.get('classification', None),
-        "creator_type": "UNKNOWN",
         "status": "IN_PROGRESS",
         "links": {
             "create": [
@@ -76,6 +75,10 @@ def add_new_bill_instruction(
     if info_event.get('recipient') and info_event.get('recipient') == 'admin':
         print(f"Test bill detected!! {bill.get('title')}")
         return
+    
+    # Get creator_type
+    creator_type = info_event.get('creator_type', 'UNKNOWN')
+    create_param['creator_type'] = creator_type
     
     # Add proposed_date
     proposed_date = info_event.get('proposal_date', None)
@@ -108,8 +111,6 @@ def add_new_bill_instruction(
     proposer = info_event.get('proposer')
     # Check if creator is person
     if proposer != "คณะรัฐมนตรี":
-        # Set creator_type to POLITICIAN
-        create_param['creator_type'] = "POLITICIAN"
         with open('name_index.pkl', 'rb') as file:
             name_index = pickle.load(file)
         create_param['creators'] = {
@@ -130,8 +131,6 @@ def add_new_bill_instruction(
             }
         }
     else:
-        # Set creator_type to ASSEMBLY
-        create_param['creator_type'] = "ASSEMBLY"
         with open('prime_minister_index.pkl', 'rb') as file:
             prime_minister_index = pickle.load(file)
         prime_miniter_name = info_event.get('prime_minister', '')
