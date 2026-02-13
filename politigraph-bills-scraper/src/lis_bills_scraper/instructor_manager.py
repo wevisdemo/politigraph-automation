@@ -49,6 +49,7 @@ def add_new_bill_instruction(
         "acceptance_number": bill.get('acceptance_number', None),
         "lis_id": bill.get('lis_id', None),
         "classification": bill.get('classification', None),
+        "creator_type": "UNKNOWN",
         "status": "IN_PROGRESS",
         "links": {
             "create": [
@@ -107,6 +108,8 @@ def add_new_bill_instruction(
     proposer = info_event.get('proposer')
     # Check if creator is person
     if proposer != "คณะรัฐมนตรี":
+        # Set creator_type to POLITICIAN
+        create_param['creator_type'] = "POLITICIAN"
         with open('name_index.pkl', 'rb') as file:
             name_index = pickle.load(file)
         create_param['creators'] = {
@@ -127,6 +130,8 @@ def add_new_bill_instruction(
             }
         }
     else:
+        # Set creator_type to ASSEMBLY
+        create_param['creator_type'] = "ASSEMBLY"
         with open('prime_minister_index.pkl', 'rb') as file:
             prime_minister_index = pickle.load(file)
         prime_miniter_name = info_event.get('prime_minister', '')
