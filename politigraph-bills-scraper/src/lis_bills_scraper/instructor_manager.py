@@ -165,7 +165,7 @@ def add_new_bill_instruction(
     if _co_proposer_events:
         co_proposer_event = _co_proposer_events[0]
         co_proposers = co_proposer_event.get('co_proposer', [])
-        create_param['co_proposers'] = {
+        create_param['co_creators'] = {
             "connect": get_co_proposer_param(co_proposers)
         }
     ############################################

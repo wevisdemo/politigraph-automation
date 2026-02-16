@@ -448,7 +448,7 @@ def update_bill_co_proposer(
                             }
                         },
                         "update": {
-                            "co_proposers": [
+                            "co_creators": [
                                 {
                                     "connect": connect_params
                                 }
@@ -580,7 +580,7 @@ async def create_bills_in_chunk(
                         }
                     },
                     "update": {
-                        "co_proposers": [{
+                        "co_creators": [{
                             "connect": connect_chunk
                         }]
                     }
