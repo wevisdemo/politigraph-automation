@@ -5,11 +5,30 @@ from bs4 import BeautifulSoup
 from .lis_web_constants import LIS_ENDPOINT, BILLS_TYPE_SYSTEM_INDEX, BIll_TYPE_CLASS_INDEX, OFFSET_STEP
 from thai_name_normalizer import convert_thai_number_str_to_arabic
 
+import os, tempfile
+
+def create_temp_cert_file():
+    
+    CLIENT_CERT_STRING = os.getenv('CLIENT_CERT_STRING')
+    if not CLIENT_CERT_STRING:
+        raise ValueError("No CLIENT_CERT_STRING")
+    
+    # Create temporary files
+    with tempfile.NamedTemporaryFile(delete=False) as f_cert, \
+        tempfile.NamedTemporaryFile(delete=False) as f_key:
+        f_cert.write(CLIENT_CERT_STRING.encode("utf-8"))
+        f_cert.seek(0)
+        
+        cert_path = f_cert.name
+        return cert_path
+
 def scrape_bill_list(
     parliament_term: int
 ) -> List[Dict[str, Any]]:
     
     data = []
+    
+    cert_file_path = create_temp_cert_file()
     
     for bill_type, sys_id in BILLS_TYPE_SYSTEM_INDEX.items():
         print(bill_type, f"S_SYSTEM : {sys_id}")
@@ -26,7 +45,8 @@ def scrape_bill_list(
                     'S_SAPA_NO': parliament_term,
                     'SEARCH_DATA': 'Y',
                     'offset': off_set
-                }
+                },
+                verify=cert_file_path
             )
             
             soup = BeautifulSoup(BeautifulSoup(response.content, "html.parser").decode(), "html.parser")

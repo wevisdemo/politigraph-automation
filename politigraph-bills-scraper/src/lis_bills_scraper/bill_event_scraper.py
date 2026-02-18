@@ -1,12 +1,29 @@
 from typing import List, Dict, Any
 import os, requests
 import json
+import tempfile
 import pickle
 from dotenv import load_dotenv
 
 from bs4 import BeautifulSoup
 
 from .event_scapers import event_scraper_dispatcher
+
+
+def create_temp_cert_file():
+    
+    CLIENT_CERT_STRING = os.getenv('CLIENT_CERT_STRING')
+    if not CLIENT_CERT_STRING:
+        raise ValueError("No CLIENT_CERT_STRING")
+    
+    # Create temporary files
+    with tempfile.NamedTemporaryFile(delete=False) as f_cert, \
+        tempfile.NamedTemporaryFile(delete=False) as f_key:
+        f_cert.write(CLIENT_CERT_STRING.encode("utf-8"))
+        f_cert.seek(0)
+        
+        cert_path = f_cert.name
+        return cert_path
 
 def scrape_event(bill: Dict[str, Any]) -> List[Dict[str, Any]]:
     
@@ -15,8 +32,10 @@ def scrape_event(bill: Dict[str, Any]) -> List[Dict[str, Any]]:
     if not url:
         return []
     
+    cert_file_path = create_temp_cert_file()
+    
     # GET bills info page
-    response = requests.get(url)
+    response = requests.get(url, verify=cert_file_path)
     
     soup = BeautifulSoup(BeautifulSoup(response.content, "html.parser").decode(), "html.parser")
     # Find h3 heading
