@@ -1,4 +1,5 @@
 from gql import Client
+import re
 import warnings
 import asyncio
 
@@ -23,6 +24,7 @@ def update_politician_image_url(
     apollo_client = get_apollo_client()
     
     # Get all person with similar firstname
+    name = re.sub(r"\-", " ", name)
     firstname = name.split(" ")[0]
     params = {
         "where": {
