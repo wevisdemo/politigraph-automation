@@ -7,6 +7,8 @@ from .apollo_connector import get_apollo_client
 from .query_helper.persons import update_person, get_persons
 from .query_helper.organizations import update_organiztion
 
+from thai_name_normalizer import normalize_thai_name
+
 def update_politician_image_url(
     name: str,
     image_url: str,
@@ -24,8 +26,8 @@ def update_politician_image_url(
     apollo_client = get_apollo_client()
     
     # Get all person with similar firstname
-    name = re.sub(r"\-", " ", name)
-    firstname = name.split(" ")[0]
+    normalized_name = normalize_thai_name(re.sub(r"\-", " ", name))
+    firstname = normalized_name.split(" ")[0]
     params = {
         "where": {
             "firstname": {
