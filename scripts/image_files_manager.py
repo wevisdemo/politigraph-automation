@@ -119,6 +119,7 @@ def read_and_save_images_from_drive(
         if select_names:
             import re
             _name = re.sub(r"\..*", "", file_name) # remove file extension
+            _name = re.sub(r"cropped", "", _name)
             if _name not in select_names:
                 continue
         
