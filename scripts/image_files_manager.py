@@ -130,15 +130,18 @@ def read_and_save_images_from_drive(
         if not file_name.endswith('.webp'):
             file_name = re.sub(r"\..*$", ".webp", file_name)
         
+        output_file_path = os.path.join(output_dir_path, file_name)
         # Check if the image is already exists
         # This is only for local testing, not for production
-        output_file_path = os.path.join(output_dir_path, file_name)
         if os.path.exists(output_file_path):
             print(f"Image {file_name} already exists in {output_dir_path}, skipping cropping.")
             continue
         
         # Load the image
         image = load_image(service, file_id)
+        
+        # Handle cropped image; remove `cropped` from filename
+        output_file_path = re.sub(r"cropped(?=\.webp)", "", output_file_path)
         
         # Crop the image
         if crop and "cropped" not in file_name.lower():
