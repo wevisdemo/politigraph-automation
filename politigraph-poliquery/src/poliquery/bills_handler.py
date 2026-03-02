@@ -59,7 +59,7 @@ async def get_all_bills_info(
         'BillEnactEvent': ['id', 'title'],
     }
     
-    bill_event_param = "bill_events {"
+    bill_event_param = "events {"
     for event, field in bill_events_field.items():
         bill_event_param += f" ... on {event} " + "{ " + " ".join(field + ['__typename']) + " }"
     bill_event_param += " }"
