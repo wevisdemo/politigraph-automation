@@ -20,8 +20,8 @@ on:
           - ALL
           - none
 
-  schedule:
-    - cron: '0 20 * * SUN'  # Every Sunday at 20:00 UTC(4:00 AM GMT+7)
+  # schedule:
+  #   - cron: '0 20 * * SUN'  # Every Sunday at 20:00 UTC(4:00 AM GMT+7)
 
 permissions:
   contents: 'read'
