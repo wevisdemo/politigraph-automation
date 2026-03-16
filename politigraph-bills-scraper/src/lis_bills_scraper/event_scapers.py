@@ -524,6 +524,9 @@ event_scraper_dispatcher = {
         scrape_representatives_vote_event(section_element, vote_session=1),
     'ข้อมูลการพิจารณาร่างฯ ของรัฐสภา วาระที่ 1': lambda section_element:
         scrape_representatives_vote_event(section_element, vote_session=1), 
+    # Vote MP_1 for EMERGENCY_DECREE
+    'ข้อมูลการพิจารณาของสภาผู้แทนราษฎร': lambda section_element:
+        scrape_representatives_vote_event(section_element, vote_session=1), 
     
     # Vote MP_2
     'ข้อมูลการพิจารณาของสภาผู้แทนราษฎร วาระที่ 2': lambda section_element:
@@ -542,6 +545,7 @@ event_scraper_dispatcher = {
         scrape_senates_vote_event(section_element, vote_session=1),
     'ข้อมูลวุฒิสภาพิจารณาและลงมติ': lambda section_element:
         scrape_senates_vote_event(section_element, vote_session=1), # พรบ งบ
+    # Vote SENATE_1 for EMERGENCY_DECREE
     'ข้อมูลวุฒิสภาพิจารณา': lambda section_element:
         scrape_senates_vote_event(section_element, vote_session=1), # พระราชกำหนด
         
