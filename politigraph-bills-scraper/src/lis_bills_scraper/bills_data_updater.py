@@ -50,7 +50,7 @@ def clean_up_files(
                 os.remove(filename)
                 print(f"File '{filename}' deleted successfully.")
 
-def update_bills_data(
+def scrape_and_update_bills_data(
     parliament_terms: List[int]|None=None
 ):
     

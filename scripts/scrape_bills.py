@@ -11,7 +11,7 @@
 # thai_name_normalizer = { path = "../politigraph-name-normalizer", editable = true }
 # ///
 
-from lis_bills_scraper import update_bills_data
+from lis_bills_scraper import scrape_and_update_bills_data
 from poliquery import get_all_house_of_representatives
 from dotenv import load_dotenv
 import os
@@ -30,7 +30,7 @@ def main() -> None:
     
     # Scrape bill & billEvent for each term
     print(f"\nScrape Bill for House of Representatives {terms[0]}th term...\n")
-    update_bills_data(terms[:1])
+    scrape_and_update_bills_data(terms[:1])
 
 if __name__ == "__main__":
     main()

@@ -1,1 +1,1 @@
-from .bills_data_updater import update_bills_data
+from .bills_data_updater import scrape_and_update_bills_data
