@@ -53,6 +53,11 @@ def crop_center(pil_img):
     start_y = max((img_height // 2) - (short_size // 2), 0)
     end_y = min((img_height // 2) + (short_size // 2), img_height)
     
+    # Check if image is portrait
+    if img_width < img_height:
+        start_y = max(img_height // 10, 0) # start at 10% of image
+        end_y = min(start_y + short_size, img_height)
+    
     cropped_image = pil_img.crop((start_x, start_y, end_x, end_y))
     
     return cropped_image
