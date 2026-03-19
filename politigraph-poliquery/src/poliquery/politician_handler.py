@@ -171,7 +171,7 @@ def create_politician(
     firstname: str,
     lastname: str,
     middlename: str|None=None
-) -> None:
+) -> Dict[str, Any]:
     
     # Initiate client
     apollo_client = get_apollo_client()
@@ -188,9 +188,10 @@ def create_politician(
     if middlename:
         input_param['middlename'] = middlename
     
-    asyncio.run(create_person(
+    result = asyncio.run(create_person(
         client=apollo_client,
         params={
             "input": [input_param]
         }
     ))
+    return result

@@ -46,10 +46,11 @@ async def create_person(client: Client, params: dict):
     """
     mutation Mutation($input: [PersonCreateInput!]!) {
         createPeople(input: $input) {
-            info {
-                nodesCreated
-                relationshipsCreated
-            }
+          people {
+            id
+            prefix
+            name
+          }
         }
     }
     """
