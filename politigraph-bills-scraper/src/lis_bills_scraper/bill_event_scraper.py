@@ -64,6 +64,13 @@ def scrape_event(bill: Dict[str, Any]) -> List[Dict[str, Any]]:
             continue
         curr_event_data = event_handler(body_element)
         
+        # Check if classification already added
+        event_classification = curr_event_data.get('classification')
+        if len([
+            e for e in events_data if e.get('classification') == event_classification
+        ]) >= 1:
+            continue
+        
         # Add index to event's data
         curr_event_data['event_index'] = event_index
         
