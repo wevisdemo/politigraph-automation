@@ -64,8 +64,8 @@ def scrape_bill_list(
                 
             
             data_table = soup.find('table', attrs={'class': 'table'}) # type: ignore
-            if not data_table:
-                continue
+            if not data_table: # if no table found skip this bils type
+                break
             
             bill_row_elements = data_table.find_all('tr') # type: ignore
             
