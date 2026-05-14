@@ -61,3 +61,4 @@ jobs:
         env:
           POLITIGRAPH_SUBSCRIBTION_ENDPOINT: "${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}"
           POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
+          CLIENT_CERT_STRING: "${{ secrets.CLIENT_CERT_STRING }}"
