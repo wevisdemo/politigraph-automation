@@ -35,7 +35,7 @@ def request_meeting_records(
             time.sleep(10)
     
     if not response:
-        raise ConnectionError("Cannot get response from msbis website")
+        return
     return response
 
 def request_joint_meeting_records(
@@ -129,6 +129,8 @@ def scrap_meeting_ids(
             
             for parliament_session in ["วิสามัญ", "สมัยสามัญประจำปีครั้งที่สอง", "สมัยสามัญประจำปีครั้งที่หนึ่ง"]:
                 session_response = request_meeting_records(parliament_number, year, parliament_session)
+                if not session_response:
+                    continue
                 
                 soup = BeautifulSoup(BeautifulSoup(session_response.content, "html.parser").decode(), "html.parser")
                 # Check pagination
