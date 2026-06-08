@@ -229,6 +229,7 @@ def create_bill_events():
         
         # Get new events
         all_events = bill.get('bill_events', [])
+        # Remove duplicated events
         new_events = [
             event for event in all_events
             if not any(
