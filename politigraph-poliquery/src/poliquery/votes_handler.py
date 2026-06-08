@@ -209,7 +209,7 @@ def add_votes_to_vote_event(
         param = {
               "vote_order": str(vote_info.get("ลําดับที่", "0")),
               "badge_number": str(vote_info.get("เลขที่บัตร", "x")),
-              "voter_name": name,
+              "voter_name_raw": name,
               "voter_party": vote_info.get("ชื่อสังกัด", ""),
               "option": vote_info.get("ผลการลงคะแนน", "x")
             }
@@ -342,7 +342,7 @@ async def update_vote_data(
 
     Args:
         vote_id (str): ID of vote's node
-        voter_name (str | None): voter's name
+        voter_name_raw (str | None): voter's name
         voter_party (str | None): voter's party
         option (str | None): vote option
     """
@@ -353,7 +353,7 @@ async def update_vote_data(
     # Construct update param
     update_param = {}
     if voter_name:
-        update_param['voter_name'] = {
+        update_param['voter_name_raw'] = {
             "set": voter_name
         }
     if voter_party:
@@ -393,7 +393,7 @@ def update_votes_person_connection(
     # Get votes
     votes = asyncio.run(get_votes(
         client=apollo_client,
-        fields=['id', 'voter_name', 'voters { id }'],
+        fields=['id', 'voter_name_raw', 'voters { id }'],
         params={
             "where": {
                 "vote_events": {
@@ -416,8 +416,8 @@ def update_votes_person_connection(
                 continue
             
             vote_id = vote.get('id', '')
-            person_id = name_index.get(vote.get('voter_name', ''), {}).get('id', None)
-            print(f"update connection for {vote.get('voter_name', '')}...")
+            person_id = name_index.get(vote.get('voter_name_raw', ''), {}).get('id', None)
+            print(f"update connection for {vote.get('voter_name_raw', '')}...")
 
             update_param = {
                 "where": {
@@ -475,7 +475,7 @@ def get_votes_in_vote_event(
             'id',
             'vote_order',
             'badge_number',
-            'voter_name',
+            'voter_name_raw',
             'voter_party',
             'option'
         ],

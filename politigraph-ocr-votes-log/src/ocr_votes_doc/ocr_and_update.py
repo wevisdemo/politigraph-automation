@@ -62,7 +62,7 @@ def re_validate_vote_event(
             'id': 'id', 
             'vote_order': 'ลําดับที่', 
             'badge_number': 'เลขที่บัตร', 
-            'voter_name': 'ชื่อ - สกุล', 
+            'voter_name_raw': 'ชื่อ - สกุล', 
             'voter_party': 'ชื่อสังกัด', 
             'option': 'ผลการลงคะแนน'
         },
