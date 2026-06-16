@@ -44,9 +44,9 @@ def get_appoint_committee_event_doc(lis_url: str) -> List[str|None]:
     # Find h3 heading
     heading_element = soup.find('h3', {'class': 'heading'})
     if not heading_element:
-        raise ValueError("No Bill heading!!")
+        raise ValueError(f"No Bill heading at {lis_url}")
     if not heading_element.parent:
-        raise ValueError("No Bill heading parent")
+        raise ValueError(f"No Bill heading parent at {lis_url}")
     
     # Loop through to get all event's sections
     doc_urls: List[str|None] = [None, None]
