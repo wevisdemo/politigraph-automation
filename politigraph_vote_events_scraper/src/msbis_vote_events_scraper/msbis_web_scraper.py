@@ -29,6 +29,11 @@ def request_meeting_records(
             if break_i >= 5:
                 break
             response = requests.get(msbis_url, params=params)
+            if response.status_code != 200:
+                break_i += 1
+                time.sleep(30 if response.status_code == 503 else 5)
+                continue
+                
             break
         except:
             break_i += 1
@@ -128,8 +133,10 @@ def scrap_meeting_ids(
         for year in range(4, 0, -1): # count down from 4th year
             
             for parliament_session in ["วิสามัญ", "สมัยสามัญประจำปีครั้งที่สอง", "สมัยสามัญประจำปีครั้งที่หนึ่ง"]:
+                print(f"\nscrape ปีที่ {year} {parliament_session}...")
                 session_response = request_meeting_records(parliament_number, year, parliament_session)
                 if not session_response:
+                    time.sleep(3) # delay to prevent server crashed
                     continue
                 
                 soup = BeautifulSoup(BeautifulSoup(session_response.content, "html.parser").decode(), "html.parser")
@@ -139,9 +146,13 @@ def scrap_meeting_ids(
                 record_ids = []
                 for page in range(1, pagination_number + 1):
                     session_response = request_meeting_records(parliament_number, year, parliament_session, page)
+                    if not session_response:
+                        raise Exception(f"Failed to get msbis ID from page {page}")                        
                     soup = BeautifulSoup(BeautifulSoup(session_response.content, "html.parser").decode(), "html.parser")
                     record_ids.extend(scrap_votings_id(soup=soup))
+                    time.sleep(3) # delay to prevent server crashed
                 if len(record_ids) == 0:
+                    time.sleep(3) # delay to prevent server crashed
                     continue
                 
                 _meeting_id_list.extend([_id for _id in record_ids if _id > latest_id])
@@ -189,6 +200,7 @@ def scrap_meeting_ids(
                 soup = BeautifulSoup(BeautifulSoup(session_response.content, "html.parser").decode(), "html.parser")
                 record_ids = scrap_votings_id(soup=soup)
                 if len(record_ids) == 0:
+                    time.sleep(3) # delay to prevent server crashed
                     continue
                 
                 _meeting_id_list.extend([_id for _id in record_ids if _id > latest_id])
