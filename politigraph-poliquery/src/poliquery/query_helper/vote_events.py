@@ -1,6 +1,7 @@
 from typing import List, Dict, Any
 from gql import gql
 from gql import Client
+import asyncio
 
 from .schema import get_allowed_fields_for_type
 
@@ -77,7 +78,14 @@ async def update_vote_event(client: Client, params: dict):
     """
     )
     async with client as session:
-        result = await session.execute(query, variable_values=params)  
+        i_retry = 0
+        while i_retry < 5:
+            try:
+                result = await session.execute(query, variable_values=params)  
+                break
+            except:
+                await asyncio.sleep(10)
+                i_retry += 1
         return result 
     
 async def agg_count_vote_events(client: Client, params: dict) -> int:
