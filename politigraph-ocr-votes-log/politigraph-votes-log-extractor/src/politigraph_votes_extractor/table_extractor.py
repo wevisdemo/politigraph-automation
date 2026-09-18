@@ -13,7 +13,7 @@ def get_column_index(bbox, bbox_row: list, thres: int=5):
             return index
     return -1
 
-def extract_data_from_table(table_img: npt.ArrayLike, reader=None):
+def extract_data_from_table(table_img: npt.NDArray, reader=None):
     
     table_image = Image.fromarray(table_img)
     
