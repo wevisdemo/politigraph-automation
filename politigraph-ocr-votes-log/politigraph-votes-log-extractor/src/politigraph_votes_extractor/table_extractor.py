@@ -41,10 +41,37 @@ def extract_data_from_table(table_img: npt.NDArray, reader=None):
     text_rows = group_bboxs_into_rows(text_bboxs)
 
     # Trim row with less than 5 columns out
-    while len(text_rows) >= 2 and len(text_rows[0]) < 5:
-        text_rows = text_rows[1:]
-    while len(text_rows) >= 3 and any(len(_r) < 4 for _r in text_rows[-3:]): # Use 4 instead of 5 for case of '-' at last row
-        text_rows = text_rows[:-1]
+    # while len(text_rows) >= 2 and len(text_rows[0]) < 5:
+    #     text_rows = text_rows[1:]
+    # while len(text_rows) >= 3 and any(len(_r) < 4 for _r in text_rows[-3:]): # Use 4 instead of 5 for case of '-' at last row
+    #     text_rows = text_rows[:-1]
+    
+    def merge_bbox(bb_a: list[int], bb_b: list[int]) -> list[int]:
+        x1 = min(bb_a[0], bb_b[0])
+        y1 = min(bb_a[1], bb_b[1])
+        x2 = max(bb_a[2], bb_b[2])
+        y2 = max(bb_a[3], bb_b[3])
+        return [x1, y1, x2, y2]
+    new_text_rows = []
+    _bbs = []
+    for row in text_rows:
+        sorted_row = sorted(row, key=lambda bb: bb[0])
+        if len(row) > 5: # merge name
+            _new_row = [
+               sorted_row[0], sorted_row[1], merge_bbox(sorted_row[2], sorted_row[3]), sorted_row[-2], sorted_row[-1]
+            ]
+            new_text_rows.append(_new_row)
+            _bbs.extend(_new_row)
+            continue
+        new_text_rows.append(sorted_row)
+        _bbs.extend(sorted_row)
+    text_rows = new_text_rows
+    
+    output_img = table_img.copy()
+    for _bb in _bbs:
+        x1, y1, x2, y2 = _bb
+        cv2.rectangle(output_img, (x1, y1), (x2, y2), (0, 255, 0))
+    cv2.imwrite("table.jpg", output_img)
 
     if len(text_rows) < 2: # No data to ocr
         return [["", "", "", "", ""]]
