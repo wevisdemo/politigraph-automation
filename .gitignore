@@ -200,3 +200,5 @@ secret
 tmp
 scripts/_*.py
 examples/*
+
+data
