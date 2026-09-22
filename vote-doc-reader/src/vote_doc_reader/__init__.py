@@ -1,0 +1,1 @@
+from .votes_doc_reader import ocr_votes_doc, get_vote_log_object
