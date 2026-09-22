@@ -1,9 +1,7 @@
 [project]
 name = "merge_bill_updater"
 version = "0.1.0"
-dependencies = [
-    "requests", "beautifulsoup4", "lxml", "thai_name_normalizer", "poliquery"
-]
+dependencies = []
 
 [build-system]
 requires = ["setuptools>=61.0"]

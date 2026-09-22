@@ -1,12 +1,7 @@
 [project]
 name = "poliquery"
-version = "0.3.2"
-dependencies = [
-    'pandas>=2.1.1', 'python-dotenv',
-    'gql==3.5.0', 'aiohttp', 'requests', 
-    'cachetools==5.5.2', 'aiocache==0.12.3',
-    'thai_name_normalizer'
-]
+version = "1.0.0"
+dependencies = []
 
 [build-system]
 requires = ["setuptools>=61.0"]

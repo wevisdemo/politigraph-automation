@@ -1,0 +1,31 @@
+[project]
+name = "politigraph-automation"
+version = "1.0.0"
+description = "Automation tools for WeVis politigraph project"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "easyocr>=1.7.2",
+    "lis-bills-scraper",
+    "lxml>=6.1.3",
+    "merge-bill-updater",
+    "msbis-vote-events-scraper",
+    "numpy>=2.5.3",
+    "opencv-python>=5.0.0.93",
+    "pandas>=3.0.6",
+    "poliquery",
+    "pymupdf>=1.28.2",
+    "python-dotenv>=1.2.3",
+    "requests>=2.34.2",
+    "thai-name-normalizer",
+    "tqdm>=4.70.1",
+    "typhoon-ocr>=0.4.1",
+]
+
+[tool.uv.sources]
+thai-name-normalizer = { path = "politigraph-name-normalizer", editable = true }
+poliquery = { path = "politigraph-poliquery", editable = true }
+msbis-vote-events-scraper = { path = "politigraph_vote_events_scraper", editable = true }
+lis-bills-scraper = { path = "politigraph-bills-scraper", editable = true }
+merge-bill-updater = { path = "politigraph-merge-bill-detector", editable = true }

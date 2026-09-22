@@ -1,10 +1,7 @@
 [project]
 name = "msbis_vote_events_scraper"
 version = "0.1.0"
-dependencies = [
-    "requests",
-    "poliquery", "beautifulsoup4", "lxml",
-]
+dependencies = []
 
 [build-system]
 requires = ["setuptools>=61.0"]
