@@ -1,19 +1,10 @@
-# /// script
-# requires-python = "==3.10.11"
-# dependencies = [
-#     "msbis-vote-events-scraper",
-#     "thai-name-normalizer", "poliquery", "python-dotenv", "requests"
-# ]
-# [tool.uv.sources]
-# poliquery = { path = "../politigraph-poliquery", editable = true }
-# msbis-vote-events-scraper = { path = "../politigraph_vote_events_scraper", editable = true }
-# thai-name-normalizer = { path = "../politigraph-name-normalizer", editable = true }
-# ///
 import os
+from pathlib import Path
 import requests
 from msbis_vote_events_scraper import scrap_msbis_vote_events
 from poliquery import create_new_vote_event, get_latest_parliament_term, get_latest_msbis_id, create_vote_event
 
+OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 
 def download_pdf(url, filepath):
     """
@@ -31,6 +22,7 @@ def download_pdf(url, filepath):
 def main() -> None:
     
     print("Hello from scrap_vote_events.py!")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     
     # Get latest parliament number
     latest_parliament_term = get_latest_parliament_term()  
@@ -54,9 +46,8 @@ def main() -> None:
         
     ### Download pdf files & add VoteEvent to politigraph, then contruct data for OCR
     # Create directory for PDF files
-    pdf_dir_pth = "vote_log_pdf"
-    if not os.path.exists(pdf_dir_pth):
-        os.makedirs(pdf_dir_pth)
+    pdf_dir_pth = OUTPUT_DIR / "vote_log_pdf"
+    os.makedirs(pdf_dir_pth, exist_ok=True)
     # Initialize OCR data list
     ocr_data = []
     
@@ -97,7 +88,7 @@ def main() -> None:
                 continue
     
     import json
-    with open("vote_events.json", "w", encoding="utf-8") as f:
+    with open(OUTPUT_DIR / "vote_events.json", "w", encoding="utf-8") as f:
         json.dump(ocr_data, f, ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
