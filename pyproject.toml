@@ -5,22 +5,30 @@ description = "Automation tools for WeVis politigraph project"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "aiohttp>=3.14.3",
     "beautifulsoup4>=4.15.0",
+    "cachetools>=7.2.0",
     "easyocr>=1.7.2",
+    "gql>=4.0.0",
     "lis-bills-scraper",
     "lxml>=6.1.3",
     "merge-bill-updater",
     "msbis-vote-events-scraper",
     "numpy>=2.5.3",
+    "ocr-votes-doc",
     "opencv-python>=5.0.0.93",
     "pandas>=3.0.6",
     "poliquery",
+    "politigraph-votes-extractor",
     "pymupdf>=1.28.2",
     "python-dotenv>=1.2.3",
+    "rapidfuzz>=3.14.6",
     "requests>=2.34.2",
     "thai-name-normalizer",
     "tqdm>=4.70.1",
     "typhoon-ocr>=0.4.1",
+    "vote-doc-reader",
+    "vote-log-manager",
 ]
 
 [tool.uv.sources]
@@ -29,3 +37,7 @@ poliquery = { path = "politigraph-poliquery", editable = true }
 msbis-vote-events-scraper = { path = "politigraph_vote_events_scraper", editable = true }
 lis-bills-scraper = { path = "politigraph-bills-scraper", editable = true }
 merge-bill-updater = { path = "politigraph-merge-bill-detector", editable = true }
+vote-doc-reader = { path = "vote-doc-reader", editable = true }
+politigraph-votes-extractor = { path = "politigraph-ocr-votes-log/politigraph-votes-log-extractor", editable = true }
+ocr-votes-doc = { path = "politigraph-ocr-votes-log", editable = true }
+vote-log-manager = { path = "politigraph-votes-log", editable = true }

@@ -1,11 +1,7 @@
 [project]
 name = "ocr_votes_doc"
 version = "0.1.0"
-dependencies = [
-    "politigraph_votes_extractor",
-    "poliquery",
-    "aiohttp", "python-dotenv"
-]
+dependencies = []
 
 [project.optional-dependencies]
 dev = []
