@@ -79,7 +79,7 @@ class VoteLog():
             self.get_votes()
             
         votes_df = pd.DataFrame(self.votes_data)
-        votes_df.rename(columns=COLUMNS_INDEX_TH)
+        votes_df.rename(columns=COLUMNS_INDEX_TH, inplace=True)
         return votes_df
     
     def check_extra_votes(self) -> None:
