@@ -1,16 +1,3 @@
-# /// script
-# requires-python = "==3.10.11"
-# dependencies = [
-#     "thai_name_normalizer", "poliquery", "msbis-vote-events-scraper",
-#     "lis_bills_scraper"
-# ]
-# [tool.uv.sources]
-# poliquery = { path = "../politigraph-poliquery", editable = true }
-# msbis-vote-events-scraper = { path = "../politigraph_vote_events_scraper", editable = true }
-# lis_bills_scraper = { path = "../politigraph-bills-scraper", editable = true }
-# thai_name_normalizer = { path = "../politigraph-name-normalizer", editable = true }
-# ///
-
 from lis_bills_scraper import scrape_and_update_bills_data
 from poliquery import get_all_house_of_representatives
 from dotenv import load_dotenv

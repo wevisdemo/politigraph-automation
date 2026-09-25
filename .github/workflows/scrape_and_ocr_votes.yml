@@ -23,28 +23,14 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10.11'
+          python-version: '3.12.14'
 
       - name: Install dependencies
         run: |
             sudo apt-get update
             sudo apt-get install -y poppler-utils libpoppler-cpp-dev
             curl -LsSf https://astral.sh/uv/install.sh | sh
-
-      - name: Create temporary directory
-        run: |
-            mkdir -p /tmp/models
-            
-      - name: Download & Extract Thai recognition model
-        run: |
-            wget https://github.com/napatswift/naplog/releases/download/v0.0.1/thai-vl.tar.gz
-            sudo tar -zxvf thai-vl.tar.gz -C /tmp/models
-            sudo chmod -R 777 /tmp/models
-
-      - name: Show directory tree
-        run: |
-            sudo apt-get install tree
-            tree
+            uv sync
 
       - name: Scrap & add new VoteEvents
         run: uv run scripts/scrape_vote_events.py
@@ -53,7 +39,7 @@ jobs:
           POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
 
       - name: OCR & add new Votes log
-        run: uv run scripts/ocr_and_add_votes.py
+        run: uv run scripts/ocr_vote_docs.py
         env:
           POLITIGRAPH_SUBSCRIBTION_ENDPOINT: "${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}"
           POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
