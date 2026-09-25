@@ -11,22 +11,52 @@ def get_text_number_in_text(text: str) -> str:
 
 def normalize_vote_option(
     option_text: str,
-    vote_option_index: dict[str, list[str]]= {
+    vote_option_index: dict[str, list[str]] = {
         'เห็นด้วย': ['เห็นชอบ', 'รับหลักการ', 'เห็นด้วย'],
         'ไม่เห็นด้วย': ['ไม่เห็นชอบ', 'ไม่รับหลักการ', 'ไม่เห็นด้วย'],
         'งดออกเสียง': ['งดออกเสียง', 'งด'],
         'ไม่ลงคะแนนเสียง': ['ไม่ลงคะแนน', 'ไม่ลงคะแนนเสียง', 'ไม่ประสงค์ลงคะแนน'],
-    }
+        'ลา / ขาดลงมติ': ['ลา', 'ขาด', 'ขาดลงมติ', 'ขาดประชุม'],
+    },
+    critical_prefixes: tuple[str, ...] = ("ไม่", "งด")
 ) -> str:
+    option_text = option_text.strip()
     
-    # Get closest option
+    # --- Handle dash / absent marker early ---
+    # Catches standard hyphen (-), en-dash (–), and em-dash (—)
+    if option_text in ("-", "–", "—", ""):
+        return "ลา / ขาดลงมติ"
+
+    # 1. Detect if the text starts with a critical prefix ('ไม่' or 'งด')
+    active_prefix = next((p for p in critical_prefixes if option_text.startswith(p)), None)
+
+    # 2. Filter category candidates by prefix to isolate polarity
+    if active_prefix:
+        filtered_index = {
+            cat: phrases for cat, phrases in vote_option_index.items()
+            if cat.startswith(active_prefix)
+        }
+    else:
+        filtered_index = {
+            cat: phrases for cat, phrases in vote_option_index.items()
+            if not any(cat.startswith(p) for p in critical_prefixes)
+        }
+
+    # Fallback to all categories if no match was found
+    target_index = filtered_index if filtered_index else vote_option_index
+
+    # 3. Calculate the closest distance in each category (lower is better)
     matched_option_index = {}
-    for _option, _options_text_list in vote_option_index.items():
-        matched_option_index[_option] = max(
-            distance.Levenshtein.distance(option_text, _op) for _op in _options_text_list
-        )
-        
-    matched_option = max(matched_option_index, key=lambda k: matched_option_index[k])
+    for _option, _options_text_list in target_index.items():
+        normalized_distances = [
+            distance.Levenshtein.distance(option_text, _op) / max(len(option_text), len(_op))
+            if max(len(option_text), len(_op)) > 0 else 0.0
+            for _op in _options_text_list
+        ]
+        matched_option_index[_option] = min(normalized_distances)
+
+    # 4. Pick the category with the lowest distance (best match)
+    matched_option = min(matched_option_index, key=lambda k: matched_option_index[k])
     
     return matched_option
     
@@ -82,7 +112,9 @@ def clean_votes_df(votes_df: pd.DataFrame) -> pd.DataFrame:
     df.loc[:, "ชื่อ - สกุล"] = df["ชื่อ - สกุล"].apply(correct_thai_name) # correct name
     
     # Clean vote options
-    df.loc[:, "ผลการลงคะแนน"] = df["ผลการลงคะแนน"].apply(normalize_vote_option)
+    df.loc[:, "ผลการลงคะแนน"] = df["ผลการลงคะแนน"].apply(
+        lambda vote_opt: normalize_vote_option(vote_opt)
+    )
     
     # Clean any row with multiple empty strings
     df = df[(df == "").sum(axis=1) < 2]
