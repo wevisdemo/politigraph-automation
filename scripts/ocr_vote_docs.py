@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 import pandas as pd
 from vote_doc_reader import get_vote_log_object
-from vote_log_manager import clean_votes_df, add_votes
+from vote_log_manager import clean_votes_df, add_votes, update_vote_counts
     
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 
@@ -30,6 +30,14 @@ def main() -> None:
         pdf_file_path = vote_event.get("file_path", None)
         vote_log = get_vote_log_object(pdf_file_path)
         
+        # Update info
+        vote_log_info = vote_log.get_vote_info()
+        update_vote_counts(
+            vote_event_id=vote_event_id,
+            vote_count_data=vote_log_info.get('option_count', {})
+        )
+        
+        # Votes
         votes_df = vote_log.get_votes_df()
         
         # Clean votes df

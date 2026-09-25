@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 import pandas as pd
-from poliquery import add_votes_to_vote_event
+from poliquery import add_votes_to_vote_event, update_vote_event_validation_data
 
 def add_votes(
     vote_event_id: str,
@@ -27,6 +27,23 @@ def add_votes(
     # Add votes to voteEvent
     add_votes_to_vote_event(
         vote_event_id=vote_event_id,
-        vote_logs=vote_logs, # type: ignore
+        vote_logs=vote_logs[::-1], # type: ignore
     )
     
+def update_vote_counts(
+    vote_event_id: str,
+    vote_count_data: dict[str, int]
+) -> None:
+    
+    # Contruct validation_data keys
+     validation_data = {
+         "เห็นด้วย": vote_count_data.get('agree_count', -1),
+         "ไม่เห็นด้วย": vote_count_data.get('disagree_count', -1),
+         "งดออกเสียง": vote_count_data.get('abstain_count', -1),
+         "ไม่ลงคะแนนเสียง": vote_count_data.get('novote_count', -1),
+     }
+     
+     update_vote_event_validation_data(
+         vote_event_id=vote_event_id,
+         validation_data=validation_data
+     )
