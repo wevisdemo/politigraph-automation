@@ -80,19 +80,16 @@ def remove_name_prefix(name: str) -> str:
     
 def correct_thai_name(name: str) -> str:
     
-    # TODO update poliquery to get name easier
-    return name
-    
     # Try load names from politigraph
     try: 
-        from poliquery import get_politician_name_index
-        name_index = get_politician_name_index()
+        from poliquery import get_representative_members_name
+        representatives = get_representative_members_name()
+        names_list = [
+            person.get('name', '') for person in representatives
+        ]
+        return correct_typo(name, names_list)
     except:
         return name
-    
-    names_list = list(name_index.keys())
-        
-    return correct_typo(name, names_list)
 
 def clean_votes_df(votes_df: pd.DataFrame) -> pd.DataFrame:
     
