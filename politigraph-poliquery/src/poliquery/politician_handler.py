@@ -112,7 +112,7 @@ def get_people_in_party(party_name:str) -> List[Dict[str, Any]]:
     return people_result
 
 @cached(cache=TTLCache(maxsize=1024, ttl=300))
-def get_representative_members_name(parliament_term:int=26) -> List[Dict[str, Any]]:
+def get_representative_members_name(parliament_term:int=27) -> List[Dict[str, Any]]:
     
     # Initiate client
     apollo_client = get_apollo_client()
