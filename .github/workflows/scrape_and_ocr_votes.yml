@@ -30,7 +30,7 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y poppler-utils libpoppler-cpp-dev
             curl -LsSf https://astral.sh/uv/install.sh | sh
-            uv sync
+            uv sync --group vote_event_scraper
 
       - name: Scrap & add new VoteEvents
         run: uv run scripts/scrape_vote_events.py

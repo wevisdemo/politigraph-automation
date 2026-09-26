@@ -1377,14 +1377,6 @@ wheels = [
 ]
 
 [[package]]
-name = "ocr-votes-doc"
-version = "0.1.0"
-source = { editable = "politigraph-ocr-votes-log" }
-
-[package.metadata]
-provides-extras = ["dev"]
-
-[[package]]
 name = "openai"
 version = "3.17.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1602,7 +1594,6 @@ dependencies = [
     { name = "merge-bill-updater" },
     { name = "msbis-vote-events-scraper" },
     { name = "numpy" },
-    { name = "ocr-votes-doc" },
     { name = "opencv-python" },
     { name = "pandas" },
     { name = "poliquery" },
@@ -1631,7 +1622,6 @@ requires-dist = [
     { name = "merge-bill-updater", editable = "politigraph-merge-bill-detector" },
     { name = "msbis-vote-events-scraper", editable = "politigraph_vote_events_scraper" },
     { name = "numpy", specifier = ">=2.5.3" },
-    { name = "ocr-votes-doc", editable = "politigraph-ocr-votes-log" },
     { name = "opencv-python", specifier = ">=5.0.0.93" },
     { name = "pandas", specifier = ">=3.0.6" },
     { name = "poliquery", editable = "politigraph-poliquery" },
