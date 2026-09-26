@@ -1,1 +1,0 @@
-from .representatives_validator import validate_representatives_memberships
