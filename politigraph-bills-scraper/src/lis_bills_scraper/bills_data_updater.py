@@ -216,7 +216,7 @@ def create_bill_events():
             continue
         
         # Get events
-        politigraph_events = matched_bill.get('bill_events', [])
+        politigraph_events = matched_bill.get('events', [])
         
         # Add typename to event
         events = bill.get('bill_events', [])
@@ -229,14 +229,13 @@ def create_bill_events():
         
         # Get new events
         all_events = bill.get('bill_events', [])
+        existed_classification = set([
+            event.get('classification') for event in politigraph_events
+        ])
         # Remove duplicated events
         new_events = [
             event for event in all_events
-            if not any(
-                event.get('__typename') == p_event.get('__typename') \
-                    and event.get('classification', None) == p_event.get('classification', None)
-                for p_event in politigraph_events
-            )
+            if event.get('classification') not in existed_classification
         ]
         
         # Add ID to bill
