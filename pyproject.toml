@@ -11,6 +11,7 @@ dependencies = [
     "cachetools>=7.2.0",
     "gql>=4.0.0",
     "lxml>=6.1.3",
+    "msbis-vote-events-scraper",
     "numpy>=2.5.3",
     "pandas>=3.0.6",
     "poliquery",
@@ -27,7 +28,6 @@ vote_event_scraper = [
     "opencv-python>=5.0.0.93",
     "easyocr>=1.7.2",
     "typhoon-ocr>=0.4.1",
-    "msbis-vote-events-scraper",
     "vote-doc-reader",
     "vote-log-manager",
 ]
