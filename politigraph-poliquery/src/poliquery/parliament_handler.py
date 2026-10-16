@@ -15,7 +15,7 @@ def get_all_house_of_representatives() -> List[Dict[str, Any]]:
     
     house_of_representatives = asyncio.run(get_organizations(
         client=apollo_client,
-        fields=['id', 'name', 'term'],
+        fields=['id', 'name', 'term', 'founding_date'],
         params={
             "where": {
                 "classification": {
