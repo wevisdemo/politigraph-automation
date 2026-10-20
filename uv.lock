@@ -783,8 +783,8 @@ wheels = [
 
 [[package]]
 name = "lis-bills-scraper"
-version = "1.0.0"
-source = { editable = "politigraph-bills-scraper" }
+version = "2.0.0"
+source = { editable = "lis-bills-scraper" }
 
 [[package]]
 name = "lxml"
@@ -1588,6 +1588,7 @@ dependencies = [
     { name = "beautifulsoup4" },
     { name = "cachetools" },
     { name = "gql" },
+    { name = "lis-bills-scraper" },
     { name = "lxml" },
     { name = "msbis-vote-events-scraper" },
     { name = "numpy" },
@@ -1621,6 +1622,7 @@ requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.15.0" },
     { name = "cachetools", specifier = ">=7.2.0" },
     { name = "gql", specifier = ">=4.0.0" },
+    { name = "lis-bills-scraper", editable = "lis-bills-scraper" },
     { name = "lxml", specifier = ">=6.1.3" },
     { name = "msbis-vote-events-scraper", editable = "politigraph_vote_events_scraper" },
     { name = "numpy", specifier = ">=2.5.3" },
@@ -1635,7 +1637,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 bills-scraper = [
-    { name = "lis-bills-scraper", editable = "politigraph-bills-scraper" },
+    { name = "lis-bills-scraper", editable = "lis-bills-scraper" },
     { name = "merge-bill-updater", editable = "politigraph-merge-bill-detector" },
 ]
 vote-event-scraper = [

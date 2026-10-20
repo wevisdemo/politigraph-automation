@@ -10,6 +10,7 @@ dependencies = [
     "beautifulsoup4>=4.15.0",
     "cachetools>=7.2.0",
     "gql>=4.0.0",
+    "lis-bills-scraper",
     "lxml>=6.1.3",
     "msbis-vote-events-scraper",
     "numpy>=2.5.3",
@@ -43,7 +44,7 @@ package = false
 thai-name-normalizer = { path = "politigraph-name-normalizer", editable = true }
 poliquery = { path = "politigraph-poliquery", editable = true }
 msbis-vote-events-scraper = { path = "politigraph_vote_events_scraper", editable = true }
-lis-bills-scraper = { path = "politigraph-bills-scraper", editable = true }
 merge-bill-updater = { path = "politigraph-merge-bill-detector", editable = true }
 vote-doc-reader = { path = "vote-doc-reader", editable = true }
 vote-log-manager = { path = "politigraph-votes-log", editable = true }
+lis-bills-scraper = { path = "lis-bills-scraper", editable = true }
