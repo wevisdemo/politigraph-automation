@@ -1,1 +1,0 @@
-from .bills_data_updater import scrape_and_update_bills_data
