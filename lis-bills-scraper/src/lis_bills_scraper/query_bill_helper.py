@@ -157,6 +157,9 @@ def cleanup_bill(bill: Bill) -> None:
     status_from_raw = get_status_from_raw(bill.status_raw)
     status = bill.status
     
+    if status == 'MERGED':
+        return
+    
     def print_update(bill: Bill):
         # Initialize the attribute on the function if it doesn't exist yet
         if not hasattr(print_update, "has_run"):
