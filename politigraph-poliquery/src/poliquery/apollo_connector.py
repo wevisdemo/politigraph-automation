@@ -24,7 +24,10 @@ def get_apollo_client(
     print(f"--- Initiate Apollo Client ---") # TODO remove print
     transport = AIOHTTPTransport(
         url=SUBSCRIBTION_ENDPOINT, 
-        headers={'x-api-key': f"{POLITIGRAPH_TOKEN}"}, 
+        headers={
+            'x-api-key': f"{POLITIGRAPH_TOKEN}",
+            'apollographql-client-name': 'politigraph-automation'
+        }, 
     )
     
     client = Client(
