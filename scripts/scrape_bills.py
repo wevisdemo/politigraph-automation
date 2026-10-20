@@ -1,23 +1,45 @@
-from lis_bills_scraper import scrape_and_update_bills_data
-from poliquery import get_all_house_of_representatives
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+from lis_bills_scraper import Bill
+from lis_bills_scraper import (
+    scrape_bills_list, 
+    create_new_bill, 
+    update_bill_events, 
+    cleanup_bill
+)
 
 
 def main() -> None:
-    # Get all House of Representatives
-    hor = get_all_house_of_representatives()
-    terms = sorted([
-        h['term'] for h in hor
-    ], reverse=True)
     
     load_dotenv()
-    if os.getenv('PARLIAMENT_PERIOD') != 'LATEST': # id not LATEST scrape previous term
-        terms = terms[1:]
     
-    # Scrape bill & billEvent for each term
-    print(f"\nScrape Bill for House of Representatives {terms[0]}th term...\n")
-    scrape_and_update_bills_data(terms[:1])
+    raw_term = os.getenv('PARLIAMENT_TERM') or None
+    PARLIAMENT_TERM = int(raw_term) if raw_term else None
+    
+    bills_data = scrape_bills_list(int(PARLIAMENT_TERM) if PARLIAMENT_TERM else None)
+    
+    bill_list: list[Bill] = []
+    for bill_data in bills_data:
+        assert bill_data.get('acceptance_number') is not None, "acceptance_number is None"
+        bill_list.append(
+            Bill(
+                title=bill_data.get('title', ''),
+                acceptance_number=bill_data.get('acceptance_number', ''),
+                lis_id=bill_data.get('lis_id', 0),
+                url=bill_data.get('url', ''),
+                status_text=bill_data.get('status_text', ''),
+                classification=bill_data.get('classification', ''),
+            )
+        )
+    
+    # Create bills
+    for bill in bill_list:
+        create_new_bill(bill)
+        
+    # Update events & cleanup
+    for bill in bill_list:
+        update_bill_events(bill)
+        cleanup_bill(bill)
 
 if __name__ == "__main__":
     main()

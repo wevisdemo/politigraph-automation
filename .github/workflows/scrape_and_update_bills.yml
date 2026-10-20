@@ -3,29 +3,17 @@ name: Scrape & Update Bills / BillEvents
 on:
   workflow_dispatch:
     inputs:
-      parliament_period:
-        description: 'Selecting the period of the parliament, either LATEST for the latest term or PREVIOUS for previous term of parliament'
-        required: true
-        default: 'LATEST'
-        type: choice
-        options:
-          - LATEST
-          - PREVIOUS
-      scrape_mode:
-        description: 'Selecting scrape mode, `ALL` to scrape and update all bills'
-        required: true
-        default: 'none'
-        type: choice
-        options:
-          - ALL
-          - none
+      parliament_term:
+        description: 'Selecting the target term of parliament to scrape'
+        required: false
+        type: number
 
   schedule:
-    - cron: '0 20 * * SUN'  # Every Sunday at 20:00 UTC(4:00 AM GMT+7)
+    - cron: '0 20 * * SUN,TUE'
 
 permissions:
   contents: 'read'
-    
+
 jobs:
   run_python_script:
     runs-on: ubuntu-latest
@@ -35,26 +23,27 @@ jobs:
       ACTIONS_RUNNER_DEBUG: true
 
     steps:
-      - uses: actions/checkout@v3  # Setup
+      - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.12.14'
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
 
       - name: Install dependencies
-        run: |
-            sudo apt-get update
-            curl -LsSf https://astral.sh/uv/install.sh | sh
-            uv sync --group bills_scraper
+        run: uv sync --group bills_scraper
 
-      - name: Scrap & Update Bills
+      - name: Scrape & Update Bills
         run: uv run scripts/scrape_bills.py
         env:
           POLITIGRAPH_SUBSCRIBTION_ENDPOINT: "${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}"
           POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
-          SCRAPE_MODE: ${{ github.event_name == 'schedule' && '' || inputs.scrape_mode == 'none' && '' || inputs.scrape_mode }}
-          PARLIAMENT_PERIOD: ${{ github.event_name == 'schedule' && 'LATEST' || inputs.parliament_period }}
+          PARLIAMENT_TERM: ${{ inputs.parliament_term }}
           CLIENT_CERT_STRING: "${{ secrets.CLIENT_CERT_STRING }}"
 
       - name: Check & Update BillMergeEvents
