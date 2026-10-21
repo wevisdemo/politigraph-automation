@@ -77,6 +77,7 @@ def update_bill_events(bill: Bill) -> None:
         if dispatcher is not None:
             print_update(bill)
             dispatcher(bill, event)
+    refresh_bill_data(bill.get_parliament_term())
             
 def create_new_vote_event(bill: Bill, event: BillVoteEvent) -> None:
     
