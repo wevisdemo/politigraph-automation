@@ -293,7 +293,7 @@ def create_new_reject_event(bill: Bill, event: BillRejectEvent) -> None:
     }
     
     # Create new BillRoyalAssentEvent
-    create_bill_royal_assent_event_param = {
+    create_bill_reject_event_param = {
         "input": [
             param
         ]
@@ -301,7 +301,7 @@ def create_new_reject_event(bill: Bill, event: BillRejectEvent) -> None:
     
     result = asyncio.run(create_reject_event(
         client=get_apollo_client(),
-        params=create_bill_royal_assent_event_param
+        params=create_bill_reject_event_param
     ))
     print(f"created new {type(event)} ...")
     print(f"ID : {result['createBillRejectEvents']['billRejectEvents'][0]['id']}")
