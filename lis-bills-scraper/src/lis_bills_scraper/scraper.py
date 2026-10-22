@@ -28,6 +28,33 @@ def get_bill_response(url: str) -> Response | None:
             time.sleep(5)
             _i += 1
 
+def get_bills_list_response(
+    url: str,
+    sys_id: int,
+    parliament_term: int|None,
+    off_set: int,
+    cert_file_path: str,
+) -> Response | None:
+    _i = 0
+    while _i < 5:
+        try:
+            # GET bills info page
+            response = response = requests.get(
+                            url,
+                            params={
+                                'S_SYSTEM': sys_id,
+                                'S_SAPA_NO': parliament_term,
+                                'SEARCH_DATA': 'Y',
+                                'offset': off_set
+                            },
+                            verify=cert_file_path
+                        )
+            return response
+        except:
+            print("request fail retry in 5 seconds...")
+            time.sleep(5)
+            _i += 1
+
 def scrape_bill_data(url: str) -> list[dict[str, Any]]:
 
     response = get_bill_response(url)
@@ -87,18 +114,15 @@ def scrape_bills_list(
         # Loop through each pagination with offset
         while off_set < total_search_result:
             # GET bils page
-            response = requests.get(
-                LIS_ENDPOINT,
-                params={
-                    'S_SYSTEM': sys_id,
-                    'S_SAPA_NO': parliament_term,
-                    'SEARCH_DATA': 'Y',
-                    'offset': off_set
-                },
-                verify=cert_file_path
+            response = get_bills_list_response(
+                url=LIS_ENDPOINT,
+                sys_id=sys_id,
+                parliament_term=parliament_term,
+                off_set=off_set,
+                cert_file_path=cert_file_path
             )
             
-            soup = BeautifulSoup(BeautifulSoup(response.content, "html.parser").decode(), "html.parser")
+            soup = BeautifulSoup(BeautifulSoup(response.content, "html.parser").decode(), "html.parser") # type: ignore
             
             # Get total number of bill in search result
             if math.isinf(total_search_result):
