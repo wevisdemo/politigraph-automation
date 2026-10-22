@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from tqdm.auto import tqdm
 from lis_bills_scraper import Bill
 from lis_bills_scraper import (
     scrape_bills_list, 
@@ -31,6 +32,10 @@ def main() -> None:
                 classification=bill_data.get('classification', ''),
             )
         )
+        
+    # Scrape bill events
+    for bill in tqdm(bill_list):
+        bill.scrape_events()
     
     # Create bills
     for bill in bill_list:
