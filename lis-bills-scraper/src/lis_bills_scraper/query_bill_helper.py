@@ -81,7 +81,9 @@ def create_new_bill(bill: Bill) -> None:
                     }
                 },
                 "update": {
-                    "lis_ids": matched_bill.get('lis_ids', []) + [bill.lis_id],
+                    "lis_ids": {
+                        "push": bill.lis_id
+                    },
                     "links": [
                         {
                             "create": [
