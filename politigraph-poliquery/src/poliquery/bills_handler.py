@@ -67,7 +67,7 @@ async def get_all_bills_info(
     query_field = [
         'id',
         'acceptance_number',
-        'lis_id',
+        'lis_ids',
         'title',
         'classification',
         'proposal_date',

@@ -17,8 +17,7 @@ def generate_create_bill_param(bill: Bill) -> dict[str, list]:
     param: dict[str, Any] = {
         "title": bill.title,
         "classification": bill.classification,
-        # TODO: handle multiple lis_id after updated schema
-        "lis_id": bill.lis_id,
+        "lis_ids": [bill.lis_id],
         "proposal_date": bill.proposal_date,
         "acceptance_number": bill.acceptance_number,
         "status": bill.status,

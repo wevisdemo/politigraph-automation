@@ -74,8 +74,6 @@ def create_new_bill(bill: Bill) -> None:
             bill.status = matched_bill.get('status', 'IN_PROGRESS')
             print(f"Status : {bill.status}")
             
-            return
-            # TODO: add lis_id
             update_lis_param = {
                 "where": {
                     "id": {
@@ -83,7 +81,7 @@ def create_new_bill(bill: Bill) -> None:
                     }
                 },
                 "update": {
-                    "lis_id": null,
+                    "lis_ids": matched_bill.get('lis_ids', []) + [bill.lis_id],
                     "links": [
                         {
                             "create": [

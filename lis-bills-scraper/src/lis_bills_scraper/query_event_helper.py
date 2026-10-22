@@ -22,10 +22,30 @@ from poliquery import (
     create_merge_event,
     create_royal_assent_event,
     create_enact_event,
-    create_reject_event
+    create_reject_event,
+    update_bill
 )
 from .msbis_scraper import get_msbis_id
 
+def update_bill_status(bill: Bill, new_status: str) -> None:
+    
+    upadte_status_param = {
+        "where": {
+            "id": {
+                "eq": bill.id
+            }
+        },
+        "update": {
+            "status": {
+                "set": new_status
+            }
+        }
+    }
+    
+    asyncio.run(update_bill(
+        client=get_apollo_client(),
+        params=upadte_status_param
+    ))
 
 def update_bill_events(bill: Bill) -> None:
     
@@ -147,9 +167,8 @@ def create_new_merge_event(bill: Bill, event: BillMergeEvent) -> None:
         connect_params.append({
             "where": {
                 "node": {
-                    "lis_id": {
-                        "eq": int(lis_id) if lis_id else None
-                        # "contains": lis_id # TODO: update to this when change schema
+                    "lis_ids": {
+                        "includes": lis_id 
                     }
                 }
             }
@@ -158,9 +177,8 @@ def create_new_merge_event(bill: Bill, event: BillMergeEvent) -> None:
     connect_params.append({
         "where": {
             "node": {
-                "lis_id": {
-                    "eq": int(bill.lis_id) if bill.lis_id else None
-                    # "contains": lis_id # TODO: update to this when change schema
+                "lis_ids": {
+                    "includes": bill.lis_id
                 }
             }
         }
@@ -271,7 +289,11 @@ def create_new_enact_event(bill: Bill, event: BillEnactEvent) -> None:
     ))
     print(f"created new {type(event)} ...")
     print(f"ID : {result['createBillEnactEvents']['billEnactEvents'][0]['id']}")
+    # Update status to ENACTED
+    update_bill_status(bill=bill, new_status='ENACTED')
+    bill.status = 'ENACTED'
     print("+ + + + +")
+    refresh_bill_data(bill.get_parliament_term())
 
 def create_new_reject_event(bill: Bill, event: BillRejectEvent) -> None:
     
@@ -306,7 +328,13 @@ def create_new_reject_event(bill: Bill, event: BillRejectEvent) -> None:
     ))
     print(f"created new {type(event)} ...")
     print(f"ID : {result['createBillRejectEvents']['billRejectEvents'][0]['id']}")
+    
+    # Update status to REJECTED
+    update_bill_status(bill=bill, new_status='REJECTED')
+    bill.status = 'REJECTED'
+    print("updated status to : REJECTED")
     print("+ + + + +")
+    refresh_bill_data(bill.get_parliament_term())
 
 BILL_EVENTS_CREATE_DISPATCHER = {
     'BillVoteEvent': create_new_vote_event,
