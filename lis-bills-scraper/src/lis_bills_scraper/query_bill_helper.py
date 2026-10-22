@@ -155,7 +155,7 @@ def cleanup_bill(bill: Bill) -> None:
     status_from_raw = get_status_from_raw(bill.status_raw)
     status = bill.status
     
-    if status == 'MERGED':
+    if status != 'IN_PROGRESS':
         return
     
     def print_update(bill: Bill):
@@ -192,6 +192,3 @@ def cleanup_bill(bill: Bill) -> None:
                         'reject_reason': bill.status_raw
                     })
                 )
-        elif status == 'MERGED':
-            # Remove any events except MP_1 and merge event
-            pass
