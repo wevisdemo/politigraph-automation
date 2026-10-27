@@ -98,6 +98,19 @@ def create_new_bill(bill: Bill) -> None:
                             }
                             ]
                         }
+                    ],
+                    "organizations": [ # Connect to current parliament
+                        {
+                            "connect": [
+                                {
+                                    "where": {
+                                        "node": {
+                                            "id": f"สภาผู้แทนราษฎร-{bill.get_parliament_term()}"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
                     ]
                 }
             }
