@@ -10,15 +10,18 @@ on:
       scrape_in_progress:
         description: 'IN_PROGRESS'
         required: false
-        default: 'true'
+        type: boolean
+        default: true
       scrape_enacted:
         description: 'ENACTED'
         required: false
-        default: 'false'
+        type: boolean
+        default: false
       scrape_rejected:
         description: 'REJECTED'
         required: false
-        default: 'false'
+        type: boolean
+        default: false
 
   schedule:
     - cron: '0 20 * * SUN,TUE'
