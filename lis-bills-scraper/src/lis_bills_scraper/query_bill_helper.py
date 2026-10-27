@@ -87,7 +87,7 @@ def create_new_bill(bill: Bill) -> None:
                     "lis_ids": {
                         "push": bill.lis_id
                     },
-                    "links": [
+                    "links": [ # Add new link
                         {
                             "create": [
                             {
