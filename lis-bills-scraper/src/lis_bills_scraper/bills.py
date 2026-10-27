@@ -1,6 +1,7 @@
 from typing import Any
 import re
 from .scraper import scrape_bill_data
+from .utilities import get_status_from_raw
 from .events import (
     BillEvent, 
     BillVoteEvent, 
@@ -47,6 +48,9 @@ class Bill():
         
         # Politigraph info
         self.id = None
+        
+    def get_lis_status(self) -> str:
+        return get_status_from_raw(self.status_raw)
         
     def get_parliament_term(self) -> int:
         if self.parliament_term is None:

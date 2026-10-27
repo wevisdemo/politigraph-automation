@@ -9,6 +9,11 @@ from lis_bills_scraper import (
     cleanup_bill
 )
 
+def is_true(value: str | None, default: bool = False) -> bool:
+    """Returns True/False. Falls back to default if unset or empty (e.g. on cron runs)."""
+    if value is None or value.strip() == "":
+        return default
+    return value.strip().lower() in ("true", "1", "yes")
 
 def main() -> None:
     
@@ -32,6 +37,20 @@ def main() -> None:
                 classification=bill_data.get('classification', ''),
             )
         )
+        
+    status_flags = {
+        "IN_PROGRESS": is_true(os.getenv("SCRAPE_IN_PROGRESS"), default=True),
+        "ENACTED": is_true(os.getenv("SCRAPE_ENACTED"), default=False),
+        "REJECTED": is_true(os.getenv("SCRAPE_REJECTED"), default=False),
+    }
+
+    # Construct the list of selected statuses
+    selected_statuses = [status for status, enabled in status_flags.items() if enabled]
+
+    # Filter bills with selected status
+    bill_list = [
+        bill for bill in bill_list if bill.get_lis_status() in selected_statuses
+    ]
         
     # Scrape bill events
     for bill in tqdm(bill_list):

@@ -7,6 +7,18 @@ on:
         description: 'Selecting the target term of parliament to scrape'
         required: false
         type: number
+      scrape_in_progress:
+        description: 'IN_PROGRESS'
+        required: false
+        default: 'true'
+      scrape_enacted:
+        description: 'ENACTED'
+        required: false
+        default: 'false'
+      scrape_rejected:
+        description: 'REJECTED'
+        required: false
+        default: 'false'
 
   schedule:
     - cron: '0 20 * * SUN,TUE'
@@ -44,6 +56,9 @@ jobs:
           POLITIGRAPH_SUBSCRIBTION_ENDPOINT: "${{ secrets.POLITIGRAPH_SUBSCRIBTION_ENDPOINT }}"
           POLITIGRAPH_TOKEN: "${{ secrets.POLITIGRAPH_TOKEN }}"
           PARLIAMENT_TERM: ${{ inputs.parliament_term }}
+          SCRAPE_IN_PROGRESS: ${{ inputs.scrape_in_progress }}
+          SCRAPE_ENACTED: ${{ inputs.scrape_enacted }}
+          SCRAPE_REJECTED: ${{ inputs.scrape_rejected }}
           CLIENT_CERT_STRING: "${{ secrets.CLIENT_CERT_STRING }}"
 
       - name: Check & Update BillMergeEvents
