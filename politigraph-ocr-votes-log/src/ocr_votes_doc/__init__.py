@@ -1,1 +1,0 @@
-from .ocr_and_update import *
