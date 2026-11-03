@@ -9,7 +9,7 @@ from .text_helper import correct_typo
 
 def get_text_number_in_text(text: str) -> str:
 
-    number_text = re.sub(r"\D", "", text).strip()
+    number_text = re.sub(r"\D", "", str(text)).strip()
     return number_text
 
 def normalize_vote_option(
@@ -105,8 +105,9 @@ def clean_votes_df(votes_df: pd.DataFrame) -> pd.DataFrame:
     df = votes_df.copy()
 
     # Clean numbers
-    df.loc[:, "ลำดับที่"] = df["ลำดับที่"].apply(get_text_number_in_text)
-    df.loc[:, "เลขที่บัตร"] = df["ลำดับที่"].apply(get_text_number_in_text)
+    df["ลำดับที่"] = df["ลำดับที่"].astype(str)
+    df["ลำดับที่"] = df["ลำดับที่"].apply(get_text_number_in_text)
+    df["เลขที่บัตร"] = df["ลำดับที่"].apply(get_text_number_in_text)
 
     # Clean name
     df.loc[:, "ชื่อ - สกุล"] = df["ชื่อ - สกุล"].apply(remove_name_prefix) # remove prefix
