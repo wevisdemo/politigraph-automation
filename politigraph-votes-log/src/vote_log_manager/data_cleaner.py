@@ -1,11 +1,14 @@
 import re
+
 import pandas as pd
 from rapidfuzz import distance
-from .text_helper import correct_typo
+
 from .prefixes_helper import get_thai_name_prefixes
+from .text_helper import correct_typo
+
 
 def get_text_number_in_text(text: str) -> str:
-    
+
     number_text = re.sub(r"\D", "", text).strip()
     return number_text
 
@@ -21,7 +24,7 @@ def normalize_vote_option(
     critical_prefixes: tuple[str, ...] = ("ไม่", "งด")
 ) -> str:
     option_text = option_text.strip()
-    
+
     # --- Handle dash / absent marker early ---
     # Catches standard hyphen (-), en-dash (–), and em-dash (—)
     if option_text in ("-", "–", "—", ""):
@@ -57,31 +60,32 @@ def normalize_vote_option(
 
     # 4. Pick the category with the lowest distance (best match)
     matched_option = min(matched_option_index, key=lambda k: matched_option_index[k])
-    
+
     return matched_option
-    
+
 def remove_name_prefix(name: str) -> str:
-    
     prefixes = get_thai_name_prefixes()
     # Try load prefix from politigraph
-    try: 
+    try:
         from poliquery import get_politician_prefixes
         prefixes.extend(get_politician_prefixes())
-    except:
-        pass
-    
-    removed_prefix = re.sub(
-        r"^(" + "|".join(prefixes) + r")",
-        "",
-        name
-    ).strip()
-    
+    except Exception as e:
+        print(f"failed to connect to politigraph : {e}")
+
+    # Sort unique prefixes by length in descending order
+    sorted_prefixes = sorted(set(prefixes), key=len, reverse=True)
+
+    # Escape each prefix in case it contains regex special characters (e.g. '.')
+    pattern = r"^(" + "|".join(re.escape(p) for p in sorted_prefixes) + r")"
+
+    removed_prefix = re.sub(pattern, "", name).strip()
+
     return removed_prefix
-    
+
 def correct_thai_name(name: str) -> str:
-    
+
     # Try load names from politigraph
-    try: 
+    try:
         from poliquery import get_representative_members_name
         representatives = get_representative_members_name()
         names_list = [
@@ -92,29 +96,28 @@ def correct_thai_name(name: str) -> str:
         return name
 
 def clean_votes_df(votes_df: pd.DataFrame) -> pd.DataFrame:
-    
+
     # Check columns
     assert all(col in votes_df.columns for col in [
         "ลำดับที่", "เลขที่บัตร", "ชื่อ - สกุล", "ชื่อสังกัด", "ผลการลงคะแนน"
     ])
-    
+
     df = votes_df.copy()
-    
+
     # Clean numbers
     df.loc[:, "ลำดับที่"] = df["ลำดับที่"].apply(get_text_number_in_text)
     df.loc[:, "เลขที่บัตร"] = df["ลำดับที่"].apply(get_text_number_in_text)
-    
+
     # Clean name
     df.loc[:, "ชื่อ - สกุล"] = df["ชื่อ - สกุล"].apply(remove_name_prefix) # remove prefix
     df.loc[:, "ชื่อ - สกุล"] = df["ชื่อ - สกุล"].apply(correct_thai_name) # correct name
-    
+
     # Clean vote options
     df.loc[:, "ผลการลงคะแนน"] = df["ผลการลงคะแนน"].apply(
         lambda vote_opt: normalize_vote_option(vote_opt)
     )
-    
+
     # Clean any row with multiple empty strings
     df = df[(df == "").sum(axis=1) < 2]
-    
+
     return df
-    
