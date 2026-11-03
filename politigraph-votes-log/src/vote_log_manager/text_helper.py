@@ -1,18 +1,18 @@
-from typing import List
 from rapidfuzz import distance
+
 
 def correct_typo(
     typo_text: str,
-    correct_texts_list: List[str],
+    correct_texts_list: list[str],
     similarity_threshold: int = 90
 ) -> str:
     """
     Corrects a Thai typo based on a list of correct texts using Levenshtein distance.
     """
-    
+
     if not correct_texts_list:
         return typo_text
-    
+
     best_match = typo_text
     least_distance = float('inf')
     for correct_text in correct_texts_list:
