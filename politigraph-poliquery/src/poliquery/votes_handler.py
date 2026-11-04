@@ -207,7 +207,7 @@ def add_votes_to_vote_event(
         
         name = vote_info.get("ชื่อ - สกุล", "") 
         param = {
-              "vote_order": str(vote_info.get("ลําดับที่", "0")),
+              "vote_order": str(vote_info.get("ลำดับที่", "0")),
               "badge_number": str(vote_info.get("เลขที่บัตร", "x")),
               "voter_name_raw": name,
               "voter_party": vote_info.get("ชื่อสังกัด", ""),
