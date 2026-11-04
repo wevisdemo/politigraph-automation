@@ -28,8 +28,9 @@ vote_event_scraper = [
     "pymupdf>=1.28.2",
     "opencv-python>=5.0.0.93",
     "easyocr>=1.7.2",
-    "typhoon-ocr>=0.4.1",
+    "google-cloud-vision>=3.15.0",
     "vote-doc-reader",
+    "vote-doc-vision",
     "vote-log-manager",
 ]
 bills_scraper = [
@@ -48,3 +49,4 @@ merge-bill-updater = { path = "politigraph-merge-bill-detector", editable = true
 vote-doc-reader = { path = "vote-doc-reader", editable = true }
 vote-log-manager = { path = "politigraph-votes-log", editable = true }
 lis-bills-scraper = { path = "lis-bills-scraper", editable = true }
+vote-doc-vision = { path = "vote-doc-vision", editable = true }
