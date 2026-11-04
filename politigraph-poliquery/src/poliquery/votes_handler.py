@@ -104,7 +104,7 @@ def get_votes_from_vote_event(
     
     votes = asyncio.run(get_votes(
         client=apollo_client,
-        fields=['id', 'vote_order', 'badge_number', 'voter_name', 'voter_party', 'option'],
+        fields=['id', 'vote_order', 'badge_number', 'voter_name_raw', 'voter_affiliation_raw', 'option'],
         params={
             "where": {
                 "vote_events": {
@@ -210,7 +210,7 @@ def add_votes_to_vote_event(
               "vote_order": str(vote_info.get("ลำดับที่", "0")),
               "badge_number": str(vote_info.get("เลขที่บัตร", "x")),
               "voter_name_raw": name,
-              "voter_party": vote_info.get("ชื่อสังกัด", ""),
+              "voter_affiliation_raw": vote_info.get("ชื่อสังกัด", ""),
               "option": vote_info.get("ผลการลงคะแนน", "x")
             }
 
@@ -334,7 +334,7 @@ def replace_votes_in_vote_event(
 async def update_vote_data(
     vote_id: str,
     voter_name: str|None=None,
-    voter_party: str|None=None,
+    voter_affiliation: str|None=None,
     option: str|None=None
 ) -> None:
     """
@@ -343,7 +343,7 @@ async def update_vote_data(
     Args:
         vote_id (str): ID of vote's node
         voter_name_raw (str | None): voter's name
-        voter_party (str | None): voter's party
+        voter_affiliation_raw (str | None): voter's party
         option (str | None): vote option
     """
     
@@ -356,9 +356,9 @@ async def update_vote_data(
         update_param['voter_name_raw'] = {
             "set": voter_name
         }
-    if voter_party:
-        update_param['voter_party'] = {
-            "set": voter_party
+    if voter_affiliation:
+        update_param['voter_affiliation_raw'] = {
+            "set": voter_affiliation
         }
     if option:
         update_param['option'] = {
@@ -476,7 +476,7 @@ def get_votes_in_vote_event(
             'vote_order',
             'badge_number',
             'voter_name_raw',
-            'voter_party',
+            'voter_affiliation_raw',
             'option'
         ],
         params=get_param
