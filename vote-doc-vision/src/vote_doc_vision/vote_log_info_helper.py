@@ -38,10 +38,22 @@ def get_classification(full_text: str, classification_type: str) -> str:
         "3": 3, "๓": 3, "สาม": 3,
     }
 
+    # วาระ 1-3
+    classification_num = None
     match = re.search(r"วาระที่(หนึ่ง|สอง|สาม|[1-3๑-๓])", full_text)
-    classification_num = CLASSIFICATION_MAP.get(match.group(1)) if match else None
-
-    return f"{classification_type}_{classification_num}"
+    if match:
+        classification_num = CLASSIFICATION_MAP.get(match.group(1)) if match else None
+    
+    # พรก.    
+    emergency_bill_match = re.search(r"อนุมัต(.|\n)+?พระราชก(\u0e4d\u0e32|\u0e33)หนด", full_text)
+    if emergency_bill_match:
+        classification_num = 1
+    
+    # If classification_num exist
+    if classification_num:
+        return f"{classification_type}_{classification_num}"
+    
+    return classification_type
 
 def get_vote_date(full_text: str) -> str|None:
 
