@@ -173,12 +173,13 @@ def extract_votes(page_img: NDArray) -> list[dict]:
 
     # Identify start of the table
     table_start_bbox = next(
-        tt for tt in text_bboxes if re.search(r"ลำดับ|ชื่อสังกัด|ผลการลงคะแนน", tt.get('text', ''))
+        (tt for tt in text_bboxes if re.search(r"ลำดับ|ชื่อสังกัด|ผลการลงคะแนน", tt.get('text', ''))),
+        {}
     )
 
     # Extract votes
     votes_bboxes = [
-        tt for tt in text_bboxes if tt.get('bbox',[])[1] > table_start_bbox.get('bbox', [])[3] - 5
+        tt for tt in text_bboxes if tt.get('bbox',[0,0,0,0])[1] > table_start_bbox.get('bbox', [0,0,0,0])[3] - 5
     ]
 
     votes_data = extract_votes_data(votes_bboxes)
