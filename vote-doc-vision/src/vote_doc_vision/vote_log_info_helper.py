@@ -27,7 +27,7 @@ def normalize_image(image: NDArray) -> NDArray:
 
 def get_classification(full_text: str, classification_type: str) -> str:
 
-    if not re.search(r"วาระที่(หนึ่ง|สอง|สาม|1|2|3|๑|๒|๓)", full_text):
+    if re.search(r"^ขอให้วุฒิสภาพิจารณา", full_text):
         return classification_type
 
     # Check วาระ
@@ -43,14 +43,17 @@ def get_classification(full_text: str, classification_type: str) -> str:
     match = re.search(r"วาระที่(หนึ่ง|สอง|สาม|[1-3๑-๓])", full_text)
     if match:
         classification_num = CLASSIFICATION_MAP.get(match.group(1)) if match else None
+        return f"{classification_type}_{classification_num}"
     
     # พรก.    
     emergency_bill_match = re.search(r"อนุมัต(.|\n)+?พระราชก(\u0e4d\u0e32|\u0e33)หนด", full_text)
     if emergency_bill_match:
         classification_num = 1
+        return f"{classification_type}_{classification_num}"
     
-    # If classification_num exist
-    if classification_num:
+    senate_2_match = re.search(r"มาตรา\s?\d+(.|\n)+?(เพิ่มมาตรา|แก้ไข)(.|\n)+?คงไว้", full_text)
+    if senate_2_match:
+        classification_num = 2
         return f"{classification_type}_{classification_num}"
     
     return classification_type
