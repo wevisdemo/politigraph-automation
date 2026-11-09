@@ -7,12 +7,12 @@ from .query_helper.organizations import get_organizations
 from cachetools import cached, TTLCache
 
 @cached(cache=TTLCache(maxsize=256, ttl=120))
-def get_political_parties_name(
+def get_political_parties(
     start_before: str|None=None,
     start_after: str|None=None,
     end_before: str|None=None,
     end_after: str|None=None,
-) -> List[str]:
+) -> List[dict]:
     
     # Initiate client
     apollo_client = get_apollo_client()
@@ -40,22 +40,16 @@ def get_political_parties_name(
             "gt": end_after
         }
     
-    orgs = asyncio.run(get_organizations(
+    result = asyncio.run(get_organizations(
         client=apollo_client,
         fields=[
-          'name',
-          'other_names { name }'
+            'id',
+            'name',
+            'other_names { name }'
         ],
         params={
             "where": where_param
         }
     ))
     
-    parties_name = []
-    for party in orgs:
-        parties_name.append(party['name'])
-        if not party['other_names']:
-            continue
-        parties_name.extend([d['name'] for d in party['other_names']])
-    
-    return parties_name
+    return result

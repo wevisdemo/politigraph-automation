@@ -3,6 +3,8 @@ import re
 import pandas as pd
 from rapidfuzz import distance
 
+from poliquery import get_political_parties
+
 from .prefixes_helper import get_thai_name_prefixes
 from .text_helper import correct_typo
 
@@ -95,6 +97,30 @@ def correct_thai_name(name: str) -> str:
     except:
         return name
 
+def clean_voter_affiliation(voter_affiliation: str) -> str:
+    
+    cleaned_text = voter_affiliation
+    
+    # Clean non Thai characters
+    cleaned_text = re.sub(r"[^\u0e01-\u0e4c]", "", cleaned_text)
+    
+    # Clean วรรณยุกต์ at the start of the text
+    cleaned_text = re.sub(r"^([\u0e30-\u0e3a]|[\u0e47-\u0e4e])", "", cleaned_text)
+    
+    # Clean พรรค
+    cleaned_text = re.sub(r"^[\u0e01-\u0e2e]รรค", "", cleaned_text)
+    
+    # Match with closest party
+    # Query all political party
+    political_parties = get_political_parties()
+    party_names = [p.get('name', '') for p in political_parties]
+    cleaned_text = correct_typo(
+        typo_text=cleaned_text,
+        correct_texts_list=party_names + ['สมาชิกวุฒิสภา']
+    )
+    
+    return cleaned_text
+
 def clean_votes_df(votes_df: pd.DataFrame) -> pd.DataFrame:
 
     # Check columns
@@ -112,6 +138,9 @@ def clean_votes_df(votes_df: pd.DataFrame) -> pd.DataFrame:
     # Clean name
     df.loc[:, "ชื่อ - สกุล"] = df["ชื่อ - สกุล"].apply(remove_name_prefix) # remove prefix
     df.loc[:, "ชื่อ - สกุล"] = df["ชื่อ - สกุล"].apply(correct_thai_name) # correct name
+    
+    # Clean voter affiliation
+    df["ชื่อสังกัด"] = df["ชื่อสังกัด"].apply(clean_voter_affiliation) # correct name
 
     # Clean vote options
     df.loc[:, "ผลการลงคะแนน"] = df["ผลการลงคะแนน"].apply(
