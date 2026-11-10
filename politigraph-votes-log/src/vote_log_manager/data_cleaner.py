@@ -99,7 +99,7 @@ def correct_thai_name(name: str) -> str:
 
 def clean_voter_affiliation(voter_affiliation: str) -> str:
     
-    cleaned_text = voter_affiliation
+    cleaned_text = str(voter_affiliation)
     
     # Clean non Thai characters
     cleaned_text = re.sub(r"[^\u0e01-\u0e4c]", "", cleaned_text)
