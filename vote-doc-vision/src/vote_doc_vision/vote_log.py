@@ -13,7 +13,11 @@ class VoteLog:
     def __init__(
         self,
         pdf_file_path: str|Path,
-        classification_type: Literal['MP', 'SENATE']='MP'
+        classification_type: Literal['MP', 'SENATE']='MP',
+        classification: Literal[
+            'MP_1', 'MP_2', 'MP_3', 'SENATE_1', 'SENATE_2','SENATE_3',
+            'PM_VOTE'
+        ]|None=None,
     ):
         self.page_images = load_pdf_images(pdf_file_path)
 
@@ -25,6 +29,9 @@ class VoteLog:
 
         self.vote_event_title = vote_log_info.get('title', '')
         self.classification = vote_log_info.get('classification')
+        
+        if classification:
+            self.classification = classification
 
         self.vote_date = vote_log_info.get('vote_date')
 
