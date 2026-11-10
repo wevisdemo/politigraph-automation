@@ -204,3 +204,7 @@ examples/*
 data
 output
 pdf
+
+# Data files
+*.csv
+*.json
