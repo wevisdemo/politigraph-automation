@@ -133,7 +133,7 @@ def clean_votes_df(votes_df: pd.DataFrame) -> pd.DataFrame:
     # Clean numbers
     df["ลำดับที่"] = df["ลำดับที่"].astype(str)
     df["ลำดับที่"] = df["ลำดับที่"].apply(get_text_number_in_text)
-    df["เลขที่บัตร"] = df["ลำดับที่"].apply(get_text_number_in_text)
+    df["เลขที่บัตร"] = df["เลขที่บัตร"].apply(get_text_number_in_text)
 
     # Clean name
     df.loc[:, "ชื่อ - สกุล"] = df["ชื่อ - สกุล"].apply(remove_name_prefix) # remove prefix
