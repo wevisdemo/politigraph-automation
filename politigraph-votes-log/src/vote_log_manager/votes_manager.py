@@ -1,17 +1,72 @@
-import os
 import asyncio
+import os
 from pathlib import Path
 
 import pandas as pd
 from poliquery import (
+    add_votes_to_vote_event,
     get_apollo_client,
-    add_votes_to_vote_event, 
-    update_vote_event_validation_data,
-    get_votes_from_vote_event,
-    get_political_parties,
     get_organizations,
-    update_votes
+    get_political_parties,
+    get_politician_name_index,
+    get_votes_from_vote_event,
+    update_organiztion,
+    update_person,
+    update_vote_event_validation_data,
 )
+
+
+def update_vote_voter_connections(vote_event_id: str):
+    
+    # Construct politician match id
+    politicians = get_politician_name_index(vote_event_id=vote_event_id)
+    name_index = {
+        key: v['id'] for key, v in politicians.items()
+    }
+    # import json
+    # print(json.dumps(name_index, indent=2, ensure_ascii=False))
+    
+    votes = get_votes_from_vote_event(vote_event_id=vote_event_id)
+    
+    for name, id in name_index.items():
+        # Check if name is in any voter_name_raw
+        match_name_votes = [
+            v for v in votes if v.get('voter_name_raw') == name
+        ]
+        if len(match_name_votes) == 1: # connect only when match exactly 1 name
+            
+            vote_id = match_name_votes[0]['id']
+            
+            # Connect person with vote
+            update_person_param = {
+                "where": {
+                    "id": {
+                        "eq": id
+                    }
+                },
+                "update": {
+                    "votes": [
+                    {
+                        "connect": [
+                            {
+                                "where": {
+                                    "node": {
+                                        "id": {
+                                            "eq": vote_id
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                    ]
+                }
+            }
+            
+            asyncio.run(update_person(
+                client=get_apollo_client(),
+                params=update_person_param
+            ))
 
 def update_vote_party_connections(vote_event_id: str):
     
@@ -56,41 +111,36 @@ def update_vote_party_connections(vote_event_id: str):
         votes_group = [
             v for v in votes if v.get('voter_affiliation_raw') == affi_name
         ]
-        ids = [v.get('id') for v in votes_group]
-        for id_chunk in [ids[i : i + 10] for i in range(0, len(ids), 10)]:
-            update_param = {
-                "where": {
-                    "id": {
-                        "in": id_chunk
-                    }
-                },
-                "update": {
-                    "voter_affiliations": [
+        vote_ids = [v.get('id') for v in votes_group]
+        update_param = {
+            "where": {
+                "id": {
+                    "eq": party_id_index.get(affi_name)
+                }
+            },
+            "update": {
+                "member_votes": [
                     {
                         "connect": [
                         {
                             "where": {
                                 "node": {
-                                    "classification": {
-                                       "in": [
-                                           "POLITICAL_PARTY", "HOUSE_OF_SENATE"
-                                       ]
-                                    },
                                     "id": {
-                                        "eq": party_id_index.get(affi_name)
+                                        "in": vote_ids
                                     }
                                 }
                             }
                         }
                         ]
                     }
-                    ]
-                }
+                ]
             }
-            asyncio.run(update_votes(
-                client=get_apollo_client(),
-                params=update_param
-            ))
+        }
+        asyncio.run(update_organiztion(
+            client=get_apollo_client(),
+            params=update_param
+        ))
+        
 
 def add_votes(
     vote_event_id: str,
@@ -118,6 +168,11 @@ def add_votes(
         vote_event_id=vote_event_id,
         vote_logs=vote_logs[::-1], # type: ignore
         batch_max=10
+    )
+    
+    # Update vote -> people connection
+    update_vote_voter_connections(
+        vote_event_id=vote_event_id,
     )
     
     # Update vote -> party connection

@@ -23,11 +23,9 @@ def main() -> None:
         client=get_apollo_client(),
         params={
             "where": {
-                "vote_events": {
-                    "some": {
-                        "id": {
-                            "eq": VOTE_EVENT_ID
-                        }
+                "vote_event": {
+                    "id": {
+                        "eq": VOTE_EVENT_ID
                     }
                 }
             }

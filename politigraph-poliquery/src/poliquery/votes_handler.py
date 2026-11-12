@@ -1,17 +1,17 @@
 import asyncio
-from typing import List, Dict, Any, Sequence
+from typing import Any
 
+from cachetools import TTLCache, cached
 from gql import Client
-from cachetools import cached, TTLCache
 
 from .apollo_connector import get_apollo_client
-from .query_helper.vote_events import get_vote_events, update_vote_event
 from .query_helper.persons import get_persons
-from .query_helper.votes import get_votes, delete_votes, update_votes
+from .query_helper.vote_events import get_vote_events, update_vote_event
+from .query_helper.votes import delete_votes, get_votes, update_votes
 
 ################################ VALIDATION DATA ################################
 
-def get_validation_data(vote_event_id: str) -> Dict[str, Any]:
+def get_validation_data(vote_event_id: str) -> dict[str, Any]:
     
     # Initiate client
     apollo_client = get_apollo_client()
@@ -40,7 +40,7 @@ def get_validation_data(vote_event_id: str) -> Dict[str, Any]:
 
 def update_vote_event_validation_data(
     vote_event_id: str, 
-    validation_data: Dict[str, int], 
+    validation_data: dict[str, int], 
     publish_status: str|None=None,
 ) -> None:
     
@@ -90,7 +90,7 @@ def update_vote_event_validation_data(
 
 def get_votes_from_vote_event(
     vote_event_id: str,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Get votes data from voteEvent
 
@@ -107,11 +107,9 @@ def get_votes_from_vote_event(
         fields=['id', 'vote_order', 'badge_number', 'voter_name_raw', 'voter_affiliation_raw', 'option'],
         params={
             "where": {
-                "vote_events": {
-                    "some": {
-                        "id": {
-                            "eq": vote_event_id
-                        }
+                "vote_event": {
+                    "id": {
+                        "eq": vote_event_id
                     }
                 }
             }
@@ -123,7 +121,7 @@ def get_votes_from_vote_event(
 @cached(cache=TTLCache(maxsize=124, ttl=120))
 def get_politician_name_index(
     vote_event_id:str
-) -> Dict[str, Dict[str, Any]]:
+) -> dict[str, dict[str, Any]]:
     
     # Initiate client
     apollo_client = get_apollo_client()
@@ -134,16 +132,12 @@ def get_politician_name_index(
         "where": {
             "memberships": {
                 "some": {
-                    "posts": {
-                        "some": {
-                            "organization": {
+                    "post": {
+                        "organization": {
+                            "events": {
                                 "some": {
-                                    "events": {
-                                        "some": {
-                                            "id": {
-                                                "eq": vote_event_id
-                                            }
-                                        }
+                                    "id": {
+                                        "eq": vote_event_id
                                     }
                                 }
                             }
@@ -180,7 +174,7 @@ def get_politician_name_index(
 
 def add_votes_to_vote_event(
     vote_event_id: str,
-    vote_logs: List[Dict[str, Any]],
+    vote_logs: list[dict[str, Any]],
     batch_max: int=5
 ) -> None:
     """
@@ -189,8 +183,8 @@ def add_votes_to_vote_event(
     Args:
         vote_event_id: str
             voteEvent's ID
-        vote_logs: List[Dict[str, Any]]
-            List of votes info
+        vote_logs: list[dict[str, Any]]
+            list of votes info
         batch_max: int @optional
             The max amount of votes create in ONE query
     """
@@ -202,8 +196,8 @@ def add_votes_to_vote_event(
     name_index = get_politician_name_index(vote_event_id=vote_event_id)
     
     def generate_create_param(
-        vote_info: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        vote_info: dict[str, Any],
+    ) -> dict[str, Any]:
         
         name = vote_info.get("ชื่อ - สกุล", "") 
         param = {
@@ -212,21 +206,6 @@ def add_votes_to_vote_event(
               "voter_name_raw": name,
               "voter_affiliation_raw": vote_info.get("ชื่อสังกัด", ""),
               "option": vote_info.get("ผลการลงคะแนน", "x")
-            }
-
-        # Check if name matched with politician in politigraph
-        matched_politician = name_index.get(name, None)
-        if matched_politician:
-            param["voters"] = {
-                "connect": [{
-                    "where": {
-                        "node": {
-                            "id": {
-                                "eq": matched_politician['id']
-                            }
-                        }
-                    }
-                  }]
             }
         
         return param
@@ -285,7 +264,7 @@ def add_votes_to_vote_event(
     
 def replace_votes_in_vote_event(
     vote_event_id: str,
-    vote_logs: List[Dict[str, Any]],
+    vote_logs: list[dict[str, Any]],
     batch_max: int=5
 ) -> None:
     """
@@ -294,8 +273,8 @@ def replace_votes_in_vote_event(
     Args:
         vote_event_id: str
             voteEvent's ID
-        vote_logs: List[Dict[str, Any]]
-            List of votes info
+        vote_logs: list[dict[str, Any]]
+            list of votes info
         batch_max: int @optional
             The max amount of votes create in ONE query
     """
@@ -380,7 +359,7 @@ async def update_vote_data(
     
 def get_votes_in_vote_event(
     vote_event_id:str
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     
     # Initiate client
     apollo_client = get_apollo_client()
