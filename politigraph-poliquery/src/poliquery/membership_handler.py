@@ -22,14 +22,12 @@ def get_person_current_memberships(
             "end_date": {
                 "eq": None
             },
-            "members": {
-                "some": {
-                    "Person": {
-                        "id": {
-                            "eq": person_id
-                        }
+            "member": {
+                "Person": {
+                    "id": {
+                        "eq": person_id
                     }
-                },
+                }
             }
         }
     }
@@ -164,7 +162,7 @@ def create_new_political_party_membership(
             {
                 "start_date": membership_start_date,
                 "label": None,
-                "members": {
+                "member": {
                     "Person": {
                         "connect": [
                             {
@@ -265,7 +263,7 @@ def create_new_cabinet_membership(
             {
                 "start_date": membership_start_date,
                 "label": None,
-                "members": {
+                "member": {
                     "Person": {
                         "connect": [
                             {
