@@ -377,79 +377,7 @@ async def update_vote_data(
             "update": update_param
         }
     )
-        
-def update_votes_person_connection(
-    vote_event_id: str,
-) -> None:
     
-    # Initiate client
-    apollo_client = get_apollo_client()
-    
-    # Get politician names index
-    name_index = get_politician_name_index(vote_event_id=vote_event_id)
-    import json
-    print(json.dumps(name_index, indent=2, ensure_ascii=False))
-        
-    # Get votes
-    votes = asyncio.run(get_votes(
-        client=apollo_client,
-        fields=['id', 'voter_name_raw', 'voters { id }'],
-        params={
-            "where": {
-                "vote_events": {
-                    "some": {
-                        "id": {
-                            "eq": vote_event_id
-                        }
-                    }
-                }
-            }
-        }
-    ))
-    
-    # Update connection
-    async def update_votes_person(votes: List[Dict[str, Any]]):
-        for vote in votes:
-            
-            # Check if voter already exist
-            if vote.get('voters', []):
-                continue
-            
-            vote_id = vote.get('id', '')
-            person_id = name_index.get(vote.get('voter_name_raw', ''), {}).get('id', None)
-            print(f"update connection for {vote.get('voter_name_raw', '')}...")
-
-            update_param = {
-                "where": {
-                    "id": {
-                        "eq": vote_id
-                    }
-                },
-                "update": {
-                    "voters": [
-                    {
-                        "connect": [
-                        {
-                            "where": {
-                                "node": {
-                                    "id": {
-                                        "eq": person_id
-                                    }
-                                }
-                            }
-                        }
-                        ]
-                    }
-                    ]
-                }
-            }
-            await update_votes(
-                client=apollo_client,
-                params=update_param
-            )
-            await asyncio.sleep(0.5)
-    asyncio.run(update_votes_person(votes=votes))
-        
 def get_votes_in_vote_event(
     vote_event_id:str
 ) -> List[Dict[str, Any]]:
