@@ -84,7 +84,7 @@ def get_party_posts(party_name: str) -> List[Dict[str, Any]]:
         ],
         params={
             "where": {
-                "organizations": {
+                "organization": {
                     "single": {
                         "classification": {
                             "eq": "POLITICAL_PARTY",
@@ -109,7 +109,7 @@ async def create_new_post_in_party(
             {
                 "start_date": None,
                 "role": post_role,
-                "organizations": {
+                "organization": {
                     "connect": [
                         {
                             "where": {
@@ -187,7 +187,7 @@ def create_new_political_party_membership(
                                 "role": {
                                     "eq": post_role
                                 },
-                                "organizations": {
+                                "organization": {
                                     "single": {
                                         "classification": {
                                             "eq": "POLITICAL_PARTY",
@@ -225,7 +225,7 @@ async def create_new_post_in_cabinet(
             {
                 "role": role,
                 "start_date": start_date,
-                "organizations": {
+                "organization": {
                     "connect": [
                         {
                             "where": {
@@ -288,7 +288,7 @@ def create_new_cabinet_membership(
                                 "role": {
                                     "eq": post_role,
                                 },
-                                "organizations": {
+                                "organization": {
                                     "single": {
                                         "id": {
                                             "eq": f"คณะรัฐมนตรี-{cabinet_term}"

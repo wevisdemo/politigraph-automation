@@ -17,7 +17,7 @@ def get_politician_prefixes() -> List[str]:
                 "some": {
                     "posts": {
                         "some": {
-                            "organizations": {
+                            "organization": {
                                 "some": {
                                     "parents": {
                                         "some": {
@@ -54,7 +54,7 @@ def get_people_in_party(party_name:str) -> List[Dict[str, Any]]:
                 "some": {
                     "posts": {
                         "some": {
-                            "organizations": {
+                            "organization": {
                                 "some": {
                                     "classification": {
                                         "eq": "POLITICAL_PARTY"
@@ -105,7 +105,7 @@ def get_representative_members_name(parliament_term:int=27) -> List[Dict[str, An
                             "role": {
                                 "eq": "สมาชิกสภาผู้แทนราษฎร"
                             },
-                            "organizations": {
+                            "organization": {
                                 "some": {
                                     "id": {
                                         "eq": f"สภาผู้แทนราษฎร-{parliament_term}"

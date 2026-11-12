@@ -136,7 +136,7 @@ def get_politician_name_index(
                 "some": {
                     "posts": {
                         "some": {
-                            "organizations": {
+                            "organization": {
                                 "some": {
                                     "events": {
                                         "some": {
