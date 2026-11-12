@@ -177,7 +177,7 @@ def create_new_political_party_membership(
                         ]
                     }
                 },
-                "posts": {
+                "post": {
                     "connect": [
                     {
                         "where": {
@@ -278,7 +278,7 @@ def create_new_cabinet_membership(
                         ]
                     }
                 },
-                "posts": {
+                "post": {
                     "connect": [
                     {
                         "where": {

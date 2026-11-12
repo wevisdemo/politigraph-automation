@@ -15,16 +15,12 @@ def get_politician_prefixes() -> List[str]:
         "where": {
             "memberships": {
                 "some": {
-                    "posts": {
-                        "some": {
-                            "organization": {
+                    "post": {
+                        "organization": {
+                            "parents": {
                                 "some": {
-                                    "parents": {
-                                        "some": {
-                                            "classification": {
-                                                "eq": "PARLIAMENT"
-                                            }
-                                        }
+                                    "classification": {
+                                        "eq": "PARLIAMENT"
                                     }
                                 }
                             }
@@ -52,17 +48,13 @@ def get_people_in_party(party_name:str) -> List[Dict[str, Any]]:
         "where": {
             "memberships": {
                 "some": {
-                    "posts": {
-                        "some": {
-                            "organization": {
-                                "some": {
-                                    "classification": {
-                                        "eq": "POLITICAL_PARTY"
-                                    },
-                                    "name": {
-                                        "eq": party_name
-                                    }
-                                }
+                    "post": {
+                        "organization": {
+                            "classification": {
+                                "eq": "POLITICAL_PARTY"
+                            },
+                            "name": {
+                                "eq": party_name
                             }
                         }
                     }
@@ -100,17 +92,13 @@ def get_representative_members_name(parliament_term:int=27) -> List[Dict[str, An
         "where": {
             "memberships": {
                 "some": {
-                    "posts": {
-                        "some": {
-                            "role": {
-                                "eq": "สมาชิกสภาผู้แทนราษฎร"
-                            },
-                            "organization": {
-                                "some": {
-                                    "id": {
-                                        "eq": f"สภาผู้แทนราษฎร-{parliament_term}"
-                                    }
-                                }
+                    "post": {
+                        "role": {
+                            "eq": "สมาชิกสภาผู้แทนราษฎร"
+                        },
+                        "organization": {
+                            "id": {
+                                "eq": f"สภาผู้แทนราษฎร-{parliament_term}"
                             }
                         }
                     }
