@@ -129,7 +129,7 @@ def create_new_vote_event(bill: Bill, event: BillVoteEvent) -> None:
         "msbis_id": msbis_id,
         "start_date": event.date,
         "end_date": event.date,
-        "bills": {
+        "bill": {
             "connect": [
                 {
                     "where": {
@@ -213,7 +213,7 @@ def create_new_royal_assent_event(bill: Bill, event: BillRoyalAssentEvent) -> No
     
     param = {
       "result": event.result,
-        "bills": {
+        "bill": {
             "connect": [
                 {
                 "where": {
@@ -250,7 +250,7 @@ def create_new_enact_event(bill: Bill, event: BillEnactEvent) -> None:
         "title": event.title,
         "start_date": event.date,
         "end_date": event.date,
-        "bills": {
+        "bill": {
             "connect": [
                 {
                 "where": {
@@ -299,7 +299,7 @@ def create_new_reject_event(bill: Bill, event: BillRejectEvent) -> None:
     
     param = {
         "reject_reason": event.reject_reason,
-        "bills": {
+        "bill": {
             "connect": [
                 {
                 "where": {
