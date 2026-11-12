@@ -4,7 +4,7 @@ import re
 import time
 from pathlib import Path
 
-from poliquery import create_vote_event, get_apollo_client
+from poliquery import create_vote_event, get_apollo_client, get_vote_events
 from vote_doc_vision import get_vote_log_object
 from vote_log_manager import add_votes, clean_votes_df
 
@@ -20,19 +20,46 @@ def main() -> None:
     import pandas as pd
     drive_link_df = pd.read_csv("senate_doc_links.csv")
     drive_link_index = drive_link_df.set_index('File Name')['File Link'].to_dict()
+    
+    created_id = []
 
     for filename in os.listdir(PDF_DIR):
         pdf_path = PDF_DIR / filename
+        
+        file_url = drive_link_index.get(filename)
+        
+        # Check if already OCR
+        result = asyncio.run(get_vote_events(
+            client=get_apollo_client(),
+            fields=['id', 'title', 'classification'],
+            params={
+                "where": {
+                    "links": {
+                        "some": {
+                            "url": {
+                                "eq": file_url
+                            }
+                        }
+                    }
+                }
+            }
+        ))
+        if result:
+            print(f"already OCR, found like from :\n{next((_ for _ in result), {}).get('id')}")
+            continue
+        
         vote_log = get_vote_log_object(pdf_path=pdf_path, classification_type='SENATE')
 
+        title = vote_log.get_title()
         classification = vote_log.get_classification()
         print(f"classification : {classification}")
         time.sleep(2)
-        if not re.search(r"SENATE\_(1|3)", classification): # type: ignore
+        if not re.search(r"SENATE\_(1|2|3)", classification)\
+            or not re.search(r"\d+", classification): # type: ignore
             print("skip ...")
             continue
 
-        print(f"title : {vote_log.get_title()}")
+        print(f"title : {title}")
         print()
 
         vote_log.get_votes()
@@ -71,7 +98,7 @@ def main() -> None:
                             {
                                 "node": {
                                     "note": "ใบประมวลผลการลงมติ",
-                                    "url": drive_link_index.get(filename)
+                                    "url": file_url
                                 }
                             }
                         ]
@@ -98,7 +125,12 @@ def main() -> None:
             vote_event_id=vote_event_id,
             votes=votes
         )
-        break
+        # break
+        
+        created_id.append(vote_event_id)
+        import json
+        with open("created_id.json", 'w') as f:
+            json.dump(created_id, f, indent=4)
 
 if __name__ == "__main__":
     main()
