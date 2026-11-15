@@ -76,6 +76,24 @@ class VoteLog:
         self.is_ocr = True
 
         return self.votes
+    
+    def get_vote_info(self):
+        if self.vote_options_count is None or self.vote_date is None:
+            
+            vote_count = self.get_vote_count()
+            
+            self.vote_options_count = {
+                'attendance_count': vote_count.get('attendance', 0),
+                'agree_count': vote_count.get('agree', 0),
+                'disagree_count': vote_count.get('disagree', 0),
+                'abstain_count': vote_count.get('abstain', 0),
+                'novote_count': vote_count.get('novote', 0),
+            }
+            
+        return {
+            'date': self.vote_date,
+            'option_count': self.vote_options_count
+        }
 
     def to_dict(self) -> dict:
         vote_title = self.vote_event_title
@@ -100,6 +118,6 @@ class VoteLog:
         }
 
     def get_votes_df(self) -> pd.DataFrame:
-        votes_df = pd.DataFrame(self.votes)
+        votes_df = pd.DataFrame(self.votes) # type: ignore
         votes_df.rename(columns=COLUMNS_INDEX_TH, inplace=True)
         return votes_df
