@@ -31,6 +31,12 @@ jobs:
             sudo apt-get install -y poppler-utils libpoppler-cpp-dev
             curl -LsSf https://astral.sh/uv/install.sh | sh
             uv sync --group vote_event_scraper
+      
+      - name: Google Auth
+        uses: 'google-github-actions/auth@v3'
+        with: 
+          workload_identity_provider: "${{secrets.WIF_PROVIDER}}"
+          service_account: "${{secrets.SA_EMAIL}}"
 
       - name: Scrap & add new VoteEvents
         run: uv run scripts/scrape_vote_events.py

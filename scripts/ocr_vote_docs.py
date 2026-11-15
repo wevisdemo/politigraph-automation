@@ -1,9 +1,8 @@
-import os
 import json
 from pathlib import Path
-import pandas as pd
-from vote_doc_reader import get_vote_log_object
-from vote_log_manager import clean_votes_df, add_votes, update_vote_counts
+
+from vote_doc_vision import get_vote_log_object
+from vote_log_manager import add_votes, clean_votes_df, update_vote_counts
 
 OUTPUT_DIR = Path(__file__).resolve().parent / "output"
 
