@@ -1,31 +1,26 @@
 import asyncio
-from .bills import Bill
-from .events import (
-    BillVoteEvent,
-    BillMergeEvent,
-    BillRoyalAssentEvent,
-    BillEnactEvent,
-    BillRejectEvent
-)
-from .data_loader import (
-    load_bill_data, 
-    refresh_bill_data
-)
-from .param_helper import (
-    generate_create_bill_param,
-    generate_co_proposer_connect_param
-)
 
 from poliquery import (
-    get_apollo_client, 
     create_bill_vote_event,
-    create_merge_event,
-    create_royal_assent_event,
     create_enact_event,
+    create_merge_event,
     create_reject_event,
-    update_bill
+    create_royal_assent_event,
+    get_apollo_client,
+    update_bill,
+)
+
+from .bills import Bill
+from .data_loader import load_bill_data, refresh_bill_data
+from .events import (
+    BillEnactEvent,
+    BillMergeEvent,
+    BillRejectEvent,
+    BillRoyalAssentEvent,
+    BillVoteEvent,
 )
 from .msbis_scraper import get_msbis_id
+
 
 def update_bill_status(bill: Bill, new_status: str) -> None:
     
@@ -129,19 +124,6 @@ def create_new_vote_event(bill: Bill, event: BillVoteEvent) -> None:
         "msbis_id": msbis_id,
         "start_date": event.date,
         "end_date": event.date,
-        "bill": {
-            "connect": [
-                {
-                    "where": {
-                        "node": {
-                            "id": {
-                                "eq": bill.id
-                            }
-                        }
-                    }
-                }
-            ]
-        },
         "publish_status": "PUBLISHED"
     }
     
@@ -155,9 +137,42 @@ def create_new_vote_event(bill: Bill, event: BillVoteEvent) -> None:
         client=get_apollo_client(),
         params=create_bill_vote_event_param
     ))
+    new_bill_vote_event_id = result['createBillVoteEvents']['billVoteEvents'][0]['id']
     print(f"created new BillVoteEvent {event.classification}")
-    print(f"ID : {result['createBillVoteEvents']['billVoteEvents'][0]['id']}")
+    print(f"ID : {new_bill_vote_event_id}")
     print("+ + + + +")
+    
+    # Connect BillVoteEvent to Bill
+    update_bill_param = {
+        "where": {
+            "id": {
+                "eq": bill.id
+            }
+        },
+        "update": {
+            "events": {
+                "BillVoteEvent": [
+                    {
+                    "connect": [
+                        {
+                            "where": {
+                                "node": {
+                                    "id": {
+                                        "eq": new_bill_vote_event_id
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                    }
+                ]
+            }
+        }
+    }
+    asyncio.run(update_bill(
+        client=get_apollo_client(),
+        params=update_bill_param
+    ))
         
 def create_new_merge_event(bill: Bill, event: BillMergeEvent) -> None:
     
@@ -216,13 +231,13 @@ def create_new_royal_assent_event(bill: Bill, event: BillRoyalAssentEvent) -> No
         "bill": {
             "connect": [
                 {
-                "where": {
-                    "node": {
-                        "id": {
-                            "eq": bill.id
+                    "where": {
+                        "node": {
+                            "id": {
+                                "eq": bill.id
+                            }
                         }
                     }
-                }
                 }
             ]
         },
@@ -240,9 +255,42 @@ def create_new_royal_assent_event(bill: Bill, event: BillRoyalAssentEvent) -> No
         client=get_apollo_client(),
         params=create_bill_royal_assent_event_param
     ))
+    new_royal_assent_event_id = result['createBillRoyalAssentEvents']['billRoyalAssentEvents'][0]['id']
     print(f"created new {type(event)} ...")
-    print(f"ID : {result['createBillRoyalAssentEvents']['billRoyalAssentEvents'][0]['id']}")
+    print(f"ID : {new_royal_assent_event_id}")
     print("+ + + + +")
+    
+    # Connect BillRoyalAssentEvent to Bill
+    update_bill_param = {
+        "where": {
+            "id": {
+                "eq": bill.id
+            }
+        },
+        "update": {
+            "events": {
+                "BillRoyalAssentEvent": [
+                    {
+                        "connect": [
+                            {
+                                "where": {
+                                    "node": {
+                                        "id": {
+                                            "eq": new_royal_assent_event_id
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+    asyncio.run(update_bill(
+        client=get_apollo_client(),
+        params=update_bill_param
+    ))
     
 def create_new_enact_event(bill: Bill, event: BillEnactEvent) -> None:
     
@@ -287,12 +335,45 @@ def create_new_enact_event(bill: Bill, event: BillEnactEvent) -> None:
         client=get_apollo_client(),
         params=create_bill_enact_event_param
     ))
+    new_enact_event_id = result['createBillEnactEvents']['billEnactEvents'][0]['id']
     print(f"created new {type(event)} ...")
-    print(f"ID : {result['createBillEnactEvents']['billEnactEvents'][0]['id']}")
-    # Update status to ENACTED
-    update_bill_status(bill=bill, new_status='ENACTED')
+    print(f"ID : {new_enact_event_id}")
+    # Connect EnactEvent to Bill & Update status to ENACTED
     bill.status = 'ENACTED'
     print("+ + + + +")
+    update_bill_param = {
+        "where": {
+            "id": {
+                "eq": bill.id
+            }
+        },
+        "update": {
+            "events": {
+                "BillEnactEvent": [
+                    {
+                        "connect": [
+                            {
+                                "where": {
+                                    "node": {
+                                        "id": {
+                                            "eq": new_enact_event_id
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "status": {
+                "set": "ENACTED"
+            }
+        }
+    }
+    asyncio.run(update_bill(
+        client=get_apollo_client(),
+        params=update_bill_param
+    ))
     refresh_bill_data(bill.get_parliament_term())
 
 def create_new_reject_event(bill: Bill, event: BillRejectEvent) -> None:
@@ -315,7 +396,7 @@ def create_new_reject_event(bill: Bill, event: BillRejectEvent) -> None:
         "publish_status": "PUBLISHED"
     }
     
-    # Create new BillRoyalAssentEvent
+    # Create new BillRejectEvent
     create_bill_reject_event_param = {
         "input": [
             param
@@ -326,14 +407,48 @@ def create_new_reject_event(bill: Bill, event: BillRejectEvent) -> None:
         client=get_apollo_client(),
         params=create_bill_reject_event_param
     ))
+    new_reject_event_id = result['createBillRejectEvents']['billRejectEvents'][0]['id']
     print(f"created new {type(event)} ...")
-    print(f"ID : {result['createBillRejectEvents']['billRejectEvents'][0]['id']}")
+    print(f"ID : {new_reject_event_id}")
     
     # Update status to REJECTED
-    update_bill_status(bill=bill, new_status='REJECTED')
     bill.status = 'REJECTED'
     print("updated status to : REJECTED")
     print("+ + + + +")
+    # Connect BillRejectEvent to Bill & Update status to REJECTED
+    update_bill_param = {
+        "where": {
+            "id": {
+                "eq": bill.id
+            }
+        },
+        "update": {
+            "events": {
+                "BillRejectEvent": [
+                    {
+                        "connect": [
+                            {
+                                "where": {
+                                    "node": {
+                                        "id": {
+                                            "eq": new_reject_event_id
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "status": {
+                "set": "REJECTED"
+            }
+        }
+    }
+    asyncio.run(update_bill(
+        client=get_apollo_client(),
+        params=update_bill_param
+    ))
     refresh_bill_data(bill.get_parliament_term())
 
 BILL_EVENTS_CREATE_DISPATCHER = {
