@@ -39,7 +39,7 @@ async def get_bill_merge_events(id: str|None, include_updated_events:bool=False)
         fields=[
             'id',
             'total_merged_bills',
-            'main_bill_id',
+            'main_bill { id }',
             'bills { \n\tid\n\ttitle\n\tcreators {\n\t... on Person {\n\t\tid\n\t\tprefix\n\t\tname\n\t}\n\t... on Organization {\n\t\tid\n\t\tname\n\t}}\n\tlinks { \n\t\tnote\n\t\turl\n\t}\n}',
         ],
         params=where_param
@@ -278,44 +278,52 @@ async def update_main_bill_in_merge_events(
         raise ValueError("Bill's ID not in BillMergeEvent!!")
     
     # Update main bill
-    await update_merge_event(
+    await update_bill(
         client=apollo_client,
         params={
             "where": {
                 "id": {
-                    "eq": merge_event_id
+                    "eq": main_bill_id
                 }
             },
             "update": {
-                "main_bill_id": {
-                    "set": main_bill_id
+                "main_bill_merge_events": [
+                {
+                    "connect": [
+                        {
+                            "where": {
+                                "node": {
+                                    "id": {
+                                        "eq": merge_event_id
+                                    }
+                                }
+                            }
+                        }
+                    ]
                 }
+                ]
             }
         }
     )
     
-    # Get all bill
-    bill_list = merge_event.get('bills', [])
-    # Update bill status
-    for bill in bill_list:
-        # Check ID
-        if bill.get('id') == main_bill_id: # is min bill
-            continue
-        await update_bill(
-            client=apollo_client,
-            params={
-                "where": {
-                    "id": {
-                        "eq": bill.get('id')
-                    }
-                },
-                "update": {
-                    "status": {
-                        "set": "MERGED"
-                    }
+    # Update merged bill status
+    merged_bill_ids = [
+        bill['id'] for bill in merge_event.get('bills', []) if bill['id'] != main_bill_id
+    ]
+    await update_bill(
+        client=apollo_client,
+        params={
+            "where": {
+                "id": {
+                    "in": merged_bill_ids
+                }
+            },
+            "update": {
+                "status": {
+                    "set": "MERGED"
                 }
             }
-        )
+        }
+    )
     print("UPDATE SUCCESSFULLY!!")
-        
-    return
+    

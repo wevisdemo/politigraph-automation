@@ -56,7 +56,7 @@ def check_and_update_merge_bills(merge_event_id: str|None=None) -> List[Dict[str
     # Update each merge events
     for merge_event in merge_events:
         # Check main bill
-        if merge_event.get('main_bill_id'): # already got main bill
+        if merge_event.get('main_bill'): # already got main bill
             continue
         
         # Get all bills
