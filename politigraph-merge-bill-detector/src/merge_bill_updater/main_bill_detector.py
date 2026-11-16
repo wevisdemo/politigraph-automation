@@ -1,11 +1,13 @@
-from typing import List, Dict, Any
-import time
 import asyncio
+import time
+from typing import Any
 
-from .appoint_committee_event_detector import get_appoint_committee_event_doc
 from poliquery import get_bill_merge_events, update_main_bill_in_merge_events
 
-def detect_main_bill(bill_list:List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+from .appoint_committee_event_detector import get_appoint_committee_event_doc
+
+
+def detect_main_bill(bill_list:list[dict[str, Any]]) -> list[dict[str, Any]]:
     
     # Scrape each bill
     appoint_url_list = [] # contain doc url from appoint committee event
@@ -24,14 +26,14 @@ def detect_main_bill(bill_list:List[Dict[str, Any]]) -> List[Dict[str, Any]]:
             'id': bill.get('id'),
             'title': bill.get('title'),
             'proposer': next(iter(bill.get('creators', [])), None),
-            'is_main_bill': True if appoint_comm_url else False,
+            'is_main_bill': bool(appoint_comm_url),
             'doc_url': appoint_comm_url,
         })
         result_url_list.append({
             'id': bill.get('id'),
             'title': bill.get('title'),
             'proposer': next(iter(bill.get('creators', [])), None),
-            'is_main_bill': True if result_comm_url else False,
+            'is_main_bill': bool(result_comm_url),
             'doc_url': result_comm_url,
         })
         
@@ -46,7 +48,7 @@ def detect_main_bill(bill_list:List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         key=lambda l: sum(1 for d in l if d.get('doc_url') is not None)
     )
 
-def check_and_update_merge_bills(merge_event_id: str|None=None) -> List[Dict[str, Any]]:
+def check_and_update_merge_bills(merge_event_id: str|None=None) -> list[dict[str, Any]]:
     
     # Query merge event
     merge_events = asyncio.run(get_bill_merge_events(merge_event_id))
