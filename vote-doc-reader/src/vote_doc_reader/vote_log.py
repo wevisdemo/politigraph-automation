@@ -1,17 +1,23 @@
-from typing import Any, Hashable
+from collections.abc import Hashable
+from typing import Any
+
 import pandas as pd
 from tqdm.auto import tqdm
+
+from .constants import COLUMNS_INDEX_TH
 from .doc_loader import load_pdf_images
 from .page_img_helper import (
-    get_title_section, 
-    get_info_section, get_info_data_images, 
-    get_table_image, get_rows_images_in_table, 
-    get_extra_votes_images
+    get_extra_votes_images,
+    get_info_data_images,
+    get_info_section,
+    get_rows_images_in_table,
+    get_table_image,
+    get_title_section,
 )
-from .text_ocr import detect_and_read_text, read_text_in_row_data, read_info_text
-from .constants import COLUMNS_INDEX_TH
+from .text_ocr import detect_and_read_text, read_info_text, read_text_in_row_data
 
-class VoteLog():
+
+class VoteLog:
     
     def __init__(
         self,
