@@ -238,15 +238,17 @@ async def get_prime_minister_cabinet_index(bill_proposal_date: str|None=None) ->
                     "classification": {
                         "eq": "CABINET",
                     },
-                    "post": {
-                        "role": {
-                            "eq": "นายกรัฐมนตรี",
-                        },
-                        "memberships": {
-                            "member": {
-                                "Person": {
-                                    "id": {
-                                        "eq": prime_minister['id']
+                    "posts": {
+                        "some": {
+                            "role": {
+                                "eq": "นายกรัฐมนตรี",
+                            },
+                            "memberships": {
+                                "member": {
+                                    "Person": {
+                                        "id": {
+                                            "eq": prime_minister['id']
+                                        }
                                     }
                                 }
                             }
