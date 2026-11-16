@@ -1,20 +1,23 @@
-from typing import List, Dict, Any, Hashable, TypeVar
 import asyncio
+from collections.abc import Hashable
+from typing import Any, TypeVar
 
 from thai_name_normalizer import remove_thai_name_prefix
 
 from .apollo_connector import get_apollo_client
-from .query_helper.bills import get_bills, create_bill, update_bill
-from .query_helper.persons import get_persons
+from .politician_handler import (
+    get_people_in_party,
+    get_politician_prefixes,
+    get_representative_members_name,
+)
+from .query_helper.bills import create_bill, get_bills, update_bill
 from .query_helper.organizations import get_organizations
-from .politician_handler import get_politician_prefixes, get_representative_members_name, get_people_in_party
-from .parliament_handler import get_all_house_of_representatives
+from .query_helper.persons import get_persons
 
-from cachetools import cached, TTLCache
 
 async def get_all_bills_info(
     parliament_terms: int
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     
     # Initiate client
     apollo_client = get_apollo_client()
@@ -85,15 +88,15 @@ async def get_all_bills_info(
     return bills
 
 def create_new_multiple_bills(
-    bill_data: List[Dict[Hashable, Any]],
+    bill_data: list[dict[Hashable, Any]],
     parliament_term: int =26,
     batch_max: int=5
-) -> List[str]:
+) -> list[str]:
     """
     Add new bills
 
     Args:
-        bill_data: List[Dict[Hashable, Any]]
+        bill_data: list[dict[Hashable, Any]]
             data of bill
         batch_max: int @optional
             The max amount of bills create in ONE query
@@ -103,8 +106,8 @@ def create_new_multiple_bills(
     apollo_client = get_apollo_client()
     
     def generate_create_param(
-        bill_info: Dict[Hashable, Any],
-    ) -> Dict[str, Any]:
+        bill_info: dict[Hashable, Any],
+    ) -> dict[str, Any]:
     
         # Get all input data
         acceptance_number = bill_info.get('acceptance_number', None)
@@ -149,8 +152,8 @@ def create_new_multiple_bills(
         return create_bill_param
     
     async def batch_create_bills(
-        bill_data: List[Dict[Hashable, Any]]
-    ) -> List[str]:
+        bill_data: list[dict[Hashable, Any]]
+    ) -> list[str]:
         
         result_ids = []
         
@@ -197,7 +200,7 @@ def create_new_multiple_bills(
     return bill_ids
 
 # @cached(cache=TTLCache(maxsize=256, ttl=120))
-async def get_prime_minister_cabinet_index(bill_proposal_date: str|None=None) -> Dict[str, str]:
+async def get_prime_minister_cabinet_index(bill_proposal_date: str|None=None) -> dict[str, str]:
     
     # Initiate client
     apollo_client = get_apollo_client()
@@ -265,8 +268,8 @@ async def get_prime_minister_cabinet_index(bill_proposal_date: str|None=None) ->
     return cabinets_index
     
 def update_bill_info(
-    bill_info: Dict[str, Any],
-    event_info: Dict[str, Any]
+    bill_info: dict[str, Any],
+    event_info: dict[str, Any]
 ) -> None:
     # Check proposal_date
     proposal_date = bill_info.get('proposal_date', None)
@@ -385,8 +388,8 @@ def update_bill_info(
     return
 
 def update_bill_co_proposer(
-    bill_info: Dict[str, Any],
-    event_info: Dict[str, Any]
+    bill_info: dict[str, Any],
+    event_info: dict[str, Any]
 ) -> None:
     
     # Initiate client
@@ -400,9 +403,9 @@ def update_bill_co_proposer(
     co_proposers = event_info['co_proposer']
     
     # Get unique party's name
-    parties_name = list(set(
-        [d.get('party_name', '') for d in co_proposers]
-    ))
+    parties_name = list({
+        d.get('party_name', '') for d in co_proposers
+    })
     # Get all politician in all parties
     politicians_name = []
     for party in parties_name:
@@ -454,12 +457,10 @@ def update_bill_co_proposer(
                 
     asyncio.run(update_multiple_co_proposer())
         
-    return
-
 def update_bill_data(
     lis_id: int, 
     acceptance_number: str,
-    data: Dict[str, Any]
+    data: dict[str, Any]
 ) -> None:
     
     # Initiate client
@@ -470,7 +471,7 @@ def update_bill_data(
     # Check validity of the field
     valid_property = asyncio.run(get_allowed_fields_for_type(client=apollo_client, type_name='Bill'))
     
-    if any(key not in valid_property for key in data.keys()):
+    if any(key not in valid_property for key in data):
         raise KeyError("Invalid key")
     
     # Construct update param
@@ -497,7 +498,7 @@ def update_bill_data(
     ))
  
 async def create_bills_in_chunk(
-    params: List[Dict[str, Any]],
+    params: list[dict[str, Any]],
     batch_size: int|None=None
 ) -> None:
     
@@ -505,11 +506,11 @@ async def create_bills_in_chunk(
     apollo_client = get_apollo_client()
 
     T = TypeVar('T')
-    def chunker(seq: List[T], size:int) -> List[List[T]]:
+    def chunker(seq: list[T], size:int) -> list[list[T]]:
         return [seq[pos:pos + size] for pos in range(0, len(seq), size)]
     
     # Check & Exclude any param with long connection param
-    long_params:List[Dict] = []
+    long_params:list[dict] = []
     if any(
         len(param.get('co_proposers', {}).get('connect', [])) > 10\
             for param in params
@@ -544,7 +545,6 @@ async def create_bills_in_chunk(
         _first_five = co_proposer_conn[:5]
         co_proposer_conn = co_proposer_conn[5:] # remove first 5 connects
         
-        import json
         # Create bill
         param['co_proposers']['connect'] = _first_five
         results = await create_bill(
@@ -582,5 +582,4 @@ async def create_bills_in_chunk(
             )
             print(f"\tAdded bill's co-proposers total : {len(connect_chunk)} people")
             await asyncio.sleep(3)
-    
-    return
+            
