@@ -205,9 +205,11 @@ async def get_prime_minister_cabinet_index(bill_proposal_date: str|None=None) ->
     param = {
         "where": {
             "memberships": {
-                "post": {
-                    "role": {
-                        "eq": "นายกรัฐมนตรี"
+                "some": {
+                    "post": {
+                        "role": {
+                            "eq": "นายกรัฐมนตรี"
+                        }
                     }
                 }
             }
