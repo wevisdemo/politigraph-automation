@@ -1,16 +1,22 @@
-from typing import List, Dict, Any, Hashable
 import asyncio
-from gql import Client
+from typing import Any
+
+from cachetools import TTLCache, cached
 
 from .apollo_connector import get_apollo_client
-from .query_helper.royal_assent_event import create_royal_assent_event, update_royal_assent_event
-from .query_helper.enact_event import create_enact_event, update_enact_event
-from .query_helper.reject_event import create_reject_event, update_reject_event
 from .query_helper.bill_vote_event import create_bill_vote_event, update_bill_vote_event
 from .query_helper.bills import update_bill
-from .query_helper.merge_event import get_merge_events, create_merge_event, update_merge_event
+from .query_helper.enact_event import create_enact_event, update_enact_event
+from .query_helper.merge_event import (
+    create_merge_event,
+    get_merge_events,
+)
+from .query_helper.reject_event import create_reject_event, update_reject_event
+from .query_helper.royal_assent_event import (
+    create_royal_assent_event,
+    update_royal_assent_event,
+)
 
-from cachetools import cached, TTLCache
 
 def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
@@ -50,7 +56,7 @@ async def get_bill_merge_events(id: str|None, include_updated_events:bool=False)
 #VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV#
 
 async def create_bill_vote_event_in_chunk(
-    params: List[Dict[str, Any]],
+    params: list[dict[str, Any]],
     batch_size: int=5
 ) -> None:
     
@@ -66,10 +72,8 @@ async def create_bill_vote_event_in_chunk(
         )
         await asyncio.sleep(2)
     
-    return
-
 async def create_bill_merge_event_in_chunk(
-    params: List[Dict[str, Any]],
+    params: list[dict[str, Any]],
     batch_size: int=5
 ) -> None:
     
@@ -85,10 +89,8 @@ async def create_bill_merge_event_in_chunk(
         )
         await asyncio.sleep(2)
     
-    return
-
 async def create_bill_royal_assent_event_in_chunk(
-    params: List[Dict[str, Any]],
+    params: list[dict[str, Any]],
     batch_size: int=5
 ) -> None:
     
@@ -104,10 +106,8 @@ async def create_bill_royal_assent_event_in_chunk(
         )
         await asyncio.sleep(2)
     
-    return
-
 async def create_bill_enact_event_in_chunk(
-    params: List[Dict[str, Any]],
+    params: list[dict[str, Any]],
     batch_size: int=5
 ) -> None:
     
@@ -145,10 +145,8 @@ async def create_bill_enact_event_in_chunk(
         )
         await asyncio.sleep(2)
     
-    return
-
 async def create_bill_reject_event_in_chunk(
-    params: List[Dict[str, Any]],
+    params: list[dict[str, Any]],
     batch_size: int=5
 ) -> None:
     
@@ -187,13 +185,11 @@ async def create_bill_reject_event_in_chunk(
         )
         await asyncio.sleep(2)
     
-    return
-
 ############################### UPDATE ###############################
 #VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV#
 
 async def update_bill_vote_events(
-    params: List[Dict[str, Any]]
+    params: list[dict[str, Any]]
 ) -> None:
     
     # Initiate client
@@ -206,10 +202,8 @@ async def update_bill_vote_events(
         )
         await asyncio.sleep(2)
         
-    return
-
 async def update_bill_royal_assent_events(
-    params: List[Dict[str, Any]]
+    params: list[dict[str, Any]]
 ) -> None:
     
     # Initiate client
@@ -222,10 +216,8 @@ async def update_bill_royal_assent_events(
         )
         await asyncio.sleep(2)
         
-    return
-
 async def update_bill_enact_events(
-    params: List[Dict[str, Any]]
+    params: list[dict[str, Any]]
 ) -> None:
     
     # Initiate client
@@ -238,10 +230,8 @@ async def update_bill_enact_events(
         )
         await asyncio.sleep(2)
         
-    return
-
 async def update_bill_reject_events(
-    params: List[Dict[str, Any]]
+    params: list[dict[str, Any]]
 ) -> None:
     
     # Initiate client
@@ -254,8 +244,6 @@ async def update_bill_reject_events(
         )
         await asyncio.sleep(2)
         
-    return
-
 ############################### NEW VERSION ###############################
 #VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV#
 
